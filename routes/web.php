@@ -39,6 +39,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     // Projects
     Route::get('/projects', [CmsController::class, 'projectsIndex'])->name('projects.index');
     Route::post('/projects', [CmsController::class, 'storeProject'])->name('projects.store');
+    Route::patch('/projects/{project}', [CmsController::class, 'updateProject'])->name('projects.update');
     Route::delete('/projects/{project}', [CmsController::class, 'deleteProject'])->name('projects.destroy');
 
     // Testimonials

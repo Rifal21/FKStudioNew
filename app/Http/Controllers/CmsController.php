@@ -185,8 +185,24 @@ class CmsController extends Controller
 
     public function deleteProject(Project $project)
     {
+        if ($project->image) {
+            Storage::disk('public')->delete($project->image);
+        }
         $project->delete();
         return redirect()->back()->with('success', 'Project deleted');
+    }
+
+    public function updateProject(Request $request, Project $project)
+    {
+        $data = $request->all();
+        if ($request->hasFile('image')) {
+            if ($project->image) {
+                Storage::disk('public')->delete($project->image);
+            }
+            $data['image'] = $request->file('image')->store('projects', 'public');
+        }
+        $project->update($data);
+        return redirect()->back()->with('success', 'Project updated successfully');
     }
 
     public function testimonialsIndex()
