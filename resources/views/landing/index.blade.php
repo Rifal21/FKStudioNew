@@ -169,17 +169,16 @@
                     class="text-sm font-medium hover:text-blue-400 transition-colors uppercase tracking-widest">{{ app()->getLocale() == 'id' ? 'Layanan' : 'Services' }}</a>
                 <a href="#portfolio"
                     class="text-sm font-medium hover:text-blue-400 transition-colors uppercase tracking-widest">{{ app()->getLocale() == 'id' ? 'Proyek' : 'Projects' }}</a>
+                <a href="#owners" {{-- class="text-sm font-medium hover:text-blue-400 transition-colors uppercase tracking-widest">{{ app()->getLocale() == 'id' ? 'Owner' : 'Owner' }}</a> --}} <!-- Language Switcher -->
+                    <div class="flex items-center space-x-2 border-l border-slate-700 pl-6 ml-6">
+                        <a href="{{ url('switch-language/id') }}"
+                            class="text-xs transition-colors {{ app()->getLocale() == 'id' ? 'text-blue-400 font-bold' : 'text-slate-500 hover:text-white' }}">ID</a>
+                        <span class="text-slate-700">|</span>
+                        <a href="{{ url('switch-language/en') }}"
+                            class="text-xs transition-colors {{ app()->getLocale() == 'en' ? 'text-blue-400 font-bold' : 'text-slate-500 hover:text-white' }}">EN</a>
+                    </div>
 
-                <!-- Language Switcher -->
-                <div class="flex items-center space-x-2 border-l border-slate-700 pl-6 ml-6">
-                    <a href="{{ url('switch-language/id') }}"
-                        class="text-xs transition-colors {{ app()->getLocale() == 'id' ? 'text-blue-400 font-bold' : 'text-slate-500 hover:text-white' }}">ID</a>
-                    <span class="text-slate-700">|</span>
-                    <a href="{{ url('switch-language/en') }}"
-                        class="text-xs transition-colors {{ app()->getLocale() == 'en' ? 'text-blue-400 font-bold' : 'text-slate-500 hover:text-white' }}">EN</a>
-                </div>
-
-                {{-- @auth
+                    {{-- @auth
                     <a href="{{ route('dashboard') }}"
                         class="px-5 py-2 bg-slate-800 text-white rounded-full text-sm font-bold border border-slate-700 hover:border-slate-500 transition-all">Admin</a>
                 @else
@@ -527,6 +526,62 @@
                                 class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all">
                                 <i class="fa-solid fa-arrow-right -rotate-45"></i>
                             </a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    <!-- Owners / Team Section -->
+    <section id="owners" class="py-20 md:py-32 bg-slate-950/20">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 md:mb-24" data-aos="fade-up">
+                <h2 class="text-4xl md:text-6xl font-black mb-4 tracking-tighter uppercase tracking-widest">
+                    {{ app()->getLocale() == 'id' ? 'Kenali Kami' : 'Get To Know Us' }}</h2>
+                <div class="w-24 h-1 bg-blue-600 mx-auto mb-6"></div>
+                <p class="text-slate-400 text-sm md:text-lg max-w-xl mx-auto">
+                    {{ app()->getLocale() == 'id' ? 'Di balik setiap karya hebat, ada orang-orang hebat.' : 'Behind every great work is a great people.' }}
+                </p>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-8 md:gap-14 px-4 overflow-hidden">
+                @foreach ($owners as $owner)
+                    <div class="group w-full sm:w-[calc(50%-2rem)] lg:w-[calc(33.333%-4rem)] max-w-[450px]"
+                        data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                        <div
+                            class="relative aspect-[3/4] overflow-hidden rounded-[2.5rem] md:rounded-[4rem] bg-slate-900 shadow-2xl mb-8 group-hover:shadow-blue-500/10 transition-all duration-500">
+                            <img src="{{ asset('storage/' . $owner->image) }}"
+                                class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+
+                            <!-- Social Floating Overlay -->
+                            <div
+                                class="absolute bottom-8 right-8 flex flex-col space-y-3 translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 z-10">
+                                @if ($owner->instagram_url)
+                                    <a href="{{ $owner->instagram_url }}" target="_blank"
+                                        class="w-12 h-12 glass rounded-2xl flex items-center justify-center text-white hover:bg-pink-600 transition-all shadow-xl">
+                                        <i class="fa-brands fa-instagram text-xl"></i>
+                                    </a>
+                                @endif
+                                @if ($owner->linkedin_url)
+                                    <a href="{{ $owner->linkedin_url }}" target="_blank"
+                                        class="w-12 h-12 glass rounded-2xl flex items-center justify-center text-white hover:bg-blue-600 transition-all shadow-xl">
+                                        <i class="fa-brands fa-linkedin text-xl"></i>
+                                    </a>
+                                @endif
+                            </div>
+
+                            <div
+                                class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-80">
+                            </div>
+
+                            <div class="absolute bottom-8 left-8 pr-16">
+                                <h4 class="text-2xl font-black text-white group-hover:text-blue-400 transition-colors">
+                                    {{ $owner->name }}</h4>
+                                <p
+                                    class="text-blue-500 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] mt-1">
+                                    {{ $owner->getTranslation('role') }}</p>
+                            </div>
                         </div>
                     </div>
                 @endforeach

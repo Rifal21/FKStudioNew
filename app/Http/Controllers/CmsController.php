@@ -9,6 +9,7 @@ use App\Models\Service;
 use App\Models\Project;
 use App\Models\Testimonial;
 use App\Models\Client;
+use App\Models\Owner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -19,8 +20,9 @@ class CmsController extends Controller
         $servicesCount = Service::count();
         $projectsCount = Project::count();
         $testimonialsCount = Testimonial::count();
+        $ownersCount = Owner::count();
         
-        return view('dashboard', compact('servicesCount', 'projectsCount', 'testimonialsCount'));
+        return view('dashboard', compact('servicesCount', 'projectsCount', 'testimonialsCount', 'ownersCount'));
     }
 
     // Site Settings
@@ -255,5 +257,40 @@ class CmsController extends Controller
         Storage::disk('public')->delete($client->logo);
         $client->delete();
         return redirect()->back()->with('success', 'Client removed');
+    }
+
+    // Owners CRUD
+    public function ownersIndex()
+    {
+        $owners = Owner::orderBy('created_at', 'desc')->get();
+        return view('dashboard.owners.index', compact('owners'));
+    }
+
+    public function storeOwner(Request $request)
+    {
+        $data = $request->except(['image']);
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('owners', 'public');
+        }
+        Owner::create($data);
+        return redirect()->back()->with('success', 'Owner added successfully');
+    }
+
+    public function updateOwner(Request $request, Owner $owner)
+    {
+        $data = $request->except(['image']);
+        if ($request->hasFile('image')) {
+            if ($owner->image) Storage::disk('public')->delete($owner->image);
+            $data['image'] = $request->file('image')->store('owners', 'public');
+        }
+        $owner->update($data);
+        return redirect()->back()->with('success', 'Owner updated successfully');
+    }
+
+    public function deleteOwner(Owner $owner)
+    {
+        if ($owner->image) Storage::disk('public')->delete($owner->image);
+        $owner->delete();
+        return redirect()->back()->with('success', 'Owner deleted successfully');
     }
 }
