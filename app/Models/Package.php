@@ -4,18 +4,22 @@ namespace App\Models;
 
 use App\Traits\HasUuid;
 use App\Traits\HasTranslations;
-use App\Traits\HasMediaUrl;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Owner extends Model
+class Package extends Model
 {
-    use HasFactory, HasUuid, HasTranslations, HasMediaUrl;
-
+    use HasFactory, HasUuid, HasTranslations;
 
     public $incrementing = false;
     protected $keyType = "string";
 
     protected $guarded = [];
+
+    protected $casts = [
+        'features_id' => 'array',
+        'features_en' => 'array',
+        'is_active' => 'boolean',
+        'is_featured' => 'boolean',
+    ];
 }

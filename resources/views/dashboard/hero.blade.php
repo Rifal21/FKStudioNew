@@ -1,120 +1,175 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Hero Section Settings') }}
-        </h2>
+        {{ __('Hero Section') }}
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 text-gray-900">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <!-- Left Column: Settings Form -->
+        <div class="lg:col-span-2 space-y-8" data-aos="fade-right">
+            <div class="glass p-8 rounded-[3rem] shadow-xl relative overflow-hidden">
+                <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
+                
+                <h3 class="text-2xl font-black text-slate-900 mb-8 flex items-center">
+                    <span class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fa-solid fa-i-cursor"></i>
+                    </span>
+                    Text Content
+                </h3>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                <!-- Left Column: Settings Form -->
-                <div class="lg:col-span-2 space-y-6">
-                    <form action="{{ route('dashboard.hero.update') }}" method="POST" enctype="multipart/form-data"
-                        class="space-y-6">
-                        @csrf
-                        <div class="bg-white p-6 shadow rounded-lg">
-                            <h3 class="text-lg font-bold mb-6 border-b pb-2">Main Heading & Subtitle</h3>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <!-- Indonesian Section -->
-                                <div class="space-y-4 border-r pr-8">
-                                    <span
-                                        class="inline-block px-3 py-1 bg-blue-100 text-blue-600 rounded text-xs font-bold uppercase mb-2 leading-none">Indonesian
-                                        (Primary)</span>
-                                    <div>
-                                        <label class="block text-sm font-medium">Hero Title (ID)</label>
-                                        <input type="text" name="title_id" value="{{ $hero->title_id }}"
-                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium">Hero Subtitle (ID)</label>
-                                        <textarea name="subtitle_id" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">{{ $hero->subtitle_id }}</textarea>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium">CTA Button Text (ID)</label>
-                                        <input type="text" name="cta_text_id" value="{{ $hero->cta_text_id }}"
-                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                    </div>
-                                </div>
-
-                                <!-- English Section -->
-                                <div class="space-y-4">
-                                    <span
-                                        class="inline-block px-3 py-1 bg-indigo-100 text-indigo-600 rounded text-xs font-bold uppercase mb-2 leading-none">English</span>
-                                    <div>
-                                        <label class="block text-sm font-medium">Hero Title (EN)</label>
-                                        <input type="text" name="title_en" value="{{ $hero->title_en }}"
-                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium">Hero Subtitle (EN)</label>
-                                        <textarea name="subtitle_en" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">{{ $hero->subtitle_en }}</textarea>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium">CTA Button Text (EN)</label>
-                                        <input type="text" name="cta_text_en" value="{{ $hero->cta_text_en }}"
-                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                    </div>
-                                </div>
+                <form action="{{ route('dashboard.hero.update') }}" method="POST" class="space-y-10">
+                    @csrf
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <!-- Indonesian Section -->
+                        <div class="space-y-6 relative">
+                            <div class="absolute -left-4 top-0 bottom-0 w-1 bg-blue-500 rounded-full"></div>
+                            <span class="inline-flex items-center px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest leading-none">
+                                <i class="fa-solid fa-flag mr-2"></i> Indonesian
+                            </span>
+                            
+                            <div class="space-y-2">
+                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Main Title</label>
+                                <input type="text" name="title_id" value="{{ $hero->title_id }}"
+                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">
                             </div>
+                            
+                            <div class="space-y-2">
+                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Subtitle Description</label>
+                                <textarea name="subtitle_id" rows="4" 
+                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium leading-relaxed">{{ $hero->subtitle_id }}</textarea>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Button Label</label>
+                                <input type="text" name="cta_text_id" value="{{ $hero->cta_text_id }}"
+                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">
+                            </div>
+                        </div>
 
-                            <div class="mt-6">
-                                <label class="block text-sm font-medium">CTA Link (URL)</label>
+                        <!-- English Section -->
+                        <div class="space-y-6 relative">
+                            <div class="absolute -left-4 top-0 bottom-0 w-1 bg-indigo-500 rounded-full"></div>
+                            <span class="inline-flex items-center px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest leading-none">
+                                <i class="fa-solid fa-earth-americas mr-2"></i> English
+                            </span>
+                            
+                            <div class="space-y-2">
+                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Main Title</label>
+                                <input type="text" name="title_en" value="{{ $hero->title_en }}"
+                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 transition-all font-medium">
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Subtitle Description</label>
+                                <textarea name="subtitle_en" rows="4" 
+                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 transition-all font-medium leading-relaxed">{{ $hero->subtitle_en }}</textarea>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Button Label</label>
+                                <input type="text" name="cta_text_en" value="{{ $hero->cta_text_en }}"
+                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 transition-all font-medium">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-100">
+                        <div class="space-y-2 max-w-md">
+                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Call to Action Link</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-link"></i>
+                                </div>
                                 <input type="text" name="cta_link" value="{{ $hero->cta_link }}"
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 pl-12 focus:ring-2 focus:ring-blue-500 transition-all font-bold text-blue-600"
                                     placeholder="#contact">
                             </div>
                         </div>
+                    </div>
 
-                        <div class="flex justify-end">
-                            <button type="submit"
-                                class="px-8 py-3 bg-blue-600 text-white font-black rounded-xl hover:bg-blue-700 shadow-xl shadow-blue-500/20 transition-all uppercase tracking-widest text-sm">Update
-                                Hero Text</button>
+                    <div class="flex justify-end pt-4">
+                        <button type="submit"
+                            class="px-10 py-5 bg-slate-900 text-white font-black rounded-[2rem] hover:bg-black hover:scale-105 shadow-2xl shadow-slate-900/20 transition-all uppercase tracking-[0.2em] text-xs">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Column: Slider Management -->
+        <div class="space-y-8" data-aos="fade-left">
+            <div class="glass p-8 rounded-[3rem] shadow-xl">
+                <h3 class="text-xl font-black text-slate-900 mb-8 flex items-center">
+                    <span class="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fa-solid fa-images"></i>
+                    </span>
+                    Background Slider
+                </h3>
+
+                <form action="{{ route('dashboard.hero.slides.store') }}" method="POST"
+                    enctype="multipart/form-data"
+                    x-data="{ 
+                        preview: null,
+                        handleFileChange(e) {
+                            const file = e.target.files[0];
+                            if (file) {
+                                this.preview = URL.createObjectURL(file);
+                            }
+                        }
+                    }"
+                    class="mb-10 p-8 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200 hover:border-blue-400 transition-colors group text-center relative overflow-hidden">
+                    @csrf
+                    
+                    <div x-show="preview" class="absolute inset-0 z-10 bg-white">
+                        <img :src="preview" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center space-y-3">
+                            <button type="submit" class="px-8 py-3 bg-blue-600 text-white font-black rounded-xl hover:bg-blue-700 shadow-xl shadow-blue-500/20 transition-all uppercase tracking-widest text-[10px]">
+                                Confirm Upload
+                            </button>
+                            <button type="button" @click="preview = null; $refs.fileInput.value = ''" class="px-8 py-3 bg-white text-slate-900 font-black rounded-xl hover:bg-slate-100 transition-all uppercase tracking-widest text-[10px]">
+                                Cancel
+                            </button>
                         </div>
-                    </form>
-                </div>
+                    </div>
 
-                <!-- Right Column: Slider Management -->
+                    <div class="mb-4 w-16 h-16 bg-white rounded-2xl shadow-sm mx-auto flex items-center justify-center text-slate-400 group-hover:text-blue-500 transition-colors">
+                        <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+                    </div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-6 group-hover:text-slate-600">Upload New Slide</label>
+                    <input type="file" name="image" required id="slide-upload" x-ref="fileInput" class="hidden" @change="handleFileChange">
+                    <label for="slide-upload" class="cursor-pointer inline-flex px-8 py-3 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-900 hover:text-white transition-all">
+                        Choose File
+                    </label>
+                </form>
+
                 <div class="space-y-6">
-                    <div class="bg-white p-6 shadow rounded-lg">
-                        <h3 class="text-lg font-bold mb-6 border-b pb-2">Background Slider</h3>
-
-                        <form action="{{ route('dashboard.hero.slides.store') }}" method="POST"
-                            enctype="multipart/form-data"
-                            class="mb-8 p-4 bg-slate-50 rounded-xl border-2 border-dashed">
-                            @csrf
-                            <label class="block text-sm font-bold uppercase tracking-widest text-slate-500 mb-2">Add New
-                                Slide</label>
-                            <input type="file" name="image" required
-                                class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-4">
-                            <button type="submit"
-                                class="w-full py-2 bg-slate-900 text-white font-bold rounded-lg hover:bg-black transition-colors">Upload
-                                Slide</button>
-                        </form>
-
-                        <div class="space-y-4">
-                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Slides</p>
-                            @forelse($slides as $slide)
-                                <div class="relative group rounded-xl overflow-hidden border">
-                                    <img src="{{ asset('storage/' . $slide->image) }}"
-                                        class="w-full h-32 object-cover">
-                                    <div
-                                        class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <form action="{{ route('dashboard.hero.slides.destroy', $slide) }}"
-                                            method="POST" onsubmit="return confirm('Hapus slide ini?')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit"
-                                                class="px-4 py-2 bg-red-600 text-white rounded-lg font-bold text-xs uppercase tracking-widest">Delete</button>
-                                        </form>
-                                    </div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Active Slides ({{ count($slides) }})</p>
+                    <div class="grid grid-cols-1 gap-4">
+                        @forelse($slides as $slide)
+                            <div class="group relative rounded-[2rem] overflow-hidden aspect-[16/9] bg-slate-100 border-4 border-white shadow-lg card-hover">
+                                <img src="{{ $slide->media_url }}"
+                                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center p-6">
+                                    <form action="{{ route('dashboard.hero.slides.destroy', $slide) }}"
+                                        method="POST" onsubmit="return confirm('Hapus slide ini?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit"
+                                            class="px-6 py-3 bg-red-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-colors flex items-center">
+                                            <i class="fa-solid fa-trash-can mr-2"></i> Delete Slide
+                                        </button>
+                                    </form>
                                 </div>
-                            @empty
-                                <div class="text-center py-8 text-slate-400 italic text-sm">No slider images yet. Using
-                                    default.</div>
-                            @endforelse
-                        </div>
+                                <div class="absolute top-4 left-4">
+                                    <span class="px-3 py-1 bg-black/40 backdrop-blur-md text-white rounded-lg text-[10px] font-bold">#{{ $loop->iteration }}</span>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-12 glass rounded-[2rem] border-2 border-dashed">
+                                <i class="fa-solid fa-film text-4xl text-slate-200 mb-4 block"></i>
+                                <span class="text-slate-400 font-medium">No slider images yet</span>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </div>

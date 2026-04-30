@@ -11,6 +11,7 @@ use App\Models\Testimonial;
 use App\Models\HeroSlide;
 use App\Models\Client;
 use App\Models\Owner;
+use App\Models\Package;
 use Illuminate\Http\Request;
 
 class LandingController extends Controller
@@ -27,8 +28,9 @@ class LandingController extends Controller
         $testimonials = Testimonial::orderBy('created_at', 'desc')->get();
         $clients = Client::orderBy('order')->get();
         $owners = Owner::where('is_active', true)->orderBy('created_at', 'desc')->get();
+        $packages = Package::where('is_active', true)->orderBy('order')->get();
 
-        return view('landing.index', compact('settings', 'hero', 'heroSlides', 'about', 'aboutSlides', 'services', 'projects', 'testimonials', 'clients', 'owners'));
+        return view('landing.index', compact('settings', 'hero', 'heroSlides', 'about', 'aboutSlides', 'services', 'projects', 'testimonials', 'clients', 'owners', 'packages'));
     }
 
     public function switchLanguage($locale)

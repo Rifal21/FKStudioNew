@@ -10,19 +10,24 @@ use App\Models\Project;
 use App\Models\Testimonial;
 use App\Models\Client;
 use App\Models\Owner;
+use App\Models\Package;
+use App\Traits\NextcloudStorage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class CmsController extends Controller
 {
+    use NextcloudStorage;
+
     public function dashboard()
     {
         $servicesCount = Service::count();
         $projectsCount = Project::count();
         $testimonialsCount = Testimonial::count();
         $ownersCount = Owner::count();
+        $packagesCount = Package::count();
         
-        return view('dashboard', compact('servicesCount', 'projectsCount', 'testimonialsCount', 'ownersCount'));
+        return view('dashboard', compact('servicesCount', 'projectsCount', 'testimonialsCount', 'ownersCount', 'packagesCount'));
     }
 
     // Site Settings
@@ -38,15 +43,19 @@ class CmsController extends Controller
         $data = $request->except(['_token', 'site_logo', 'site_favicon', 'social']);
         
         if ($request->has('social')) {
-            $data['social_links'] = json_encode($request->social);
+            $data['social_links'] = $request->social;
         }
+
         
         if ($request->hasFile('site_logo')) {
-            $data['site_logo'] = $request->file('site_logo')->store('site', 'public');
+            if ($settings->site_logo) $this->deleteFromNextcloud($settings->site_logo);
+            $data['site_logo'] = $this->uploadToNextcloud($request->file('site_logo'), 'site');
         }
         if ($request->hasFile('site_favicon')) {
-            $data['site_favicon'] = $request->file('site_favicon')->store('site', 'public');
+            if ($settings->site_favicon) $this->deleteFromNextcloud($settings->site_favicon);
+            $data['site_favicon'] = $this->uploadToNextcloud($request->file('site_favicon'), 'site');
         }
+
 
         $settings->update($data);
         return redirect()->back()->with('success', 'Settings updated successfully');
@@ -66,8 +75,10 @@ class CmsController extends Controller
         $data = $request->except(['_token', 'image']);
         
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('hero', 'public');
+            if ($hero->image) $this->deleteFromNextcloud($hero->image);
+            $data['image'] = $this->uploadToNextcloud($request->file('image'), 'hero');
         }
+
 
         $hero->update($data);
         return redirect()->back()->with('success', 'Hero updated successfully');
@@ -76,16 +87,18 @@ class CmsController extends Controller
     public function storeHeroSlide(Request $request)
     {
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('hero/slides', 'public');
+            $path = $this->uploadToNextcloud($request->file('image'), 'hero/slides');
             \App\Models\HeroSlide::create(['image' => $path, 'order' => \App\Models\HeroSlide::count()]);
         }
+
         return redirect()->back()->with('success', 'Slide added');
     }
 
     public function deleteHeroSlide(\App\Models\HeroSlide $slide)
     {
-        Storage::disk('public')->delete($slide->image);
+        $this->deleteFromNextcloud($slide->image);
         $slide->delete();
+
         return redirect()->back()->with('success', 'Slide deleted');
     }
 
@@ -94,7 +107,8 @@ class CmsController extends Controller
     {
         $about = AboutSection::first();
         $slides = \App\Models\AboutSlide::all();
-        return view('dashboard.about', compact('about', 'slides'));
+        $owners = Owner::orderBy('created_at', 'desc')->get();
+        return view('dashboard.about', compact('about', 'slides', 'owners'));
     }
 
     public function updateAbout(Request $request)
@@ -102,24 +116,18 @@ class CmsController extends Controller
         $about = AboutSection::first();
 
         // Only pick the valid translatable columns
-        $data = $request->only(['title_id', 'title_en', 'description_id', 'description_en']);
+        $data = $request->only([
+            'title_id', 'title_en', 
+            'description_id', 'description_en',
+            'vision_id', 'vision_en',
+            'mission_id', 'mission_en'
+        ]);
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('about', 'public');
+            if ($about->image) $this->deleteFromNextcloud($about->image);
+            $data['image'] = $this->uploadToNextcloud($request->file('image'), 'about');
         }
 
-        // Stats to JSON
-        $stats = [];
-        if ($request->has('stats_labels_id')) {
-            foreach ($request->stats_labels_id as $key => $val) {
-                $stats[] = [
-                    'label_id' => $val,
-                    'label_en' => $request->stats_labels_en[$key],
-                    'value'    => $request->stats_values[$key],
-                ];
-            }
-        }
-        $data['stats'] = json_encode($stats);
 
         $about->update($data);
         return redirect()->back()->with('success', 'About updated successfully');
@@ -128,16 +136,18 @@ class CmsController extends Controller
     public function storeAboutSlide(Request $request)
     {
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('about/slides', 'public');
+            $path = $this->uploadToNextcloud($request->file('image'), 'about/slides');
             \App\Models\AboutSlide::create(['image' => $path]);
         }
+
         return redirect()->back()->with('success', 'Slide added');
     }
 
     public function deleteAboutSlide(\App\Models\AboutSlide $slide)
     {
-        Storage::disk('public')->delete($slide->image);
+        $this->deleteFromNextcloud($slide->image);
         $slide->delete();
+
         return redirect()->back()->with('success', 'Slide deleted');
     }
 
@@ -177,8 +187,9 @@ class CmsController extends Controller
     {
         $data = $request->all();
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('projects', 'public');
+            $data['image'] = $this->uploadToNextcloud($request->file('image'), 'projects');
         }
+
         Project::create($data);
         return redirect()->back()->with('success', 'Project added');
     }
@@ -186,9 +197,10 @@ class CmsController extends Controller
     public function deleteProject(Project $project)
     {
         if ($project->image) {
-            Storage::disk('public')->delete($project->image);
+            $this->deleteFromNextcloud($project->image);
         }
         $project->delete();
+
         return redirect()->back()->with('success', 'Project deleted');
     }
 
@@ -197,10 +209,11 @@ class CmsController extends Controller
         $data = $request->all();
         if ($request->hasFile('image')) {
             if ($project->image) {
-                Storage::disk('public')->delete($project->image);
+                $this->deleteFromNextcloud($project->image);
             }
-            $data['image'] = $request->file('image')->store('projects', 'public');
+            $data['image'] = $this->uploadToNextcloud($request->file('image'), 'projects');
         }
+
         $project->update($data);
         return redirect()->back()->with('success', 'Project updated successfully');
     }
@@ -216,8 +229,9 @@ class CmsController extends Controller
         $data = $request->except(['avatar']);
         
         if ($request->hasFile('avatar')) {
-            $data['avatar'] = $request->file('avatar')->store('testimonials', 'public');
+            $data['avatar'] = $this->uploadToNextcloud($request->file('avatar'), 'testimonials');
         }
+
 
         Testimonial::create($data);
         return redirect()->back()->with('success', 'Testimonial added successfully');
@@ -229,10 +243,11 @@ class CmsController extends Controller
         
         if ($request->hasFile('avatar')) {
             if ($testimonial->avatar) {
-                Storage::disk('public')->delete($testimonial->avatar);
+                $this->deleteFromNextcloud($testimonial->avatar);
             }
-            $data['avatar'] = $request->file('avatar')->store('testimonials', 'public');
+            $data['avatar'] = $this->uploadToNextcloud($request->file('avatar'), 'testimonials');
         }
+
 
         $testimonial->update($data);
         return redirect()->back()->with('success', 'Testimonial updated successfully');
@@ -241,9 +256,10 @@ class CmsController extends Controller
     public function deleteTestimonial(Testimonial $testimonial)
     {
         if ($testimonial->avatar) {
-            Storage::disk('public')->delete($testimonial->avatar);
+            $this->deleteFromNextcloud($testimonial->avatar);
         }
         $testimonial->delete();
+
         return redirect()->back()->with('success', 'Testimonial deleted successfully');
     }
 
@@ -257,7 +273,7 @@ class CmsController extends Controller
     public function storeClient(Request $request)
     {
         if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('clients', 'public');
+            $path = $this->uploadToNextcloud($request->file('logo'), 'clients');
             Client::create([
                 'name'  => $request->name,
                 'logo'  => $path,
@@ -265,13 +281,15 @@ class CmsController extends Controller
                 'order' => Client::count(),
             ]);
         }
+
         return redirect()->back()->with('success', 'Client added');
     }
 
     public function deleteClient(Client $client)
     {
-        Storage::disk('public')->delete($client->logo);
+        $this->deleteFromNextcloud($client->logo);
         $client->delete();
+
         return redirect()->back()->with('success', 'Client removed');
     }
 
@@ -286,8 +304,9 @@ class CmsController extends Controller
     {
         $data = $request->except(['image']);
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('owners', 'public');
+            $data['image'] = $this->uploadToNextcloud($request->file('image'), 'owners');
         }
+
         Owner::create($data);
         return redirect()->back()->with('success', 'Owner added successfully');
     }
@@ -296,17 +315,64 @@ class CmsController extends Controller
     {
         $data = $request->except(['image']);
         if ($request->hasFile('image')) {
-            if ($owner->image) Storage::disk('public')->delete($owner->image);
-            $data['image'] = $request->file('image')->store('owners', 'public');
+            if ($owner->image) $this->deleteFromNextcloud($owner->image);
+            $data['image'] = $this->uploadToNextcloud($request->file('image'), 'owners');
         }
+
         $owner->update($data);
         return redirect()->back()->with('success', 'Owner updated successfully');
     }
 
     public function deleteOwner(Owner $owner)
     {
-        if ($owner->image) Storage::disk('public')->delete($owner->image);
+        if ($owner->image) $this->deleteFromNextcloud($owner->image);
         $owner->delete();
+
         return redirect()->back()->with('success', 'Owner deleted successfully');
+    }
+
+    // Packages CRUD
+    public function packagesIndex()
+    {
+        $packages = Package::orderBy('order')->get();
+        return view('dashboard.packages.index', compact('packages'));
+    }
+
+    public function storePackage(Request $request)
+    {
+        $data = $request->all();
+        
+        // Handle features as newline separated strings
+        if ($request->has('features_id_raw')) {
+            $data['features_id'] = array_filter(array_map('trim', explode("\n", $request->features_id_raw)));
+        }
+        if ($request->has('features_en_raw')) {
+            $data['features_en'] = array_filter(array_map('trim', explode("\n", $request->features_en_raw)));
+        }
+
+        Package::create($data);
+        return redirect()->back()->with('success', 'Package added successfully');
+    }
+
+    public function updatePackage(Request $request, Package $package)
+    {
+        $data = $request->all();
+
+        // Handle features as newline separated strings
+        if ($request->has('features_id_raw')) {
+            $data['features_id'] = array_filter(array_map('trim', explode("\n", $request->features_id_raw)));
+        }
+        if ($request->has('features_en_raw')) {
+            $data['features_en'] = array_filter(array_map('trim', explode("\n", $request->features_en_raw)));
+        }
+
+        $package->update($data);
+        return redirect()->back()->with('success', 'Package updated successfully');
+    }
+
+    public function deletePackage(Package $package)
+    {
+        $package->delete();
+        return redirect()->back()->with('success', 'Package deleted successfully');
     }
 }

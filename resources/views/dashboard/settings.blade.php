@@ -1,126 +1,188 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Site Settings') }}
-        </h2>
+        {{ __('Site Settings') }}
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 text-gray-900">
+    <div class="max-w-5xl mx-auto">
+        <form action="{{ route('dashboard.settings.update') }}" method="POST" enctype="multipart/form-data" class="space-y-8 pb-20">
+            @csrf
+            
+            <!-- General Branding -->
+            <div class="glass p-8 rounded-[3rem] shadow-xl relative overflow-hidden" data-aos="fade-up">
+                <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
+                <h3 class="text-xl font-black text-slate-900 mb-8 flex items-center">
+                    <span class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fa-solid fa-brand"></i>
+                    </span>
+                    Branding & SEO
+                </h3>
 
-            <form action="{{ route('dashboard.settings.update') }}" method="POST" enctype="multipart/form-data"
-                class="space-y-6">
-                @csrf
-                <div class="bg-white p-6 shadow rounded-lg">
-                    <h3 class="text-lg font-bold mb-4 border-b pb-2">General Information</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium">Site Name</label>
-                            <input type="text" name="site_name" value="{{ $settings->site_name }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Site Name</label>
+                        <input type="text" name="site_name" value="{{ $settings->site_name }}"
+                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">SEO Meta Title</label>
+                        <input type="text" name="seo_title" value="{{ $settings->seo_title }}"
+                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">
+                    </div>
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">SEO Description</label>
+                        <textarea name="seo_description" rows="2" 
+                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">{{ $settings->seo_description }}</textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 md:col-span-2 pt-4" 
+                        x-data="{ 
+                            logoPreview: null,
+                            faviconPreview: null,
+                            handleLogo(e) {
+                                const file = e.target.files[0];
+                                if (file) this.logoPreview = URL.createObjectURL(file);
+                            },
+                            handleFavicon(e) {
+                                const file = e.target.files[0];
+                                if (file) this.faviconPreview = URL.createObjectURL(file);
+                            }
+                        }">
+                        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center space-x-4">
+                            <div class="relative group">
+                                <div class="w-16 h-16 bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center border border-slate-200">
+                                    <template x-if="logoPreview">
+                                        <img :src="logoPreview" class="w-full h-full object-contain p-1">
+                                    </template>
+                                    <template x-if="!logoPreview">
+                                        @if ($settings->site_logo)
+                                            <img src="{{ $settings->logo_url }}" class="w-full h-full object-contain p-1">
+                                        @else
+                                            <i class="fa-solid fa-image text-slate-300 text-2xl"></i>
+                                        @endif
+                                    </template>
+                                </div>
+                                <label class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-xl opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                                    <i class="fa-solid fa-camera"></i>
+                                    <input type="file" name="site_logo" class="hidden" @change="handleLogo">
+                                </label>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Site Logo</h4>
+                                <p class="text-xs text-slate-500">PNG/SVG recommended</p>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium">SEO Title</label>
-                            <input type="text" name="seo_title" value="{{ $settings->seo_title }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium">SEO Description</label>
-                            <textarea name="seo_description" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">{{ $settings->seo_description }}</textarea>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium">Site Logo</label>
-                            <input type="file" name="site_logo"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                            @if ($settings->site_logo)
-                                <img src="{{ asset('storage/' . $settings->site_logo) }}"
-                                    class="mt-2 h-12 bg-slate-100 p-1 rounded">
-                            @endif
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium">Favicon</label>
-                            <input type="file" name="site_favicon"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                            @if ($settings->site_favicon)
-                                <img src="{{ asset('storage/' . $settings->site_favicon) }}"
-                                    class="mt-2 h-8 bg-slate-100 p-1 rounded">
-                            @endif
+
+                        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center space-x-4">
+                            <div class="relative group">
+                                <div class="w-16 h-16 bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center border border-slate-200">
+                                    <template x-if="faviconPreview">
+                                        <img :src="faviconPreview" class="w-full h-full object-contain p-3">
+                                    </template>
+                                    <template x-if="!faviconPreview">
+                                        @if ($settings->site_favicon)
+                                            <img src="{{ $settings->favicon_url }}" class="w-full h-full object-contain p-3">
+                                        @else
+                                            <i class="fa-solid fa-icons text-slate-300 text-2xl"></i>
+                                        @endif
+                                    </template>
+                                </div>
+                                <label class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-xl opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                                    <i class="fa-solid fa-camera"></i>
+                                    <input type="file" name="site_favicon" class="hidden" @change="handleFavicon">
+                                </label>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Favicon</h4>
+                                <p class="text-xs text-slate-500">ICO/PNG (32x32)</p>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="bg-white p-6 shadow rounded-lg">
-                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Footer Text (Multilingual)</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-blue-600">Footer Text (ID)</label>
-                            <textarea name="footer_text_id" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">{{ $settings->footer_text_id }}</textarea>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-indigo-600">Footer Text (EN)</label>
-                            <textarea name="footer_text_en" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">{{ $settings->footer_text_en }}</textarea>
-                        </div>
+            <!-- Localization -->
+            <div class="glass p-8 rounded-[3rem] shadow-xl" data-aos="fade-up">
+                <h3 class="text-xl font-black text-slate-900 mb-8 flex items-center">
+                    <span class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fa-solid fa-language"></i>
+                    </span>
+                    Footer & Localization
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Footer Text (ID)</label>
+                        <textarea name="footer_text_id" rows="2" 
+                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">{{ $settings->footer_text_id }}</textarea>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Footer Text (EN)</label>
+                        <textarea name="footer_text_en" rows="2" 
+                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 transition-all font-medium">{{ $settings->footer_text_en }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact & Social -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" data-aos="fade-up">
+                <!-- Social Media -->
+                <div class="glass p-8 rounded-[3rem] shadow-xl">
+                    <h3 class="text-xl font-black text-slate-900 mb-8 flex items-center">
+                        <span class="w-10 h-10 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fa-solid fa-share-nodes"></i>
+                        </span>
+                        Social Media
+                    </h3>
+                    @php $socials = $settings->social_links ?? []; @endphp
+                    <div class="space-y-4">
+                        @foreach(['instagram' => 'fa-instagram', 'facebook' => 'fa-facebook-f', 'twitter' => 'fa-x-twitter', 'linkedin' => 'fa-linkedin-in'] as $key => $icon)
+                            <div class="flex items-center space-x-4 bg-slate-50 p-2 pr-4 rounded-2xl border border-slate-100 group transition-all hover:bg-white hover:shadow-lg">
+                                <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-white shadow-sm text-slate-400 group-hover:text-blue-500 transition-colors">
+                                    <i class="fa-brands {{ $icon }}"></i>
+                                </div>
+                                <input type="text" name="social[{{ $key }}]" value="{{ $socials[$key] ?? '' }}"
+                                    class="flex-1 bg-transparent border-none focus:ring-0 font-medium text-sm"
+                                    placeholder="https://{{ $key }}.com/...">
+                            </div>
+                        @endforeach
                     </div>
                 </div>
 
-                <div class="bg-white p-6 shadow rounded-lg">
-                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Social Media Links</h3>
-                    @php $socials = json_decode($settings->social_links, true) ?? []; @endphp
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium">Instagram URL</label>
-                            <input type="text" name="social[instagram]" value="{{ $socials['instagram'] ?? '' }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                                placeholder="https://instagram.com/...">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium">Facebook URL</label>
-                            <input type="text" name="social[facebook]" value="{{ $socials['facebook'] ?? '' }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                                placeholder="https://facebook.com/...">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium">Twitter (X) URL</label>
-                            <input type="text" name="social[twitter]" value="{{ $socials['twitter'] ?? '' }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                                placeholder="https://twitter.com/...">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium">LinkedIn URL</label>
-                            <input type="text" name="social[linkedin]" value="{{ $socials['linkedin'] ?? '' }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                                placeholder="https://linkedin.com/...">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 shadow rounded-lg">
-                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Contact Details</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium">Email</label>
+                <!-- Contact Info -->
+                <div class="glass p-8 rounded-[3rem] shadow-xl">
+                    <h3 class="text-xl font-black text-slate-900 mb-8 flex items-center">
+                        <span class="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fa-solid fa-phone"></i>
+                        </span>
+                        Contact Info
+                    </h3>
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Business Email</label>
                             <input type="email" name="contact_email" value="{{ $settings->contact_email }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-bold">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium">Phone</label>
+                        <div class="space-y-2">
+                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Phone Number</label>
                             <input type="text" name="contact_phone" value="{{ $settings->contact_phone }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-bold">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium">Address</label>
+                        <div class="space-y-2">
+                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Office Address</label>
                             <input type="text" name="contact_address" value="{{ $settings->contact_address }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-bold">
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="flex justify-end">
-                    <button type="submit"
-                        class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg">Save
-                        Changes</button>
-                </div>
-            </form>
-        </div>
+            <!-- Submit -->
+            <div class="fixed bottom-8 left-1/2 -translate-x-1/2 lg:left-auto lg:right-12 lg:translate-x-0 z-50">
+                <button type="submit"
+                    class="px-12 py-5 bg-blue-600 text-white font-black rounded-[2.5rem] hover:bg-blue-700 hover:scale-105 shadow-2xl shadow-blue-600/40 transition-all flex items-center space-x-3 group">
+                    <i class="fa-solid fa-cloud-arrow-up group-hover:animate-bounce"></i>
+                    <span class="uppercase tracking-[0.2em] text-xs">Save All Changes</span>
+                </button>
+            </div>
+        </form>
     </div>
 </x-app-layout>

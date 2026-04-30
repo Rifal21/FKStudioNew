@@ -59,6 +59,12 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     Route::patch('/owners/{owner}', [CmsController::class, 'updateOwner'])->name('owners.update');
     Route::delete('/owners/{owner}', [CmsController::class, 'deleteOwner'])->name('owners.destroy');
 
+    // Packages
+    Route::get('/packages', [CmsController::class, 'packagesIndex'])->name('packages.index');
+    Route::post('/packages', [CmsController::class, 'storePackage'])->name('packages.store');
+    Route::patch('/packages/{package}', [CmsController::class, 'updatePackage'])->name('packages.update');
+    Route::delete('/packages/{package}', [CmsController::class, 'deletePackage'])->name('packages.destroy');
+
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
