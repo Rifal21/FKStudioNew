@@ -341,6 +341,7 @@ class CmsController extends Controller
     public function storePackage(Request $request)
     {
         $data = $request->except(['features_id_raw', 'features_en_raw']);
+        $data['is_featured'] = $request->has('is_featured') ? 1 : 0;
         
         // Handle features as newline separated strings
         if ($request->has('features_id_raw')) {
@@ -357,6 +358,7 @@ class CmsController extends Controller
     public function updatePackage(Request $request, Package $package)
     {
         $data = $request->except(['features_id_raw', 'features_en_raw']);
+        $data['is_featured'] = $request->has('is_featured') ? 1 : 0;
 
         // Handle features as newline separated strings
         if ($request->has('features_id_raw')) {
