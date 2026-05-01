@@ -66,6 +66,12 @@
                 <span>Service Packages</span>
             </a>
 
+            <a href="{{ route('dashboard.invoices.index') }}" 
+               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.invoices.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
+                <i class="fa-solid fa-file-invoice-dollar w-5 group-hover:scale-110 transition-transform"></i>
+                <span>Invoices</span>
+            </a>
+
             <a href="{{ route('dashboard.testimonials.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.testimonials.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
                 <i class="fa-solid fa-comment-dots w-5 group-hover:scale-110 transition-transform"></i>

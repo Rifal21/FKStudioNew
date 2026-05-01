@@ -39,7 +39,7 @@
                             <div class="mb-10">
                                 <h3 class="text-2xl md:text-3xl font-black text-white mb-4 tracking-tight group-hover:text-blue-400 transition-colors">{{ $package->getTranslation('name') }}</h3>
                                 <div class="flex items-baseline gap-2">
-                                    <span class="text-4xl md:text-5xl font-black text-white tracking-tighter">{{ $package->price }}</span>
+                                    <span class="text-2xl md:text-3xl font-black text-white tracking-tighter">{{ $package->price }}</span>
                                     @if(is_numeric(str_replace(['Rp', '.', ','], '', $package->price)))
                                         <span class="text-slate-500 text-sm font-bold uppercase tracking-widest">/ Project</span>
                                     @endif

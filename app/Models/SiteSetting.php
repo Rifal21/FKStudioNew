@@ -15,6 +15,9 @@ class SiteSetting extends Model
 
     public function getLogoUrlAttribute() { return $this->getUrl($this->site_logo); }
     public function getFaviconUrlAttribute() { return $this->getUrl($this->site_favicon); }
+    public function getInvoiceLogoUrlAttribute() { return $this->getUrl($this->invoice_logo); }
+    public function getInvoiceSignatureUrlAttribute() { return $this->getUrl($this->invoice_signature); }
+    public function getInvoiceQrisUrlAttribute() { return $this->getUrl($this->invoice_qris); }
 
 
     public $incrementing = false;
@@ -24,6 +27,7 @@ class SiteSetting extends Model
 
     protected $casts = [
         'social_links' => 'array',
+        'payment_methods' => 'array',
     ];
 
 }

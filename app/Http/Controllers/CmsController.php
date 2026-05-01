@@ -11,6 +11,7 @@ use App\Models\Testimonial;
 use App\Models\Client;
 use App\Models\Owner;
 use App\Models\Package;
+use App\Models\Invoice;
 use App\Traits\NextcloudStorage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -26,8 +27,9 @@ class CmsController extends Controller
         $testimonialsCount = Testimonial::count();
         $ownersCount = Owner::count();
         $packagesCount = Package::count();
+        $invoicesCount = Invoice::count();
         
-        return view('dashboard', compact('servicesCount', 'projectsCount', 'testimonialsCount', 'ownersCount', 'packagesCount'));
+        return view('dashboard', compact('servicesCount', 'projectsCount', 'testimonialsCount', 'ownersCount', 'packagesCount', 'invoicesCount'));
     }
 
     // Site Settings
@@ -55,7 +57,18 @@ class CmsController extends Controller
             if ($settings->site_favicon) $this->deleteFromNextcloud($settings->site_favicon);
             $data['site_favicon'] = $this->uploadToNextcloud($request->file('site_favicon'), 'site');
         }
-
+        if ($request->hasFile('invoice_logo')) {
+            if ($settings->invoice_logo) $this->deleteFromNextcloud($settings->invoice_logo);
+            $data['invoice_logo'] = $this->uploadToNextcloud($request->file('invoice_logo'), 'invoices');
+        }
+        if ($request->hasFile('invoice_signature')) {
+            if ($settings->invoice_signature) $this->deleteFromNextcloud($settings->invoice_signature);
+            $data['invoice_signature'] = $this->uploadToNextcloud($request->file('invoice_signature'), 'invoices');
+        }
+        if ($request->hasFile('invoice_qris')) {
+            if ($settings->invoice_qris) $this->deleteFromNextcloud($settings->invoice_qris);
+            $data['invoice_qris'] = $this->uploadToNextcloud($request->file('invoice_qris'), 'invoices');
+        }
 
         $settings->update($data);
         return redirect()->back()->with('success', 'Settings updated successfully');

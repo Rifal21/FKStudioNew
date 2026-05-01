@@ -122,6 +122,167 @@
                 </div>
             </div>
 
+            <!-- Invoice Branding -->
+            <div class="glass p-8 rounded-[3rem] shadow-xl relative overflow-hidden" data-aos="fade-up">
+                <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl"></div>
+                <h3 class="text-xl font-black text-slate-900 mb-8 flex items-center">
+                    <span class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </span>
+                    Invoice Branding
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Company Name on Invoice</label>
+                        <input type="text" name="invoice_company_name" value="{{ $settings->invoice_company_name }}"
+                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-500 transition-all font-medium">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Signer Name (Penanda Tangan)</label>
+                        <input type="text" name="invoice_signer_name" value="{{ $settings->invoice_signer_name }}"
+                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-500 transition-all font-medium" placeholder="Contoh: Rifal Kurniawan">
+                    </div>
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Company Address on Invoice</label>
+                        <textarea name="invoice_company_address" rows="2" 
+                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-500 transition-all font-medium">{{ $settings->invoice_company_address }}</textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 md:col-span-2 pt-4" 
+                        x-data="{ 
+                            invoiceLogoPreview: null,
+                            invoiceSignaturePreview: null,
+                            invoiceQrisPreview: null,
+                            handleInvoiceLogo(e) {
+                                const file = e.target.files[0];
+                                if (file) this.invoiceLogoPreview = URL.createObjectURL(file);
+                            },
+                            handleInvoiceSignature(e) {
+                                const file = e.target.files[0];
+                                if (file) this.invoiceSignaturePreview = URL.createObjectURL(file);
+                            },
+                            handleInvoiceQris(e) {
+                                const file = e.target.files[0];
+                                if (file) this.invoiceQrisPreview = URL.createObjectURL(file);
+                            }
+                        }">
+                        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center space-x-4">
+                            <div class="relative group">
+                                <div class="w-16 h-16 bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center border border-slate-200">
+                                    <template x-if="invoiceLogoPreview">
+                                        <img :src="invoiceLogoPreview" class="w-full h-full object-contain p-1">
+                                    </template>
+                                    <template x-if="!invoiceLogoPreview">
+                                        @if ($settings->invoice_logo)
+                                            <img src="{{ $settings->invoice_logo_url }}" class="w-full h-full object-contain p-1">
+                                        @else
+                                            <i class="fa-solid fa-file-image text-slate-300 text-2xl"></i>
+                                        @endif
+                                    </template>
+                                </div>
+                                <label class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-xl opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                                    <i class="fa-solid fa-camera"></i>
+                                    <input type="file" name="invoice_logo" class="hidden" @change="handleInvoiceLogo">
+                                </label>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Logo</h4>
+                                <p class="text-[10px] text-slate-500 uppercase">Kop Surat</p>
+                            </div>
+                        </div>
+
+                        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center space-x-4">
+                            <div class="relative group">
+                                <div class="w-16 h-16 bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center border border-slate-200">
+                                    <template x-if="invoiceSignaturePreview">
+                                        <img :src="invoiceSignaturePreview" class="w-full h-full object-contain p-1">
+                                    </template>
+                                    <template x-if="!invoiceSignaturePreview">
+                                        @if ($settings->invoice_signature)
+                                            <img src="{{ $settings->invoice_signature_url }}" class="w-full h-full object-contain p-1">
+                                        @else
+                                            <i class="fa-solid fa-signature text-slate-300 text-2xl"></i>
+                                        @endif
+                                    </template>
+                                </div>
+                                <label class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-xl opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                                    <i class="fa-solid fa-camera"></i>
+                                    <input type="file" name="invoice_signature" class="hidden" @change="handleInvoiceSignature">
+                                </label>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Sign</h4>
+                                <p class="text-[10px] text-slate-500 uppercase">Signature</p>
+                            </div>
+                        </div>
+
+                        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center space-x-4">
+                            <div class="relative group">
+                                <div class="w-16 h-16 bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center border border-slate-200">
+                                    <template x-if="invoiceQrisPreview">
+                                        <img :src="invoiceQrisPreview" class="w-full h-full object-contain p-1">
+                                    </template>
+                                    <template x-if="!invoiceQrisPreview">
+                                        @if ($settings->invoice_qris)
+                                            <img src="{{ $settings->invoice_qris_url }}" class="w-full h-full object-contain p-1">
+                                        @else
+                                            <i class="fa-solid fa-qrcode text-slate-300 text-2xl"></i>
+                                        @endif
+                                    </template>
+                                </div>
+                                <label class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-xl opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                                    <i class="fa-solid fa-camera"></i>
+                                    <input type="file" name="invoice_qris" class="hidden" @change="handleInvoiceQris">
+                                </label>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">QRIS</h4>
+                                <p class="text-[10px] text-slate-500 uppercase">Payment QR</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Bank Accounts -->
+                    <div class="md:col-span-2 pt-8" x-data="{ 
+                        banks: {{ json_encode($settings->payment_methods ?? [['bank' => '', 'number' => '', 'name' => '']]) }},
+                        addBank() { this.banks.push({ bank: '', number: '', name: '' }) },
+                        removeBank(index) { if(this.banks.length > 1) this.banks.splice(index, 1) }
+                    }">
+                        <div class="flex justify-between items-center mb-6">
+                            <h4 class="text-xs font-black uppercase tracking-widest text-slate-400">Bank Accounts / Payment Methods</h4>
+                            <button type="button" @click="addBank" class="text-[10px] font-black uppercase tracking-widest text-emerald-600 hover:text-emerald-700">
+                                <i class="fa-solid fa-plus mr-1"></i> Add Account
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <template x-for="(bank, index) in banks" :key="index">
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                    <div class="md:col-span-3">
+                                        <input type="text" :name="`payment_methods[${index}][bank]`" x-model="bank.bank" placeholder="Bank Name"
+                                            class="block w-full bg-white border-none rounded-xl p-3 focus:ring-2 focus:ring-emerald-500 font-bold text-sm">
+                                    </div>
+                                    <div class="md:col-span-4">
+                                        <input type="text" :name="`payment_methods[${index}][number]`" x-model="bank.number" placeholder="Account Number"
+                                            class="block w-full bg-white border-none rounded-xl p-3 focus:ring-2 focus:ring-emerald-500 font-bold text-sm">
+                                    </div>
+                                    <div class="md:col-span-4">
+                                        <input type="text" :name="`payment_methods[${index}][name]`" x-model="bank.name" placeholder="Account Holder"
+                                            class="block w-full bg-white border-none rounded-xl p-3 focus:ring-2 focus:ring-emerald-500 font-bold text-sm">
+                                    </div>
+                                    <div class="md:col-span-1 flex items-center justify-center">
+                                        <button type="button" @click="removeBank(index)" class="text-red-400 hover:text-red-600">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Contact & Social -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" data-aos="fade-up">
                 <!-- Social Media -->

@@ -5,7 +5,7 @@
 
     <div class="space-y-8">
         <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
             <div class="glass p-6 rounded-[2rem] card-hover relative overflow-hidden group" data-aos="fade-up" data-aos-delay="100">
                 <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-colors"></div>
                 <div class="relative flex items-center">
@@ -70,6 +70,19 @@
                     </div>
                 </div>
             </div>
+
+            <div class="glass p-6 rounded-[2rem] card-hover relative overflow-hidden group" data-aos="fade-up" data-aos-delay="600">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-colors"></div>
+                <div class="relative flex items-center">
+                    <div class="p-4 bg-emerald-500/10 rounded-2xl text-emerald-600 mr-4">
+                        <i class="fa-solid fa-file-invoice-dollar text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Invoices</p>
+                        <p class="text-3xl font-black text-slate-900">{{ $invoicesCount ?? 0 }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Welcome Section -->
@@ -114,6 +127,10 @@
                         <a href="{{ route('dashboard.packages.index') }}" class="flex items-center space-x-3 p-4 bg-slate-50 rounded-2xl hover:bg-blue-50 hover:text-blue-600 transition-all group">
                             <i class="fa-solid fa-tags w-5 text-slate-400 group-hover:text-blue-500"></i>
                             <span class="font-bold">Service Packages</span>
+                        </a>
+                        <a href="{{ route('dashboard.invoices.create') }}" class="flex items-center space-x-3 p-4 bg-slate-50 rounded-2xl hover:bg-blue-50 hover:text-blue-600 transition-all group">
+                            <i class="fa-solid fa-file-invoice w-5 text-slate-400 group-hover:text-blue-500"></i>
+                            <span class="font-bold">Generate Invoice</span>
                         </a>
                         <a href="{{ route('profile.edit') }}" class="flex items-center space-x-3 p-4 bg-slate-50 rounded-2xl hover:bg-blue-50 hover:text-blue-600 transition-all group">
                             <i class="fa-solid fa-user-circle w-5 text-slate-400 group-hover:text-blue-500"></i>
