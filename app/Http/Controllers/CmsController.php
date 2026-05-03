@@ -42,7 +42,7 @@ class CmsController extends Controller
     public function updateSettings(Request $request)
     {
         $settings = SiteSetting::first();
-        $data = $request->except(['_token', 'site_logo', 'site_favicon', 'social']);
+        $data = $request->except(['_token', 'site_logo', 'site_favicon', 'social', 'remove_invoice_qris']);
         
         if ($request->has('social')) {
             $data['social_links'] = $request->social;
@@ -68,6 +68,11 @@ class CmsController extends Controller
         if ($request->hasFile('invoice_qris')) {
             if ($settings->invoice_qris) $this->deleteFromNextcloud($settings->invoice_qris);
             $data['invoice_qris'] = $this->uploadToNextcloud($request->file('invoice_qris'), 'invoices');
+        } elseif ($request->remove_invoice_qris == '1') {
+            if ($settings->invoice_qris) {
+                $this->deleteFromNextcloud($settings->invoice_qris);
+                $data['invoice_qris'] = null;
+            }
         }
 
         $settings->update($data);

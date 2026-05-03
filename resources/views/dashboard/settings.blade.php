@@ -217,7 +217,14 @@
                             </div>
                         </div>
 
-                        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center space-x-4">
+                        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center space-x-4"
+                            x-data="{ 
+                                qrisRemoved: false,
+                                handleRemoveQris() {
+                                    this.qrisRemoved = true;
+                                    this.invoiceQrisPreview = null;
+                                }
+                            }">
                             <div class="relative group">
                                 <div class="w-16 h-16 bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center border border-slate-200">
                                     <template x-if="invoiceQrisPreview">
@@ -225,7 +232,12 @@
                                     </template>
                                     <template x-if="!invoiceQrisPreview">
                                         @if ($settings->invoice_qris)
-                                            <img src="{{ $settings->invoice_qris_url }}" class="w-full h-full object-contain p-1">
+                                            <div x-show="!qrisRemoved" class="w-full h-full">
+                                                <img src="{{ $settings->invoice_qris_url }}" class="w-full h-full object-contain p-1">
+                                            </div>
+                                            <div x-show="qrisRemoved" class="w-full h-full flex items-center justify-center">
+                                                <i class="fa-solid fa-qrcode text-slate-300 text-2xl"></i>
+                                            </div>
                                         @else
                                             <i class="fa-solid fa-qrcode text-slate-300 text-2xl"></i>
                                         @endif
@@ -233,8 +245,16 @@
                                 </div>
                                 <label class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-xl opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
                                     <i class="fa-solid fa-camera"></i>
-                                    <input type="file" name="invoice_qris" class="hidden" @change="handleInvoiceQris">
+                                    <input type="file" name="invoice_qris" class="hidden" @change="handleInvoiceQris(); qrisRemoved = false">
                                 </label>
+                                
+                                @if ($settings->invoice_qris)
+                                    <button type="button" @click="handleRemoveQris" x-show="!qrisRemoved && !invoiceQrisPreview"
+                                        class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors z-10">
+                                        <i class="fa-solid fa-xmark text-[10px]"></i>
+                                    </button>
+                                @endif
+                                <input type="hidden" name="remove_invoice_qris" :value="qrisRemoved ? '1' : '0'">
                             </div>
                             <div>
                                 <h4 class="font-bold text-slate-900">QRIS</h4>
