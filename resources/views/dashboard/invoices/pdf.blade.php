@@ -480,7 +480,7 @@
                             <div style="height: 45px; border-bottom: 1px dashed #e2e8f0; width: 140px; margin: 0 auto 10px auto;"></div>
                         @endif
                         <div class="signer-name" style="font-size: 11px;">{{ $settings->invoice_signer_name ?: 'Rifal Kurniawan' }}</div>
-                        <div class="signer-title" style="font-size: 7px;">Authorized Representative</div>
+                        <div class="signer-title" style="font-size: 7px;">{{ $settings->invoice_signer_title ?: 'Authorized Representative' }}</div>
                     </div>
                 </td>
             </tr>

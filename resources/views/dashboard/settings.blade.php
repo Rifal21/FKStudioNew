@@ -143,6 +143,11 @@
                         <input type="text" name="invoice_signer_name" value="{{ $settings->invoice_signer_name }}"
                             class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-500 transition-all font-medium" placeholder="Contoh: Rifal Kurniawan">
                     </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Signer Title (Jabatan)</label>
+                        <input type="text" name="invoice_signer_title" value="{{ $settings->invoice_signer_title }}"
+                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-500 transition-all font-medium" placeholder="Contoh: Authorized Representative">
+                    </div>
                     <div class="md:col-span-2 space-y-2">
                         <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Company Address on Invoice</label>
                         <textarea name="invoice_company_address" rows="2" 

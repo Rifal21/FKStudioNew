@@ -282,7 +282,7 @@
                             </div>
                         @endif
                         <p class="text-[12px] font-black text-slate-900 uppercase tracking-tighter mb-0.5">{{ $settings->invoice_signer_name ?: 'Owner of FKStudio' }}</p>
-                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest opacity-60">Authorized Representative</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest opacity-60">{{ $settings->invoice_signer_title ?: 'Authorized Representative' }}</p>
                     </div>
                 </div>
             </div>
