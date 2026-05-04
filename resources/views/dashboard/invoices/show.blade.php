@@ -89,12 +89,12 @@
     </div>
 
     <!-- Invoice Sheet -->
-    <div class="invoice-sheet mx-auto my-4 bg-white shadow-2xl p-8 md:p-10 flex flex-col relative overflow-hidden ring-1 ring-slate-100">
+    <div class="invoice-sheet mx-auto my-4 bg-white shadow-2xl p-6 md:p-8 flex flex-col relative overflow-hidden ring-1 ring-slate-100">
         
         <div class="watermark uppercase tracking-[0.5em]">FKSTUDIO</div>
 
         <!-- Header -->
-        <div class="relative z-10 flex justify-between items-start print:flex-row mb-8">
+        <div class="relative z-10 flex justify-between items-start print:flex-row mb-6">
             <div class="flex flex-col space-y-4">
                 @if($settings->invoice_logo)
                     <img src="{{ $settings->invoice_logo_url }}" class="h-14 object-contain self-start">
@@ -124,7 +124,7 @@
         </div>
 
         <!-- Details Grid -->
-        <div class="relative z-10 grid grid-cols-12 gap-8 mb-8 pb-8 border-b-2 border-slate-50">
+        <div class="relative z-10 grid grid-cols-12 gap-8 mb-4 pb-4 border-b-2 border-slate-50">
             <div class="col-span-7">
                 <p class="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 mb-4">Billed To</p>
                 <div class="space-y-1.5">
@@ -158,26 +158,26 @@
             <table class="w-full text-left">
                 <thead>
                     <tr class="border-b border-slate-200">
-                        <th class="py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Description</th>
-                        <th class="py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center w-20">Qty</th>
-                        <th class="py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right w-32">Price</th>
-                        <th class="py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right w-32">Amount</th>
+                        <th class="py-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Description</th>
+                        <th class="py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center w-20">Qty</th>
+                        <th class="py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right w-32">Price</th>
+                        <th class="py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right w-32">Amount</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
                     @foreach($invoice->items as $item)
                         <tr class="group">
-                            <td class="py-3">
-                                <p class="text-xs font-bold text-slate-900 mb-1 tracking-tight">{{ $item->description }}</p>
+                            <td class="py-1.5">
+                                <p class="text-[11px] font-bold text-slate-900 mb-0 tracking-tight">{{ $item->description }}</p>
                             </td>
-                            <td class="py-3 text-center">
-                                <span class="text-xs font-bold text-slate-600">{{ $item->quantity }}</span>
+                            <td class="py-1.5 text-center">
+                                <span class="text-[11px] font-bold text-slate-600">{{ $item->quantity }}</span>
                             </td>
-                            <td class="py-3 text-right">
-                                <span class="text-xs font-medium text-slate-500 tracking-tight">Rp {{ number_format($item->unit_price, 0, ',', '.') }}</span>
+                            <td class="py-1.5 text-right">
+                                <span class="text-[11px] font-medium text-slate-500 tracking-tight">Rp {{ number_format($item->unit_price, 0, ',', '.') }}</span>
                             </td>
-                            <td class="py-3 text-right">
-                                <span class="text-xs font-black text-slate-900 tracking-tighter">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span>
+                            <td class="py-1.5 text-right">
+                                <span class="text-[11px] font-black text-slate-900 tracking-tighter">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span>
                             </td>
                         </tr>
                     @endforeach
@@ -186,14 +186,14 @@
         </div>
 
         <!-- Footer Section -->
-        <div class="relative z-10 mt-6 pt-6 border-t-2 border-slate-50">
+        <div class="relative z-10 mt-4 pt-4 border-t-2 border-slate-50">
             <div class="flex flex-col md:flex-row print:flex-row justify-between items-start gap-16 md:gap-24 print:gap-12">
                 
                 <!-- Left: Payment & QRIS -->
-                <div class="flex-grow space-y-4">
+                <div class="flex-grow space-y-2">
                     <div class="grid grid-cols-2 gap-8">
                         <div>
-                            <p class="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 mb-4">Payment Methods</p>
+                            <p class="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 mb-2">Payment Methods</p>
                             <div class="space-y-4">
                                 @if($settings->payment_methods)
                                     @foreach($settings->payment_methods as $payment)
@@ -231,8 +231,8 @@
                 </div>
 
                 <!-- Right: Calculations & Signature -->
-                <div class="w-full md:w-80 space-y-4">
-                    <div class="bg-slate-50 rounded-2xl p-6 space-y-3">
+                <div class="w-full md:w-80 space-y-2">
+                    <div class="bg-slate-50 rounded-2xl p-4 space-y-2">
                         @php 
                             $subtotal = $invoice->items->sum('subtotal');
                             $discountAmount = ($invoice->discount_type === 'percent') 
@@ -262,7 +262,7 @@
                             </div>
                         @endif
 
-                        <div class="pt-6 mt-4 border-t border-slate-200 flex justify-between items-center">
+                        <div class="pt-4 mt-2 border-t border-slate-200 flex justify-between items-center">
                             <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900">Total</span>
                             <span class="text-2xl font-black text-blue-600 tracking-tight">
                                 <span class="text-sm align-top mr-1">Rp</span>{{ number_format($invoice->total_amount, 0, ',', '.') }}
@@ -270,11 +270,11 @@
                         </div>
                     </div>
 
-                    <div class="text-center pt-2">
+                    <div class="text-center pt-1">
                         @if($settings->invoice_signature)
-                            <img src="{{ $settings->invoice_signature_url }}" class="h-16 mx-auto mb-2 object-contain opacity-90 grayscale hover:grayscale-0 transition-all cursor-crosshair">
+                            <img src="{{ $settings->invoice_signature_url }}" class="h-12 mx-auto mb-1 object-contain opacity-90 grayscale hover:grayscale-0 transition-all cursor-crosshair">
                         @else
-                            <div class="h-16 w-32 border-b-2 border-dashed border-slate-100 mx-auto mb-2 flex items-center justify-center">
+                            <div class="h-12 w-24 border-b-2 border-dashed border-slate-100 mx-auto mb-1 flex items-center justify-center">
                                 <span class="text-[8px] uppercase tracking-widest text-slate-200">Signature</span>
                             </div>
                         @endif
@@ -284,7 +284,7 @@
                 </div>
             </div>
 
-            <div class="mt-8 pt-6 border-t border-slate-50 text-center">
+            <div class="mt-4 pt-4 border-t border-slate-50 text-center">
                 <p class="text-[9px] font-black text-slate-200 uppercase tracking-[0.5em] mb-2">Thank you for your business</p>
                 <div class="flex justify-center space-x-4">
                     <span class="w-1.5 h-1.5 bg-blue-600 rounded-full opacity-20"></span>
