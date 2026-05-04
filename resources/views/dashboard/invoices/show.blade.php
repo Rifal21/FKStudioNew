@@ -3,10 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice {{ $invoice->invoice_number }}</title>
+    <title>Invoice {{ $invoice->invoice_number }} | FKStudio</title>
+    
+    <!-- SEO & Social Sharing -->
+    <meta name="title" content="Invoice {{ $invoice->invoice_number }} - FKStudio">
+    <meta name="description" content="Official Invoice from FKStudio for {{ $invoice->client_name }}. Total: Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}">
+    
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ route('invoices.public.show', $invoice->id) }}">
+    <meta property="og:title" content="Invoice {{ $invoice->invoice_number }} - FKStudio">
+    <meta property="og:description" content="Official Invoice from FKStudio for {{ $invoice->client_name }}. Total: Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}">
+    <meta property="og:image" content="{{ $settings->invoice_logo_url ?: $settings->logo_url }}">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ route('invoices.public.show', $invoice->id) }}">
+    <meta property="twitter:title" content="Invoice {{ $invoice->invoice_number }} - FKStudio">
+    <meta property="twitter:description" content="Official Invoice from FKStudio for {{ $invoice->client_name }}. Total: Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}">
+    <meta property="twitter:image" content="{{ $settings->invoice_logo_url ?: $settings->logo_url }}">
+
     @vite(['resources/css/app.css'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body {
             font-family: 'Outfit', sans-serif;
@@ -82,6 +100,11 @@
             </div>
         </div>
         <div class="flex items-center space-x-3">
+            @auth
+                <button onclick="copyShareLink()" class="px-4 py-2.5 bg-slate-900 text-white font-black rounded-xl hover:bg-black transition-all text-[10px] uppercase tracking-widest flex items-center shadow-lg shadow-black/10">
+                    <i class="fa-solid fa-share-nodes mr-2 text-xs"></i> Share Link
+                </button>
+            @endauth
             <a href="{{ route('dashboard.invoices.download', $invoice->id) }}" class="px-6 py-2.5 bg-emerald-600 text-white font-black rounded-xl hover:bg-emerald-700 transition-all text-[10px] uppercase tracking-widest flex items-center shadow-lg shadow-emerald-500/20">
                 <i class="fa-solid fa-download mr-2 text-xs"></i> Download PDF
             </a>
@@ -297,6 +320,16 @@
             </div>
         </div>
     </div>
+    <script>
+        function copyShareLink() {
+            const link = "{{ route('invoices.public.show', $invoice->id) }}";
+            navigator.clipboard.writeText(link).then(() => {
+                alert('Public share link copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    </script>
 </body>
 </html>
 

@@ -84,6 +84,10 @@
                                             class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-emerald-500 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all shadow-sm" title="Download PDF">
                                             <i class="fa-solid fa-download text-xs"></i>
                                         </a>
+                                        <button onclick="copyShareLink('{{ route('invoices.public.show', $invoice->id) }}')"
+                                            class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-900 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm" title="Copy Share Link">
+                                            <i class="fa-solid fa-share-nodes text-xs"></i>
+                                        </button>
                                         <a href="{{ route('dashboard.invoices.edit', $invoice->id) }}"
                                             class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-500 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm">
                                             <i class="fa-solid fa-pencil text-xs"></i>
@@ -115,4 +119,13 @@
             </div>
         </div>
     </div>
+    <script>
+        function copyShareLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Public share link copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    </script>
 </x-app-layout>

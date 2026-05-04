@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [LandingController::class, 'index'])->name('home');
 Route::get('switch-language/{locale}', [LandingController::class, 'switchLanguage'])->name('switch-language');
 Route::post('/chat', [ChatController::class, 'sendMessage'])->name('chat.send');
+Route::get('/invoice/v/{invoice}', [InvoiceController::class, 'publicShow'])->name('invoices.public.show');
 
 Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () {
     Route::get('/', [CmsController::class, 'dashboard'])->name('dashboard');

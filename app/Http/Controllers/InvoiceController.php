@@ -160,6 +160,15 @@ class InvoiceController extends Controller
         return redirect()->back()->with('success', 'Invoice deleted successfully');
     }
 
+    public function publicShow(Invoice $invoice)
+    {
+        $settings = SiteSetting::first();
+        $invoice->load('items');
+        
+        return view('dashboard.invoices.show', compact('invoice', 'settings'))
+            ->with('isPublic', true);
+    }
+
     public function download(Invoice $invoice)
     {
         $settings = SiteSetting::first();
