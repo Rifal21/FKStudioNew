@@ -77,8 +77,12 @@
                                 <td class="px-8 py-6">
                                     <div class="flex items-center space-x-2">
                                         <a href="{{ route('dashboard.invoices.show', $invoice->id) }}" target="_blank"
-                                            class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm">
+                                            class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm" title="Preview">
                                             <i class="fa-solid fa-eye text-xs"></i>
+                                        </a>
+                                        <a href="{{ route('dashboard.invoices.download', $invoice->id) }}"
+                                            class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-emerald-500 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all shadow-sm" title="Download PDF">
+                                            <i class="fa-solid fa-download text-xs"></i>
                                         </a>
                                         <a href="{{ route('dashboard.invoices.edit', $invoice->id) }}"
                                             class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-500 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm">

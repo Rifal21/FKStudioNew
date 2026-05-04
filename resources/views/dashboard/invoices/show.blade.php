@@ -82,6 +82,9 @@
             </div>
         </div>
         <div class="flex items-center space-x-3">
+            <a href="{{ route('dashboard.invoices.download', $invoice->id) }}" class="px-6 py-2.5 bg-emerald-600 text-white font-black rounded-xl hover:bg-emerald-700 transition-all text-[10px] uppercase tracking-widest flex items-center shadow-lg shadow-emerald-500/20">
+                <i class="fa-solid fa-download mr-2 text-xs"></i> Download PDF
+            </a>
             <button onclick="window.print()" class="px-6 py-2.5 bg-blue-600 text-white font-black rounded-xl hover:bg-blue-700 transition-all text-[10px] uppercase tracking-widest flex items-center shadow-lg shadow-blue-500/20">
                 <i class="fa-solid fa-print mr-2 text-xs"></i> Print Invoice
             </button>

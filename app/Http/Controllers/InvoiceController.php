@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\SiteSetting;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
@@ -72,8 +73,8 @@ class InvoiceController extends Controller
             $subtotal += $itemSubtotal;
         }
 
-        $discountAmount = ($invoice->discount_type === 'percent') 
-            ? ($subtotal * ($invoice->discount / 100)) 
+        $discountAmount = ($invoice->discount_type === 'percent')
+            ? ($subtotal * ($invoice->discount / 100))
             : $invoice->discount;
 
         $taxAmount = ($invoice->tax_type === 'percent')
@@ -90,6 +91,7 @@ class InvoiceController extends Controller
     public function edit(Invoice $invoice)
     {
         $invoice->load('items');
+
         return view('dashboard.invoices.edit', compact('invoice'));
     }
 
@@ -129,8 +131,8 @@ class InvoiceController extends Controller
             $subtotal += $itemSubtotal;
         }
 
-        $discountAmount = ($invoice->discount_type === 'percent') 
-            ? ($subtotal * ($invoice->discount / 100)) 
+        $discountAmount = ($invoice->discount_type === 'percent')
+            ? ($subtotal * ($invoice->discount / 100))
             : $invoice->discount;
 
         $taxAmount = ($invoice->tax_type === 'percent')
@@ -156,5 +158,21 @@ class InvoiceController extends Controller
         $invoice->delete();
 
         return redirect()->back()->with('success', 'Invoice deleted successfully');
+    }
+
+    public function download(Invoice $invoice)
+    {
+        $settings = SiteSetting::first();
+        $invoice->load('items');
+
+        $pdf = Pdf::loadView('dashboard.invoices.pdf', compact('invoice', 'settings'))
+            ->setPaper('a4', 'portrait')
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'defaultFont' => 'sans-serif',
+            ]);
+
+        return $pdf->stream($invoice->invoice_number.'-'.$invoice->client_name.'.pdf');
     }
 }
