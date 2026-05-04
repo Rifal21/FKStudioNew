@@ -12,5 +12,5 @@ class Client extends Model
 
     protected $mediaColumn = 'logo';
 
-    protected $fillable = ['name', 'logo', 'url', 'order'];
+    protected $fillable = ['name', 'logo', 'url', 'order', 'is_server_subscribed', 'billing_date', 'subscription_price'];
 }

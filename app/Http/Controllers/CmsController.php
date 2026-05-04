@@ -293,14 +293,37 @@ class CmsController extends Controller
         if ($request->hasFile('logo')) {
             $path = $this->uploadToNextcloud($request->file('logo'), 'clients');
             Client::create([
-                'name'  => $request->name,
-                'logo'  => $path,
-                'url'   => $request->url,
-                'order' => Client::count(),
+                'name'                  => $request->name,
+                'logo'                  => $path,
+                'url'                   => $request->url,
+                'is_server_subscribed'  => $request->has('is_server_subscribed'),
+                'billing_date'          => $request->billing_date,
+                'subscription_price'    => $request->subscription_price ?? 0,
+                'order'                 => Client::count(),
             ]);
         }
 
         return redirect()->back()->with('success', 'Client added');
+    }
+
+    public function updateClient(Request $request, Client $client)
+    {
+        $data = [
+            'name'                  => $request->name,
+            'url'                   => $request->url,
+            'is_server_subscribed'  => $request->has('is_server_subscribed'),
+            'billing_date'          => $request->billing_date,
+            'subscription_price'    => $request->subscription_price ?? 0,
+        ];
+
+        if ($request->hasFile('logo')) {
+            if ($client->logo) $this->deleteFromNextcloud($client->logo);
+            $data['logo'] = $this->uploadToNextcloud($request->file('logo'), 'clients');
+        }
+
+        $client->update($data);
+
+        return redirect()->back()->with('success', 'Client updated');
     }
 
     public function deleteClient(Client $client)
