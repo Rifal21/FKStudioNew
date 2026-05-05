@@ -66,5 +66,24 @@
                     },
                 },
             });
+
+            // Swiper Packages
+            var swiperPackages = new Swiper(".packagesSwiper", {
+                slidesPerView: 1,
+                spaceBetween: 30,
+                grabCursor: true,
+                centeredSlides: false,
+                breakpoints: {
+                    768: {
+                        slidesPerView: 2,
+                        spaceBetween: 30,
+                    },
+                    1024: {
+                        slidesPerView: 3,
+                        spaceBetween: 40,
+                        allowTouchMove: true, // Allow swiping even on desktop if user wants
+                    },
+                },
+            });
         });
     </script>
