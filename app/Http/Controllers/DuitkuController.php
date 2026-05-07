@@ -48,6 +48,9 @@ class DuitkuController extends Controller
                         'status' => 'Paid',
                     ]);
                 }
+
+                // Automatically provision tenant
+                $order->provisionTenant();
             } else {
                 // If failed or expired, we might want to update status but usually we wait or handle accordingly
                 // For now just log it or update to failed if it's a specific failure code

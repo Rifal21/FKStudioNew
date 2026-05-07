@@ -435,31 +435,8 @@ class CmsController extends Controller
         $order->update(['status' => $request->status]);
 
         // Provision Tenant if paid/completed and has subdomain
-        if (in_array($request->status, ['paid', 'completed']) && $order->subdomain && !$order->tenant_id) {
-            $tenant = \App\Models\Tenant::create([
-                'id' => $order->subdomain,
-                'package_order_id' => $order->id, // custom metadata
-                'branding_name' => $order->branding_name, // custom metadata
-            ]);
-            
-            // For local dev, use localhost. For production, use env config.
-            $baseDomain = env('TENANCY_BASE_DOMAIN', 'localhost');
-            $tenant->domains()->create([
-                'domain' => $order->subdomain . '.' . $baseDomain,
-            ]);
-
-            $order->update(['tenant_id' => $tenant->id]);
-
-            // Seed tenant with the purchaser's user account
-            $tenant->run(function () use ($order) {
-                \App\Models\User::create([
-                    'name' => $order->user->name,
-                    'email' => $order->user->email,
-                    'password' => $order->user->password,
-                    'role' => 'super_admin', // They are the super admin of their own tenant
-                    'email_verified_at' => $order->user->email_verified_at,
-                ]);
-            });
+        if (in_array($request->status, ['paid', 'completed'])) {
+            $order->provisionTenant();
         }
 
         // Sync Invoice status

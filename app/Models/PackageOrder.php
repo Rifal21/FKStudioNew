@@ -34,4 +34,38 @@ class PackageOrder extends Model
     {
         return $this->belongsTo(Invoice::class);
     }
+
+    public function provisionTenant()
+    {
+        if ($this->subdomain && !$this->tenant_id) {
+            $tenant = \App\Models\Tenant::create([
+                'id' => $this->subdomain,
+                'package_order_id' => $this->id,
+                'branding_name' => $this->branding_name,
+            ]);
+            
+            // For local dev, use localhost. For production, use env config.
+            $baseDomain = env('TENANCY_BASE_DOMAIN', 'localhost');
+            $tenant->domains()->create([
+                'domain' => $this->subdomain . '.' . $baseDomain,
+            ]);
+
+            $this->update(['tenant_id' => $tenant->id]);
+
+            // Seed tenant with the purchaser's user account
+            $tenant->run(function () {
+                \App\Models\User::create([
+                    'name' => $this->user->name,
+                    'email' => $this->user->email,
+                    'password' => $this->user->password,
+                    'role' => 'super_admin', // They are the super admin of their own tenant
+                    'email_verified_at' => $this->user->email_verified_at,
+                ]);
+            });
+
+            return $tenant;
+        }
+
+        return null;
+    }
 }
