@@ -14,12 +14,15 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Admin Profile
-        User::factory()->create([
-            'name' => 'Admin FKStudio',
-            'email' => 'rifal@gmail.com',
-            'password' => Hash::make('falkur21'),
-            'role' => 'super_admin',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'rifal@gmail.com'],
+            [
+                'name' => 'Rifal Kurniawan',
+                'password' => Hash::make('falkur21'),
+                'role' => 'super_admin',
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Run Section Seeders
         $this->call([
