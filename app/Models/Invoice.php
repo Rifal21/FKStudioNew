@@ -25,4 +25,9 @@ class Invoice extends Model
     {
         return $this->hasMany(InvoiceItem::class);
     }
+
+    public function packageOrder()
+    {
+        return $this->hasOne(PackageOrder::class);
+    }
 }

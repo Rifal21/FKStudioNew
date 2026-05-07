@@ -59,5 +59,10 @@
                 <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
             </button>
         </div>
+
+        <p class="text-center text-sm text-slate-500 font-medium">
+            Don't have an account? 
+            <a href="{{ route('register') }}" class="text-blue-500 hover:text-blue-400 font-bold transition-colors">Sign Up</a>
+        </p>
     </form>
 </x-guest-layout>

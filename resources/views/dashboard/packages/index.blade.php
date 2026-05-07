@@ -100,9 +100,9 @@
 
                     <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 bg-slate-50 p-8 rounded-[2.5rem]">
                         <div class="space-y-2">
-                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">CTA Link (Section ID or External)</label>
-                            <input type="text" name="cta_link" x-model="currentPackage.cta_link"
-                                class="block w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">
+                            <label class="text-xs font-black uppercase tracking-widest text-blue-500 ml-1">Custom Link / Checkout Override</label>
+                            <input type="text" name="cta_link" x-model="currentPackage.cta_link" placeholder="https://wa.me/... (Kosongkan jika ingin ke halaman checkout)"
+                                class="block w-full bg-white border-2 border-blue-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">
                         </div>
                         <div class="flex items-center space-x-4 h-full pt-6">
                             <label class="relative inline-flex items-center cursor-pointer">

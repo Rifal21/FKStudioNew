@@ -29,14 +29,32 @@
         </div>
 
         <!-- Invoices List -->
-        <div class="glass rounded-[3rem] overflow-hidden shadow-xl" data-aos="fade-up">
-            <div class="p-8 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+        @php
+            $invoiceGroups = [
+                'auto' => $invoices->filter(fn($i) => $i->packageOrder !== null),
+                'manual' => $invoices->filter(fn($i) => $i->packageOrder === null),
+            ];
+        @endphp
+        
+        <div x-data="{ tab: 'auto' }" class="glass rounded-[3rem] overflow-hidden shadow-xl" data-aos="fade-up">
+            <div class="p-8 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <h3 class="text-lg font-black text-slate-900 uppercase tracking-widest flex items-center">
                     <span class="w-2 h-2 bg-blue-500 rounded-full mr-3 animate-pulse"></span>
                     Recent Invoices
                 </h3>
+                
+                <div class="flex space-x-2 bg-slate-200/50 p-1 rounded-2xl">
+                    <button @click="tab = 'auto'" :class="tab === 'auto' ? 'bg-white text-blue-600 shadow-md' : 'text-slate-500 hover:text-slate-700'" class="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                        <i class="fa-solid fa-robot mr-1"></i> Automatic
+                    </button>
+                    <button @click="tab = 'manual'" :class="tab === 'manual' ? 'bg-white text-blue-600 shadow-md' : 'text-slate-500 hover:text-slate-700'" class="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                        <i class="fa-solid fa-user-pen mr-1"></i> Manual
+                    </button>
+                </div>
             </div>
-            <div class="overflow-x-auto">
+            
+            @foreach(['auto', 'manual'] as $type)
+            <div x-show="tab === '{{ $type }}'" {!! $type === 'manual' ? 'x-cloak style="display: none;"' : '' !!} class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50/50">
@@ -49,7 +67,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50">
-                        @forelse($invoices as $invoice)
+                        @forelse($invoiceGroups[$type] as $invoice)
                             <tr class="group hover:bg-slate-50/50 transition-colors">
                                 <td class="px-8 py-6">
                                     <span class="font-black text-slate-900">{{ $invoice->invoice_number }}</span>
@@ -88,10 +106,14 @@
                                             class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-900 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm" title="Copy Share Link">
                                             <i class="fa-solid fa-share-nodes text-xs"></i>
                                         </button>
+                                        
+                                        @if($type === 'manual')
                                         <a href="{{ route('dashboard.invoices.edit', $invoice->id) }}"
                                             class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-500 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm">
                                             <i class="fa-solid fa-pencil text-xs"></i>
                                         </a>
+                                        @endif
+                                        
                                         <form action="{{ route('dashboard.invoices.destroy', $invoice->id) }}" method="POST">
                                             @csrf @method('DELETE')
                                             <button type="submit" onclick="return confirm('Delete this invoice?')"
@@ -109,7 +131,7 @@
                                         <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-200 text-3xl">
                                             <i class="fa-solid fa-file-circle-minus"></i>
                                         </div>
-                                        <p class="text-slate-400 font-bold">No invoices found. Create your first one!</p>
+                                        <p class="text-slate-400 font-bold">No {{ $type }} invoices found.</p>
                                     </div>
                                 </td>
                             </tr>
@@ -117,6 +139,7 @@
                     </tbody>
                 </table>
             </div>
+            @endforeach
         </div>
     </div>
     <script>

@@ -22,6 +22,10 @@ class CmsController extends Controller
 
     public function dashboard()
     {
+        if (auth()->check() && !auth()->user()->isSuperAdmin()) {
+            return redirect()->route('user.orders');
+        }
+
         $servicesCount = Service::count();
         $projectsCount = Project::count();
         $testimonialsCount = Testimonial::count();
@@ -417,5 +421,82 @@ class CmsController extends Controller
     {
         $package->delete();
         return redirect()->back()->with('success', 'Package deleted successfully');
+    }
+
+    // Orders Management
+    public function ordersIndex()
+    {
+        $orders = \App\Models\PackageOrder::with(['user', 'package', 'invoice', 'tickets'])->orderBy('created_at', 'desc')->get();
+        return view('dashboard.orders.index', compact('orders'));
+    }
+
+    public function updateOrderStatus(Request $request, \App\Models\PackageOrder $order)
+    {
+        $order->update(['status' => $request->status]);
+
+        // Provision Tenant if paid/completed and has subdomain
+        if (in_array($request->status, ['paid', 'completed']) && $order->subdomain && !$order->tenant_id) {
+            $tenant = \App\Models\Tenant::create([
+                'id' => $order->subdomain,
+                'package_order_id' => $order->id, // custom metadata
+                'branding_name' => $order->branding_name, // custom metadata
+            ]);
+            
+            // For local dev, use localhost. For production, use env config.
+            $baseDomain = env('TENANCY_BASE_DOMAIN', 'localhost');
+            $tenant->domains()->create([
+                'domain' => $order->subdomain . '.' . $baseDomain,
+            ]);
+
+            $order->update(['tenant_id' => $tenant->id]);
+
+            // Seed tenant with the purchaser's user account
+            $tenant->run(function () use ($order) {
+                \App\Models\User::create([
+                    'name' => $order->user->name,
+                    'email' => $order->user->email,
+                    'password' => $order->user->password,
+                    'role' => 'super_admin', // They are the super admin of their own tenant
+                    'email_verified_at' => $order->user->email_verified_at,
+                ]);
+            });
+        }
+
+        // Sync Invoice status
+        if ($order->invoice_id) {
+            if (in_array($request->status, ['paid', 'completed'])) {
+                $order->invoice()->update(['status' => 'Paid']);
+            } elseif ($request->status === 'cancelled') {
+                $order->invoice()->update(['status' => 'Cancelled']);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Order status updated successfully');
+    }
+
+    // Tickets Management
+    public function ticketsIndex()
+    {
+        $tickets = \App\Models\Ticket::with(['user', 'order'])->orderBy('created_at', 'desc')->get();
+        return view('dashboard.tickets.index', compact('tickets'));
+    }
+
+    public function updateTicketStatus(Request $request, \App\Models\Ticket $ticket)
+    {
+        $ticket->update(['status' => $request->status]);
+        return redirect()->back()->with('success', 'Ticket status updated');
+    }
+
+    // Tenant Management
+    public function tenantsIndex()
+    {
+        $tenants = \App\Models\Tenant::with('domains')->orderBy('created_at', 'desc')->get();
+        return view('dashboard.tenants.index', compact('tenants'));
+    }
+
+    public function deleteTenant(\App\Models\Tenant $tenant)
+    {
+        $tenant->delete();
+        return redirect()->back()->with('success', 'Tenant deleted successfully');
     }
 }

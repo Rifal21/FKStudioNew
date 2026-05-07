@@ -118,4 +118,37 @@ trait NextcloudStorage
         curl_exec($ch);
         curl_close($ch);
     }
+
+    public function uploadRawToNextcloud($rawData, $filename, $folder)
+    {
+        $root = config('services.nextcloud.root');
+        $folder = $root ? rtrim($root, '/') . '/' . ltrim($folder, '/') : $folder;
+        $ncPath = $folder . '/' . $filename;
+
+        [$davBase, $username, $password] = $this->buildWebDavBaseUrl();
+        $this->mkcolNextcloud($folder, $davBase, $username, $password);
+
+        $pathSegments = explode('/', trim($ncPath, '/'));
+        $encodedPath = implode('/', array_map('rawurlencode', $pathSegments));
+        $webDavUrl = rtrim($davBase, '/') . '/' . $encodedPath;
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $webDavUrl);
+        curl_setopt($ch, CURLOPT_USERPWD, "$username:$password");
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $rawData);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return $ncPath;
+        }
+
+        throw new \Exception("Gagal mengunggah raw data ke Nextcloud. Kode: {$httpCode}");
+    }
 }

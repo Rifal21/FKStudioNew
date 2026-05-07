@@ -68,7 +68,8 @@
                                         @endforeach
                                     </ul>
 
-                                    <a href="{{ $package->cta_link ?? '#contact' }}"
+                                    <a href="{{ $package->cta_link ?? route('checkout', $package->id) }}"
+                                        {{ $package->cta_link && str_starts_with($package->cta_link, 'http') ? 'target="_blank"' : '' }}
                                         class="relative group/btn block w-full py-5 text-center rounded-2xl font-black text-sm md:text-base uppercase tracking-widest transition-all overflow-hidden {{ $package->is_featured ? 'bg-blue-600 text-white shadow-2xl shadow-blue-600/30' : 'bg-white/5 text-white hover:bg-white/10 border border-white/10' }}">
                                         <span class="relative z-10">{{ $package->getTranslation('cta_text') }}</span>
                                         <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>

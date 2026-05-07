@@ -28,10 +28,31 @@
                 <span>Statistics</span>
             </a>
 
+            @if(Auth::user()->isSuperAdmin())
             <a href="{{ route('dashboard.settings.edit') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.settings.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
                 <i class="fa-solid fa-gears w-5 group-hover:scale-110 transition-transform"></i>
                 <span>General Settings</span>
+            </a>
+
+            <p class="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 mt-8 mb-4">Transaction</p>
+
+            <a href="{{ route('dashboard.orders.index') }}" 
+               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.orders.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
+                <i class="fa-solid fa-cart-shopping w-5 group-hover:scale-110 transition-transform"></i>
+                <span>Package Orders</span>
+            </a>
+
+            <a href="{{ route('dashboard.tickets.index') }}" 
+               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.tickets.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
+                <i class="fa-solid fa-ticket w-5 group-hover:scale-110 transition-transform"></i>
+                <span>Tickets</span>
+            </a>
+
+            <a href="{{ route('dashboard.invoices.index') }}" 
+               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.invoices.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
+                <i class="fa-solid fa-file-invoice-dollar w-5 group-hover:scale-110 transition-transform"></i>
+                <span>Manual Invoices</span>
             </a>
 
             <p class="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 mt-8 mb-4">Landing Content</p>
@@ -66,12 +87,6 @@
                 <span>Service Packages</span>
             </a>
 
-            <a href="{{ route('dashboard.invoices.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.invoices.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-file-invoice-dollar w-5 group-hover:scale-110 transition-transform"></i>
-                <span>Invoices</span>
-            </a>
-
             <a href="{{ route('dashboard.testimonials.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.testimonials.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
                 <i class="fa-solid fa-comment-dots w-5 group-hover:scale-110 transition-transform"></i>
@@ -83,7 +98,17 @@
                 <i class="fa-solid fa-handshake w-5 group-hover:scale-110 transition-transform"></i>
                 <span>Clients</span>
             </a>
+            @endif
 
+            @if(Auth::user()->isSuperAdmin())
+            <p class="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 mt-8 mb-4">System</p>
+
+            <a href="{{ route('dashboard.tenants.index') }}" 
+               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.tenants.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
+                <i class="fa-solid fa-server w-5 group-hover:scale-110 transition-transform"></i>
+                <span>Tenants (Websites)</span>
+            </a>
+            @endif
         </div>
 
         <!-- User Footer -->

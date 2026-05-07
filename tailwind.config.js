@@ -8,6 +8,12 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
     ],
+    safelist: [
+        {
+            pattern: /(bg|text|border|ring)-(blue|emerald|rose|amber|violet)-(50|100|200|300|400|500|600|700|800|900)/,
+            variants: ['hover', 'focus', 'group-hover'],
+        },
+    ],
 
     theme: {
         extend: {

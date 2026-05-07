@@ -109,8 +109,16 @@
     </style>
 </head>
 
-<body class="antialiased selection:bg-blue-500 selection:text-white" x-data="{ mobileMenu: false, scrolled: false }"
-    @scroll.window="scrolled = (window.pageYOffset > 50)">
+<body class="antialiased selection:bg-blue-500 selection:text-white" x-data="{ mobileMenu: false, scrolled: false, activeSection: 'home' }"
+    @scroll.window="scrolled = (window.pageYOffset > 50); 
+        let sections = ['home', 'about', 'services', 'portfolio', 'packages'];
+        for (let i = sections.length - 1; i >= 0; i--) {
+            let el = document.getElementById(sections[i]);
+            if (el && window.pageYOffset >= el.offsetTop - 200) {
+                activeSection = sections[i];
+                break;
+            }
+        }">
 
     <!-- Background Decoration Blobs -->
     <div class="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden">

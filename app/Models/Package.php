@@ -22,4 +22,9 @@ class Package extends Model
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
     ];
+
+    public function orders()
+    {
+        return $this->hasMany(PackageOrder::class);
+    }
 }

@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin FKStudio',
             'email' => 'rifal@gmail.com',
             'password' => Hash::make('falkur21'),
+            'role' => 'super_admin',
         ]);
 
         // Run Section Seeders

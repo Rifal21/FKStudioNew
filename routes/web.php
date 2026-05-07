@@ -5,6 +5,8 @@ use App\Http\Controllers\LandingController;
 use App\Http\Controllers\CmsController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\DuitkuController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index'])->name('home');
@@ -12,10 +14,21 @@ Route::get('switch-language/{locale}', [LandingController::class, 'switchLanguag
 Route::post('/chat', [ChatController::class, 'sendMessage'])->name('chat.send');
 Route::get('/invoice/v/{invoice}', [InvoiceController::class, 'publicShow'])->name('invoices.public.show');
 
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/checkout/{package}', [CheckoutController::class, 'show'])->name('checkout');
+    Route::post('/checkout/{package}', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::post('/checkout/confirm/{order}', [CheckoutController::class, 'confirmPayment'])->name('checkout.confirm');
+    
+    // User Transactions & Websites
+    Route::get('/my-orders', [CheckoutController::class, 'userOrders'])->name('user.orders');
+    Route::get('/my-websites', [CheckoutController::class, 'userWebsites'])->name('user.websites');
+});
+
 Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () {
     Route::get('/', [CmsController::class, 'dashboard'])->name('dashboard');
     
-    Route::name('dashboard.')->group(function() {
+    Route::middleware(['role:super_admin'])->name('dashboard.')->group(function() {
         // Site Settings
     Route::get('/settings', [CmsController::class, 'editSettings'])->name('settings.edit');
     Route::post('/settings', [CmsController::class, 'updateSettings'])->name('settings.update');
@@ -77,6 +90,18 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     Route::patch('/invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
     Route::get('/invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
     Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
+
+    // Orders
+    Route::get('/orders', [CmsController::class, 'ordersIndex'])->name('orders.index');
+    Route::patch('/orders/{order}', [CmsController::class, 'updateOrderStatus'])->name('orders.update');
+
+    // Tickets
+    Route::get('/tickets', [CmsController::class, 'ticketsIndex'])->name('tickets.index');
+    Route::patch('/tickets/{ticket}', [CmsController::class, 'updateTicketStatus'])->name('tickets.update');
+
+    // Tenants
+    Route::get('/tenants', [CmsController::class, 'tenantsIndex'])->name('tenants.index');
+    Route::delete('/tenants/{tenant}', [CmsController::class, 'deleteTenant'])->name('tenants.destroy');
 
     });
 

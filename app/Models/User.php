@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Traits\HasUuid;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['id', 'name', 'email', 'password'])]
+#[Fillable(['id', 'name', 'email', 'password', 'role'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -20,6 +20,16 @@ class User extends Authenticatable
 
     public $incrementing = false;
     protected $keyType = 'string';
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super_admin';
+    }
+
+    public function isUser(): bool
+    {
+        return $this->role === 'user';
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -32,5 +42,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(PackageOrder::class);
+    }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
     }
 }
