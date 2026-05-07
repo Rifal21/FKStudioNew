@@ -58,7 +58,7 @@
                                 </td>
                                 <td class="p-6 space-y-1">
                                     @foreach($tenant->domains as $domain)
-                                        <a href="http://{{ $domain->domain }}:8000" target="_blank" class="inline-flex items-center text-xs font-mono text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-1 rounded-md transition-colors">
+                                        <a href="{{ request()->getScheme() }}://{{ $domain->domain }}{{ request()->getPort() == 8000 ? ':8000' : '' }}" target="_blank" class="inline-flex items-center text-xs font-mono text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-1 rounded-md transition-colors">
                                             <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i> {{ $domain->domain }}
                                         </a>
                                     @endforeach
@@ -68,7 +68,7 @@
                                 </td>
                                 <td class="p-6 text-right space-x-2">
                                     @if($tenant->domains->count() > 0)
-                                        <a href="http://{{ $tenant->domains->first()->domain }}:8000" target="_blank" class="inline-flex items-center px-3 py-2 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors">
+                                        <a href="{{ request()->getScheme() }}://{{ $tenant->domains->first()->domain }}{{ request()->getPort() == 8000 ? ':8000' : '' }}" target="_blank" class="inline-flex items-center px-3 py-2 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors">
                                             <i class="fa-solid fa-eye mr-2"></i> Visit
                                         </a>
                                     @endif

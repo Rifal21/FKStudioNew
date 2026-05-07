@@ -55,7 +55,7 @@
                     <p class="text-slate-400 text-sm mb-6">Generated dari: {{ $order->package_name }}</p>
                     
                     <div class="space-y-4">
-                        <a href="http://{{ $order->subdomain }}.{{ $baseDomain }}:8000" target="_blank" class="w-full py-4 bg-blue-600 text-white rounded-xl text-xs font-black uppercase tracking-widest text-center hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center justify-center space-x-2">
+                        <a href="{{ request()->getScheme() }}://{{ $order->subdomain }}.{{ $baseDomain }}{{ request()->getPort() == 8000 ? ':8000' : '' }}" target="_blank" class="w-full py-4 bg-blue-600 text-white rounded-xl text-xs font-black uppercase tracking-widest text-center hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center justify-center space-x-2">
                             <span>Kunjungi Website</span>
                             <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                         </a>

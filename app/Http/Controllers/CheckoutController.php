@@ -184,7 +184,7 @@ class CheckoutController extends Controller
         $settings = SiteSetting::first();
         
         // For local dev, use fkstudio.test. For production, use env config.
-        $baseDomain = env('TENANCY_BASE_DOMAIN', 'fkstudio.test');
+        $baseDomain = env('TENANCY_BASE_DOMAIN', 'fkstudio.id');
         
         return view('landing.user.websites', compact('orders', 'settings', 'baseDomain'));
     }
