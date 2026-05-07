@@ -11,6 +11,7 @@ class PackageOrder extends Model
     use HasFactory, HasUuid;
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $guarded = [];
@@ -37,24 +38,24 @@ class PackageOrder extends Model
 
     public function provisionTenant()
     {
-        if ($this->subdomain && !$this->tenant_id) {
-            $tenant = \App\Models\Tenant::create([
+        if ($this->subdomain && ! $this->tenant_id) {
+            $tenant = Tenant::create([
                 'id' => $this->subdomain,
                 'package_order_id' => $this->id,
                 'branding_name' => $this->branding_name,
             ]);
-            
+
             // For local dev, use localhost. For production, use env config.
-            $baseDomain = env('TENANCY_BASE_DOMAIN', 'localhost');
+            $baseDomain = env('TENANCY_BASE_DOMAIN', 'fkstudio.id');
             $tenant->domains()->create([
-                'domain' => $this->subdomain . '.' . $baseDomain,
+                'domain' => $this->subdomain.'.'.$baseDomain,
             ]);
 
             $this->update(['tenant_id' => $tenant->id]);
 
             // Seed tenant with the purchaser's user account
             $tenant->run(function () {
-                \App\Models\User::create([
+                User::create([
                     'name' => $this->user->name,
                     'email' => $this->user->email,
                     'password' => $this->user->password,
