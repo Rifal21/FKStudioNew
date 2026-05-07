@@ -18,6 +18,7 @@
                         <tr class="bg-slate-50/50 border-b border-slate-100">
                             <th class="p-6 text-xs font-black uppercase tracking-widest text-slate-400">Tenant ID / Subdomain</th>
                             <th class="p-6 text-xs font-black uppercase tracking-widest text-slate-400">Branding Name</th>
+                            <th class="p-6 text-xs font-black uppercase tracking-widest text-slate-400">Owner / User</th>
                             <th class="p-6 text-xs font-black uppercase tracking-widest text-slate-400">Domain Links</th>
                             <th class="p-6 text-xs font-black uppercase tracking-widest text-slate-400">Created At</th>
                             <th class="p-6 text-xs font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
@@ -39,6 +40,21 @@
                                 </td>
                                 <td class="p-6">
                                     <span class="font-bold text-slate-700">{{ $tenant->branding_name ?? 'N/A' }}</span>
+                                </td>
+                                <td class="p-6">
+                                    @if($tenant->owner)
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-500 border border-slate-200">
+                                                {{ strtoupper(substr($tenant->owner->name, 0, 1)) }}
+                                            </div>
+                                            <div>
+                                                <p class="text-xs font-black text-slate-900 leading-none">{{ $tenant->owner->name }}</p>
+                                                <p class="text-[10px] text-slate-400 mt-1">{{ $tenant->owner->email }}</p>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="text-xs text-slate-400 italic">No Owner</span>
+                                    @endif
                                 </td>
                                 <td class="p-6 space-y-1">
                                     @foreach($tenant->domains as $domain)

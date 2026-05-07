@@ -103,6 +103,11 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     Route::get('/tenants', [CmsController::class, 'tenantsIndex'])->name('tenants.index');
     Route::delete('/tenants/{tenant}', [CmsController::class, 'deleteTenant'])->name('tenants.destroy');
 
+    // Users
+    Route::get('/users', [CmsController::class, 'usersIndex'])->name('users.index');
+    Route::patch('/users/{user}', [CmsController::class, 'updateUser'])->name('users.update');
+    Route::delete('/users/{user}', [CmsController::class, 'deleteUser'])->name('users.destroy');
+
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

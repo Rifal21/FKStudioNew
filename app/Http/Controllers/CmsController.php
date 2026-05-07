@@ -487,10 +487,39 @@ class CmsController extends Controller
         return redirect()->back()->with('success', 'Ticket status updated');
     }
 
+    // Users Management
+    public function usersIndex()
+    {
+        $users = \App\Models\User::with(['orders', 'tickets'])->orderBy('created_at', 'desc')->get();
+        return view('dashboard.users.index', compact('users'));
+    }
+
+    public function updateUser(Request $request, \App\Models\User $user)
+    {
+        $user->update($request->only(['name', 'email', 'role']));
+        return redirect()->back()->with('success', 'User updated successfully');
+    }
+
+    public function deleteUser(\App\Models\User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return redirect()->back()->with('error', 'You cannot delete yourself');
+        }
+        $user->delete();
+        return redirect()->back()->with('success', 'User deleted successfully');
+    }
+
     // Tenant Management
     public function tenantsIndex()
     {
         $tenants = \App\Models\Tenant::with('domains')->orderBy('created_at', 'desc')->get();
+        
+        // Map owners to tenants
+        foreach ($tenants as $tenant) {
+            $order = \App\Models\PackageOrder::find($tenant->package_order_id);
+            $tenant->owner = $order ? $order->user : null;
+        }
+
         return view('dashboard.tenants.index', compact('tenants'));
     }
 

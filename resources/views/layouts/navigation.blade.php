@@ -52,7 +52,7 @@
             <a href="{{ route('dashboard.invoices.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.invoices.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
                 <i class="fa-solid fa-file-invoice-dollar w-5 group-hover:scale-110 transition-transform"></i>
-                <span>Manual Invoices</span>
+                <span>Invoices</span>
             </a>
 
             <p class="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 mt-8 mb-4">Landing Content</p>
@@ -107,6 +107,12 @@
                class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.tenants.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
                 <i class="fa-solid fa-server w-5 group-hover:scale-110 transition-transform"></i>
                 <span>Tenants (Websites)</span>
+            </a>
+
+            <a href="{{ route('dashboard.users.index') }}" 
+               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.users.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
+                <i class="fa-solid fa-users-gear w-5 group-hover:scale-110 transition-transform"></i>
+                <span>User Management</span>
             </a>
             @endif
         </div>
