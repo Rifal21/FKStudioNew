@@ -12,15 +12,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         then: function () {
             $centralDomains = config('tenancy.central_domains', []);
-            
-            if (empty($centralDomains)) {
+            $currentHost = request()->getHost();
+            $isCentral = in_array($currentHost, $centralDomains);
+
+            if ($isCentral || empty($centralDomains)) {
                 Route::middleware('web')->group(base_path('routes/web.php'));
             } else {
-                foreach ($centralDomains as $domain) {
-                    Route::middleware('web')
-                        ->domain($domain)
-                        ->group(base_path('routes/web.php'));
-                }
+                Route::middleware('web')->group(base_path('routes/tenant.php'));
             }
         }
     )

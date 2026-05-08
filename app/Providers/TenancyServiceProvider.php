@@ -100,8 +100,6 @@ class TenancyServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->bootEvents();
-        $this->mapRoutes();
-
         $this->makeTenancyMiddlewareHighestPriority();
     }
 
@@ -116,21 +114,6 @@ class TenancyServiceProvider extends ServiceProvider
                 Event::listen($event, $listener);
             }
         }
-    }
-
-    protected function mapRoutes()
-    {
-        $this->app->booted(function () {
-            if (file_exists(base_path('routes/tenant.php'))) {
-                $isCentralDomain = in_array(request()->getHost(), config('tenancy.central_domains', []));
-                
-                // Always load in console, or if not on a central domain
-                if ($this->app->runningInConsole() || !$isCentralDomain) {
-                    Route::namespace(static::$controllerNamespace)
-                        ->group(base_path('routes/tenant.php'));
-                }
-            }
-        });
     }
 
     protected function makeTenancyMiddlewareHighestPriority()
