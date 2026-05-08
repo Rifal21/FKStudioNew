@@ -77,15 +77,15 @@
                     <ul class="space-y-3 md:space-y-4 text-slate-400 text-sm md:text-base">
                         <li class="flex items-start space-x-3">
                             <i class="fa-solid fa-location-dot mt-1 text-blue-500"></i>
-                            <span>{{ $settings->address ?? 'Jakarta, Indonesia' }}</span>
+                            <span>{{ $settings->contact_address ?? 'Jakarta, Indonesia' }}</span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <i class="fa-solid fa-phone text-blue-500"></i>
-                            <span>{{ $settings->phone ?? '+62 812 3456 7890' }}</span>
+                            <span>{{ $settings->contact_phone ?? '+62 812 3456 7890' }}</span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <i class="fa-solid fa-envelope text-blue-500"></i>
-                            <span>{{ $settings->email ?? 'hello@fkstudio.com' }}</span>
+                            <span>{{ $settings->contact_email ?? 'hello@fkstudio.com' }}</span>
                         </li>
                     </ul>
                 </div>
