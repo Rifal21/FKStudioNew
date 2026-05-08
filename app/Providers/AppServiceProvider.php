@@ -33,8 +33,8 @@ class AppServiceProvider extends ServiceProvider
             $assetDomain = $centralDomains[0];
             $scheme = config('app.env') === 'local' ? 'http' : 'https';
             $port = request()->getPort() == 8000 ? ':8000' : '';
-            
-            \Illuminate\Support\Facades\Vite::useAssetUrl($scheme . '://' . $assetDomain . $port);
+            // Set asset URL ke domain pusat secara dinamis
+            config(['app.asset_url' => $scheme . '://' . $assetDomain . $port]);
         }
     }
 }
