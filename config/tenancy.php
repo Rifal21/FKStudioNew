@@ -27,6 +27,7 @@ return [
     'central_domains' => [
         'fkstudio.id',
         'localhost',
+        '127.0.0.1',
     ],
 
     /**

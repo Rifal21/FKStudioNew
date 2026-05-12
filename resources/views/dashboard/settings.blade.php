@@ -33,11 +33,23 @@
                         <textarea name="seo_description" rows="2" 
                             class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">{{ $settings->seo_description }}</textarea>
                     </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">SEO Keywords</label>
+                        <input type="text" name="seo_keywords" value="{{ $settings->seo_keywords }}" placeholder="creative, agency, portfolio, modern"
+                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Google Console Verification</label>
+                        <input type="text" name="google_console_verification" value="{{ $settings->google_console_verification }}" placeholder="google-site-verification-code"
+                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">
+                    </div>
                     
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 md:col-span-2 pt-4" 
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 md:col-span-2 pt-4" 
                         x-data="{ 
                             logoPreview: null,
                             faviconPreview: null,
+                            ogPreview: null,
                             handleLogo(e) {
                                 const file = e.target.files[0];
                                 if (file) this.logoPreview = URL.createObjectURL(file);
@@ -45,6 +57,10 @@
                             handleFavicon(e) {
                                 const file = e.target.files[0];
                                 if (file) this.faviconPreview = URL.createObjectURL(file);
+                            },
+                            handleOg(e) {
+                                const file = e.target.files[0];
+                                if (file) this.ogPreview = URL.createObjectURL(file);
                             }
                         }">
                         <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center space-x-4">
@@ -94,6 +110,31 @@
                             <div>
                                 <h4 class="font-bold text-slate-900">Favicon</h4>
                                 <p class="text-xs text-slate-500">ICO/PNG (32x32)</p>
+                            </div>
+                        </div>
+
+                        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center space-x-4">
+                            <div class="relative group">
+                                <div class="w-16 h-16 bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center border border-slate-200">
+                                    <template x-if="ogPreview">
+                                        <img :src="ogPreview" class="w-full h-full object-contain p-1">
+                                    </template>
+                                    <template x-if="!ogPreview">
+                                        @if ($settings->og_image)
+                                            <img src="{{ $settings->og_image_url }}" class="w-full h-full object-contain p-1">
+                                        @else
+                                            <i class="fa-solid fa-share-nodes text-slate-300 text-2xl"></i>
+                                        @endif
+                                    </template>
+                                </div>
+                                <label class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-xl opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                                    <i class="fa-solid fa-camera"></i>
+                                    <input type="file" name="og_image" class="hidden" @change="handleOg">
+                                </label>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">OG Image</h4>
+                                <p class="text-xs text-slate-500">Social Media (1200x630)</p>
                             </div>
                         </div>
                     </div>

@@ -10,7 +10,11 @@ use App\Http\Controllers\DuitkuController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index'])->name('home');
+Route::get('/products', [LandingController::class, 'packagesIndex'])->name('package.index');
+Route::get('/packages/{slug}', [LandingController::class, 'showPackage'])->name('package.show');
 Route::get('switch-language/{locale}', [LandingController::class, 'switchLanguage'])->name('switch-language');
+Route::get('/sitemap.xml', [App\Http\Controllers\SeoController::class, 'sitemap'])->name('sitemap');
+Route::get('/robots.txt', [App\Http\Controllers\SeoController::class, 'robots'])->name('robots');
 Route::post('/chat', [ChatController::class, 'sendMessage'])->name('chat.send');
 Route::get('/invoice/v/{invoice}', [InvoiceController::class, 'publicShow'])->name('invoices.public.show');
 

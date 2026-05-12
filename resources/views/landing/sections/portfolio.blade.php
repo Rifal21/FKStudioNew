@@ -44,15 +44,18 @@
 
                             @if ($project->image)
                                 <img src="{{ $project->media_url }}"
+                                    alt="{{ $project->getTranslation('title') }}"
                                     class="w-full h-full object-cover transition duration-1000 group-hover:scale-110">
                             @elseif($project->url)
                                 <div class="w-full h-full relative bg-slate-900 overflow-hidden">
                                     <iframe src="{{ $project->url }}"
+                                        title="{{ $project->getTranslation('title') }}"
                                         class="absolute top-0 left-0 w-[300%] h-[300%] origin-top-left border-none pointer-events-none opacity-40 group-hover:opacity-60 transition-opacity duration-1000"
                                         style="transform: scale(0.333333);" loading="lazy" scrolling="no"></iframe>
                                 </div>
                             @else
                                 <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80"
+                                    alt="Default project image"
                                     class="w-full h-full object-cover transition duration-1000 group-hover:scale-110">
                             @endif
 

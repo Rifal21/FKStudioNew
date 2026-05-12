@@ -46,7 +46,7 @@ class CmsController extends Controller
     public function updateSettings(Request $request)
     {
         $settings = SiteSetting::first();
-        $data = $request->except(['_token', 'site_logo', 'site_favicon', 'social', 'remove_invoice_qris']);
+        $data = $request->except(['_token', 'site_logo', 'site_favicon', 'social', 'remove_invoice_qris', 'og_image']);
         
         if ($request->has('social')) {
             $data['social_links'] = $request->social;
@@ -60,6 +60,10 @@ class CmsController extends Controller
         if ($request->hasFile('site_favicon')) {
             if ($settings->site_favicon) $this->deleteFromNextcloud($settings->site_favicon);
             $data['site_favicon'] = $this->uploadToNextcloud($request->file('site_favicon'), 'site');
+        }
+        if ($request->hasFile('og_image')) {
+            if ($settings->og_image) $this->deleteFromNextcloud($settings->og_image);
+            $data['og_image'] = $this->uploadToNextcloud($request->file('og_image'), 'site');
         }
         if ($request->hasFile('invoice_logo')) {
             if ($settings->invoice_logo) $this->deleteFromNextcloud($settings->invoice_logo);
@@ -396,6 +400,9 @@ class CmsController extends Controller
             $data['features_en'] = array_filter(array_map('trim', explode("\n", $request->features_en_raw)));
         }
 
+        // Auto-generate slug
+        $data['slug'] = \Illuminate\Support\Str::slug($request->name_en);
+
         Package::create($data);
         return redirect()->back()->with('success', 'Package added successfully');
     }
@@ -411,6 +418,11 @@ class CmsController extends Controller
         }
         if ($request->has('features_en_raw')) {
             $data['features_en'] = array_filter(array_map('trim', explode("\n", $request->features_en_raw)));
+        }
+
+        // Update slug if name changes
+        if ($request->has('name_en')) {
+            $data['slug'] = \Illuminate\Support\Str::slug($request->name_en);
         }
 
         $package->update($data);

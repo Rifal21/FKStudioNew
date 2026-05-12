@@ -5,9 +5,71 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $settings->getTranslation('site_name') ?: 'FKStudio' }} -
-        {{ $settings->getTranslation('seo_title') ?: 'Modern Creative Agency' }}</title>
-    <meta name="description" content="{{ $settings->getTranslation('seo_description') ?? '' }}">
+    <title>{{ $settings->seo_title ?: ($settings->site_name ?: 'FKStudio') }}</title>
+    <meta name="description" content="{{ $settings->seo_description ?? '' }}">
+    <meta name="keywords" content="{{ $settings->seo_keywords ?? '' }}">
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    @if ($settings->google_console_verification)
+        <meta name="google-site-verification" content="{{ $settings->google_console_verification }}">
+    @endif
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="{{ $settings->seo_title ?: ($settings->site_name ?: 'FKStudio') }}">
+    <meta property="og:description" content="{{ $settings->seo_description ?? '' }}">
+    <meta property="og:image" content="{{ $settings->og_image ? $settings->og_image_url : ($settings->site_logo ? $settings->logo_url : '') }}">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ url()->current() }}">
+    <meta property="twitter:title" content="{{ $settings->seo_title ?: ($settings->site_name ?: 'FKStudio') }}">
+    <meta property="twitter:description" content="{{ $settings->seo_description ?? '' }}">
+    <meta property="twitter:image" content="{{ $settings->og_image ? $settings->og_image_url : ($settings->site_logo ? $settings->logo_url : '') }}">
+
+    <!-- JSON-LD Schema Markup -->
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "Organization",
+        "name": "{{ $settings->site_name }}",
+        "url": "{{ url('/') }}",
+        "logo": "{{ $settings->logo_url }}",
+        "contactPoint": {
+            "@@type": "ContactPoint",
+            "telephone": "{{ $settings->contact_phone }}",
+            "contactType": "customer service",
+            "email": "{{ $settings->contact_email }}"
+        },
+        "sameAs": [
+            @php
+                $socials = $settings->social_links ?? [];
+                $socialUrls = [];
+                if (is_array($socials)) {
+                    foreach($socials as $url) {
+                        if($url) $socialUrls[] = '"' . $url . '"';
+                    }
+                }
+                echo implode(",\n            ", $socialUrls);
+            @endphp
+        ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "WebSite",
+        "url": "{{ url('/') }}",
+        "name": "{{ $settings->site_name }}",
+        "description": "{{ $settings->seo_description }}",
+        "publisher": {
+            "@@type": "Organization",
+            "name": "{{ $settings->site_name }}",
+            "logo": "{{ $settings->logo_url }}"
+        }
+    }
+    </script>
 
     @if ($settings->site_favicon)
         <link rel="icon" type="image/png" href="{{ $settings->favicon_url }}">
@@ -110,7 +172,7 @@
 </head>
 
 <body class="antialiased selection:bg-blue-500 selection:text-white" x-data="{ mobileMenu: false, scrolled: false, activeSection: 'home' }"
-    @scroll.window="scrolled = (window.pageYOffset > 50); 
+    x-on:scroll.window="scrolled = (window.pageYOffset > 50); 
         let sections = ['home', 'about', 'services', 'portfolio', 'packages'];
         for (let i = sections.length - 1; i >= 0; i--) {
             let el = document.getElementById(sections[i]);

@@ -6,11 +6,11 @@
                 <div class="swiper-wrapper">
                     @forelse ($aboutSlides as $aslide)
                         <div class="swiper-slide h-full">
-                            <img src="{{ $aslide->media_url }}" class="w-full h-full object-cover">
+                            <img src="{{ $aslide->media_url }}" alt="About Slide" class="w-full h-full object-cover">
                         </div>
                     @empty
                         <div class="swiper-slide h-full">
-                            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80" class="w-full h-full object-cover">
+                            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80" alt="Default About Image" class="w-full h-full object-cover">
                         </div>
                     @endforelse
                 </div>
@@ -127,7 +127,7 @@
                                     <!-- Photo Container -->
                                     <div class="relative shrink-0 mx-auto lg:mx-0">
                                         <div class="w-56 h-56 md:w-80 md:h-80 rounded-[4rem] md:rounded-[6rem] overflow-hidden shadow-[0_0_100px_rgba(37,99,235,0.1)] transition-all duration-1000 group-hover/item:scale-105 group-hover/item:rotate-3 group-hover/item:shadow-blue-500/20">
-                                            <img src="{{ $owner->media_url }}" class="w-full h-full object-cover">
+                                            <img src="{{ $owner->media_url }}" alt="{{ $owner->name }}" class="w-full h-full object-cover">
                                         </div>
                                         
                                         <!-- Socials (Floating) -->

@@ -16,17 +16,20 @@
                     @forelse($heroSlides as $slide)
                         <div class="swiper-slide relative bg-slate-950">
                             <img src="{{ $slide->media_url }}"
+                                alt="Hero Slide"
                                 class="absolute inset-0 w-full h-full object-cover object-center transform scale-105 animate-slow-zoom">
                         </div>
                     @empty
                         @if ($hero->image)
                             <div class="swiper-slide relative bg-slate-950">
                                 <img src="{{ $hero->media_url }}"
+                                    alt="Hero Background"
                                     class="absolute inset-0 w-full h-full object-cover object-center transform scale-105 animate-slow-zoom">
                             </div>
                         @else
                             <div class="swiper-slide relative bg-slate-950">
                                 <img src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+                                    alt="Default Hero Background"
                                     class="absolute inset-0 w-full h-full object-cover object-center transform scale-105 animate-slow-zoom opacity-40">
                             </div>
                         @endif

@@ -18,6 +18,7 @@ class SiteSetting extends Model
     public function getInvoiceLogoUrlAttribute() { return $this->getUrl($this->invoice_logo); }
     public function getInvoiceSignatureUrlAttribute() { return $this->getUrl($this->invoice_signature); }
     public function getInvoiceQrisUrlAttribute() { return $this->getUrl($this->invoice_qris); }
+    public function getOgImageUrlAttribute() { return $this->getUrl($this->og_image); }
 
 
     public $incrementing = false;

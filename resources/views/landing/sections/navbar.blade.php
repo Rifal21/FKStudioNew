@@ -16,35 +16,40 @@
 
             <!-- Desktop Menu -->
             <div class="hidden lg:flex items-center space-x-6 xl:space-x-8">
-                <a href="#home"
-                    :class="activeSection === 'home' ? 'text-blue-400 font-bold' : 'text-slate-300 hover:text-white'"
+                @php
+                    $isHome = request()->routeIs('home');
+                    $isPackagePage = request()->routeIs('package.*');
+                @endphp
+
+                <a href="{{ route('home') }}#home"
+                    :class="(activeSection === 'home' && {{ $isHome ? 'true' : 'false' }}) ? 'text-blue-400 font-bold' : 'text-slate-300 hover:text-white'"
                     class="text-xs font-bold transition-colors uppercase tracking-[0.15em] relative group">
                     {{ app()->getLocale() == 'id' ? 'Beranda' : 'Home' }}
-                    <span class="absolute -bottom-2 left-0 w-full h-0.5 bg-blue-500 transform origin-left transition-transform duration-300" :class="activeSection === 'home' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'"></span>
+                    <span class="absolute -bottom-2 left-0 w-full h-0.5 bg-blue-500 transform origin-left transition-transform duration-300" :class="(activeSection === 'home' && {{ $isHome ? 'true' : 'false' }}) ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'"></span>
                 </a>
-                <a href="#about"
-                    :class="activeSection === 'about' ? 'text-blue-400 font-bold' : 'text-slate-300 hover:text-white'"
+                <a href="{{ route('home') }}#about"
+                    :class="(activeSection === 'about' && {{ $isHome ? 'true' : 'false' }}) ? 'text-blue-400 font-bold' : 'text-slate-300 hover:text-white'"
                     class="text-xs font-bold transition-colors uppercase tracking-[0.15em] relative group">
                     {{ app()->getLocale() == 'id' ? 'Tentang' : 'About' }}
-                    <span class="absolute -bottom-2 left-0 w-full h-0.5 bg-blue-500 transform origin-left transition-transform duration-300" :class="activeSection === 'about' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'"></span>
+                    <span class="absolute -bottom-2 left-0 w-full h-0.5 bg-blue-500 transform origin-left transition-transform duration-300" :class="(activeSection === 'about' && {{ $isHome ? 'true' : 'false' }}) ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'"></span>
                 </a>
-                <a href="#services"
-                    :class="activeSection === 'services' ? 'text-blue-400 font-bold' : 'text-slate-300 hover:text-white'"
+                <a href="{{ route('home') }}#services"
+                    :class="(activeSection === 'services' && {{ $isHome ? 'true' : 'false' }}) ? 'text-blue-400 font-bold' : 'text-slate-300 hover:text-white'"
                     class="text-xs font-bold transition-colors uppercase tracking-[0.15em] relative group">
                     {{ app()->getLocale() == 'id' ? 'Layanan' : 'Services' }}
-                    <span class="absolute -bottom-2 left-0 w-full h-0.5 bg-blue-500 transform origin-left transition-transform duration-300" :class="activeSection === 'services' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'"></span>
+                    <span class="absolute -bottom-2 left-0 w-full h-0.5 bg-blue-500 transform origin-left transition-transform duration-300" :class="(activeSection === 'services' && {{ $isHome ? 'true' : 'false' }}) ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'"></span>
                 </a>
-                <a href="#portfolio"
-                    :class="activeSection === 'portfolio' ? 'text-blue-400 font-bold' : 'text-slate-300 hover:text-white'"
+                <a href="{{ route('home') }}#portfolio"
+                    :class="(activeSection === 'portfolio' && {{ $isHome ? 'true' : 'false' }}) ? 'text-blue-400 font-bold' : 'text-slate-300 hover:text-white'"
                     class="text-xs font-bold transition-colors uppercase tracking-[0.15em] relative group">
                     {{ app()->getLocale() == 'id' ? 'Proyek' : 'Projects' }}
-                    <span class="absolute -bottom-2 left-0 w-full h-0.5 bg-blue-500 transform origin-left transition-transform duration-300" :class="activeSection === 'portfolio' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'"></span>
+                    <span class="absolute -bottom-2 left-0 w-full h-0.5 bg-blue-500 transform origin-left transition-transform duration-300" :class="(activeSection === 'portfolio' && {{ $isHome ? 'true' : 'false' }}) ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'"></span>
                 </a>
-                <a href="#packages"
-                    :class="activeSection === 'packages' ? 'text-blue-400 font-bold' : 'text-slate-300 hover:text-white'"
+                <a href="{{ route('package.index') }}"
+                    :class="({{ $isPackagePage ? 'true' : 'false' }} || (activeSection === 'packages' && {{ $isHome ? 'true' : 'false' }})) ? 'text-blue-400 font-bold' : 'text-slate-300 hover:text-white'"
                     class="text-xs font-bold transition-colors uppercase tracking-[0.15em] relative group">
-                    {{ app()->getLocale() == 'id' ? 'Paket' : 'Packages' }}
-                    <span class="absolute -bottom-2 left-0 w-full h-0.5 bg-blue-500 transform origin-left transition-transform duration-300" :class="activeSection === 'packages' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'"></span>
+                    {{ app()->getLocale() == 'id' ? 'Produk' : 'Products' }}
+                    <span class="absolute -bottom-2 left-0 w-full h-0.5 bg-blue-500 transform origin-left transition-transform duration-300" :class="({{ $isPackagePage ? 'true' : 'false' }} || (activeSection === 'packages' && {{ $isHome ? 'true' : 'false' }})) ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'"></span>
                 </a>
                 
                 <!-- Divider -->
@@ -107,21 +112,21 @@
         <!-- Mobile Menu -->
         <div x-show="mobileMenu" x-transition class="lg:hidden absolute top-full left-0 w-full glass p-4 mt-2 border-t">
             <div class="flex flex-col space-y-2">
-                <a href="#home" @click="mobileMenu = false"
-                    :class="activeSection === 'home' ? 'bg-blue-600/10 text-blue-400 font-bold border-l-4 border-blue-500' : 'text-slate-300 hover:bg-white/5 border-l-4 border-transparent'"
+                <a href="{{ route('home') }}#home" @click="mobileMenu = false"
+                    :class="(activeSection === 'home' && {{ $isHome ? 'true' : 'false' }}) ? 'bg-blue-600/10 text-blue-400 font-bold border-l-4 border-blue-500' : 'text-slate-300 hover:bg-white/5 border-l-4 border-transparent'"
                     class="text-lg px-4 py-3 rounded-r-xl transition-all">{{ app()->getLocale() == 'id' ? 'Beranda' : 'Home' }}</a>
-                <a href="#about" @click="mobileMenu = false"
-                    :class="activeSection === 'about' ? 'bg-blue-600/10 text-blue-400 font-bold border-l-4 border-blue-500' : 'text-slate-300 hover:bg-white/5 border-l-4 border-transparent'"
+                <a href="{{ route('home') }}#about" @click="mobileMenu = false"
+                    :class="(activeSection === 'about' && {{ $isHome ? 'true' : 'false' }}) ? 'bg-blue-600/10 text-blue-400 font-bold border-l-4 border-blue-500' : 'text-slate-300 hover:bg-white/5 border-l-4 border-transparent'"
                     class="text-lg px-4 py-3 rounded-r-xl transition-all">{{ app()->getLocale() == 'id' ? 'Tentang' : 'About' }}</a>
-                <a href="#services" @click="mobileMenu = false"
-                    :class="activeSection === 'services' ? 'bg-blue-600/10 text-blue-400 font-bold border-l-4 border-blue-500' : 'text-slate-300 hover:bg-white/5 border-l-4 border-transparent'"
+                <a href="{{ route('home') }}#services" @click="mobileMenu = false"
+                    :class="(activeSection === 'services' && {{ $isHome ? 'true' : 'false' }}) ? 'bg-blue-600/10 text-blue-400 font-bold border-l-4 border-blue-500' : 'text-slate-300 hover:bg-white/5 border-l-4 border-transparent'"
                     class="text-lg px-4 py-3 rounded-r-xl transition-all">{{ app()->getLocale() == 'id' ? 'Layanan' : 'Services' }}</a>
-                <a href="#portfolio" @click="mobileMenu = false"
-                    :class="activeSection === 'portfolio' ? 'bg-blue-600/10 text-blue-400 font-bold border-l-4 border-blue-500' : 'text-slate-300 hover:bg-white/5 border-l-4 border-transparent'"
+                <a href="{{ route('home') }}#portfolio" @click="mobileMenu = false"
+                    :class="(activeSection === 'portfolio' && {{ $isHome ? 'true' : 'false' }}) ? 'bg-blue-600/10 text-blue-400 font-bold border-l-4 border-blue-500' : 'text-slate-300 hover:bg-white/5 border-l-4 border-transparent'"
                     class="text-lg px-4 py-3 rounded-r-xl transition-all">{{ app()->getLocale() == 'id' ? 'Proyek' : 'Projects' }}</a>
-                <a href="#packages" @click="mobileMenu = false"
-                    :class="activeSection === 'packages' ? 'bg-blue-600/10 text-blue-400 font-bold border-l-4 border-blue-500' : 'text-slate-300 hover:bg-white/5 border-l-4 border-transparent'"
-                    class="text-lg px-4 py-3 rounded-r-xl transition-all">{{ app()->getLocale() == 'id' ? 'Paket' : 'Packages' }}</a>
+                <a href="{{ route('package.index') }}" @click="mobileMenu = false"
+                    :class="({{ $isPackagePage ? 'true' : 'false' }} || (activeSection === 'packages' && {{ $isHome ? 'true' : 'false' }})) ? 'bg-blue-600/10 text-blue-400 font-bold border-l-4 border-blue-500' : 'text-slate-300 hover:bg-white/5 border-l-4 border-transparent'"
+                    class="text-lg px-4 py-3 rounded-r-xl transition-all">{{ app()->getLocale() == 'id' ? 'Produk' : 'Products' }}</a>
                 
                 <div class="flex items-center space-x-4 px-4 py-4 mt-2 border-t border-white/5">
                     <a href="{{ url('switch-language/id') }}"
