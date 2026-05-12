@@ -55,12 +55,19 @@ class CheckoutController extends Controller
             $year = date('Y');
             $month = date('m');
             $day = date('d');
-            $lastInvoice = \App\Models\Invoice::where('invoice_number', 'LIKE', "INV-$year$month$day-%")
-                ->orderBy('invoice_number', 'desc')
+            $lastInvoice = \App\Models\Invoice::where('invoice_number', 'LIKE', 'INV-%')
+                ->latest()
                 ->first();
 
-            $nextNumber = $lastInvoice ? str_pad((int) substr($lastInvoice->invoice_number, -4) + 1, 4, '0', STR_PAD_LEFT) : '0001';
-            $invoiceNumber = "INV-$year$month$day-$nextNumber";
+            if ($lastInvoice) {
+                $parts = explode('-', $lastInvoice->invoice_number);
+                $lastNumber = (int) end($parts);
+                $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+            } else {
+                $nextNumber = '0001';
+            }
+
+            $invoiceNumber = "INV-$year$month$day-FKS-$nextNumber";
 
             $invoice = \App\Models\Invoice::create([
                 'invoice_number' => $invoiceNumber,

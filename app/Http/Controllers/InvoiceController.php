@@ -21,18 +21,20 @@ class InvoiceController extends Controller
         $year = date('Y');
         $month = date('m');
         $day = date('d');
-        $lastInvoice = Invoice::where('invoice_number', 'LIKE', "INV-$year$month$day/%")
-            ->orderBy('invoice_number', 'desc')
+        
+        $lastInvoice = Invoice::where('invoice_number', 'LIKE', 'INV-%')
+            ->latest()
             ->first();
 
         if ($lastInvoice) {
-            $lastNumber = (int) substr($lastInvoice->invoice_number, -4);
+            $parts = explode('-', $lastInvoice->invoice_number);
+            $lastNumber = (int) end($parts);
             $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
         } else {
-            $nextNumber = 'FKS-0001';
+            $nextNumber = '0001';
         }
 
-        $invoiceNumber = "INV-$year$month$day-$nextNumber";
+        $invoiceNumber = "INV-$year$month$day-FKS-$nextNumber";
 
         return view('dashboard.invoices.create', compact('invoiceNumber'));
     }

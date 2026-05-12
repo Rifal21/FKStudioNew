@@ -46,19 +46,19 @@ class GenerateSubscriptionInvoices extends Command
             $month = $today->format('m');
             $day = $today->format('d');
             
-            $lastInvoice = Invoice::where('invoice_number', 'LIKE', "INV-$year$month$day-%")
-                ->orderBy('invoice_number', 'desc')
+            $lastInvoice = Invoice::where('invoice_number', 'LIKE', 'INV-%')
+                ->latest()
                 ->first();
 
             if ($lastInvoice) {
                 $parts = explode('-', $lastInvoice->invoice_number);
-                $lastCount = (int) end($parts);
-                $nextCount = str_pad($lastCount + 1, 4, '0', STR_PAD_LEFT);
+                $lastNumber = (int) end($parts);
+                $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
             } else {
-                $nextCount = '0001';
+                $nextNumber = '0001';
             }
 
-            $invoiceNumber = "INV-$year$month$day-$nextCount";
+            $invoiceNumber = "INV-$year$month$day-FKS-$nextNumber";
             
             $invoice = Invoice::create([
                 'invoice_number' => $invoiceNumber,
