@@ -400,8 +400,6 @@ class CmsController extends Controller
             $data['features_en'] = array_filter(array_map('trim', explode("\n", $request->features_en_raw)));
         }
 
-        // Auto-generate slug
-        $data['slug'] = \Illuminate\Support\Str::slug($request->name_en);
 
         Package::create($data);
         return redirect()->back()->with('success', 'Package added successfully');
@@ -420,10 +418,6 @@ class CmsController extends Controller
             $data['features_en'] = array_filter(array_map('trim', explode("\n", $request->features_en_raw)));
         }
 
-        // Update slug if name changes
-        if ($request->has('name_en')) {
-            $data['slug'] = \Illuminate\Support\Str::slug($request->name_en);
-        }
 
         $package->update($data);
         return redirect()->back()->with('success', 'Package updated successfully');

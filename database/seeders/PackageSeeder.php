@@ -24,6 +24,7 @@ class PackageSeeder extends Seeder
             'cta_link' => '#contact',
             'is_active' => true,
             'is_featured' => false,
+            'slug' => 'starter-spark',
             'order' => 1,
         ]);
 
@@ -40,6 +41,7 @@ class PackageSeeder extends Seeder
             'cta_link' => '#contact',
             'is_active' => true,
             'is_featured' => true,
+            'slug' => 'business-growth',
             'order' => 2,
         ]);
 
@@ -56,6 +58,7 @@ class PackageSeeder extends Seeder
             'cta_link' => '#contact',
             'is_active' => true,
             'is_featured' => false,
+            'slug' => 'enterprise-custom',
             'order' => 3,
         ]);
     }

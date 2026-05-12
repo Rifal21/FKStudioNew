@@ -11,6 +11,17 @@ class Package extends Model
 {
     use HasFactory, HasUuid, HasTranslations;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($package) {
+            if (empty($package->slug) && !empty($package->name_en)) {
+                $package->slug = \Illuminate\Support\Str::slug($package->name_en);
+            }
+        });
+    }
+
     public $incrementing = false;
     protected $keyType = "string";
 
