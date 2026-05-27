@@ -31,8 +31,10 @@ return Application::configure(basePath: dirname(__DIR__))
             SetLocale::class,
         ]);
         $middleware->alias([
-            'role' => RoleMiddleware::class,
+            'role'       => RoleMiddleware::class,
             'tenant.onboarded' => EnsureTenantOnboarded::class,
+            'ability'    => \Laravel\Sanctum\Http\Middleware\CheckForAnyAbility::class,
+            'abilities'  => \Laravel\Sanctum\Http\Middleware\CheckAbilities::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
