@@ -12,16 +12,16 @@ class HeroSectionSeeder extends Seeder
     {
         HeroSection::truncate();
         HeroSection::create([
-            'title_id' => 'Wujudkan Ide Digital Anda Menjadi Kenyataan',
-            'title_en' => 'Turn Your Digital Ideas Into Reality',
-            'subtitle_id' => 'Kami adalah agensi kreatif yang berdedikasi untuk menciptakan pengalaman digital yang inovatif, fungsional, dan berorientasi pada hasil untuk brand Anda.',
-            'subtitle_en' => 'We are a creative agency dedicated to creating innovative, functional, and result-oriented digital experiences for your brand.',
-            'cta_text_id' => 'Mulai Proyek',
-            'cta_text_en' => 'Start Project',
-            'cta_link' => '#portfolio',
+            'title_id' => 'Transformasi Bisnis Lewat Website & Aplikasi Premium',
+            'title_en' => 'Elevate Your Business With Premium Web & Apps',
+            'subtitle_id' => 'Kami menghadirkan jasa pembuatan website custom, platform e-commerce, dan aplikasi mobile berkinerja tinggi yang dirancang khusus untuk mempercepat pertumbuhan bisnis Anda.',
+            'subtitle_en' => 'We deliver premium custom website development, robust e-commerce platforms, and high-performance mobile applications tailored to accelerate your business growth.',
+            'cta_text_id' => 'Mulai Konsultasi',
+            'cta_text_en' => 'Start Consultation',
+            'cta_link' => '/products',
         ]);
 
-        // Add some dummy slides if needed
+        // Add dummy slides
         HeroSlide::create(['image' => 'hero-1.jpg', 'order' => 1]);
         HeroSlide::create(['image' => 'hero-2.jpg', 'order' => 2]);
     }

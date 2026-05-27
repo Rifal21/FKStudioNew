@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
             ClientSeeder::class,
             OwnerSeeder::class,
             PackageSeeder::class,
+            BlogPostSeeder::class,
         ]);
     }
 }

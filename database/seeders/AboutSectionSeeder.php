@@ -12,14 +12,14 @@ class AboutSectionSeeder extends Seeder
     {
         AboutSection::truncate();
         AboutSection::create([
-            'title_id' => 'Kami Menciptakan Masa Depan Digital',
-            'title_en' => 'We Creating Digital Future',
-            'description_id' => 'FKStudio bukan sekadar agensi kreatif; kami adalah mitra strategis Anda dalam menavigasi kompleksitas dunia digital. Kami menggabungkan estetika desain dengan kecanggihan teknologi untuk menciptakan solusi yang tidak hanya indah dipandang, tetapi juga memberikan hasil nyata bagi pertumbuhan bisnis Anda.',
-            'description_en' => 'FKStudio is not just a creative agency; we are your strategic partner in navigating the complexities of the digital world. We combine design aesthetics with technological sophistication to create solutions that are not only beautiful to look at, but also deliver tangible results for your business growth.',
-            'vision_id' => 'Menjadi pusat inovasi digital global yang mendefinisikan ulang cara brand berinteraksi dengan audiens melalui pengalaman visual yang emosional dan teknologi yang inklusif.',
-            'vision_en' => 'To be a global digital innovation hub that redefines how brands interact with audiences through emotional visual experiences and inclusive technology.',
-            'mission_id' => "Mengutamakan kualitas estetik dan fungsional dalam setiap produk digital yang diciptakan.\nMemberdayakan bisnis melalui strategi digital yang terukur dan berorientasi pada hasil.\nMendorong batas-batas kreativitas melalui riset mendalam dan teknologi terbaru.\nMembangun ekosistem kolaborasi yang transparan dan berkelanjutan dengan setiap mitra.",
-            'mission_en' => "Prioritizing aesthetic and functional quality in every digital product created.\nEmpowering businesses through measurable and result-oriented digital strategies.\nPushing the boundaries of creativity through in-depth research and the latest technology.\nBuilding a transparent and sustainable collaboration ecosystem with every partner.",
+            'title_id' => 'Ahli Pembuatan Website & Aplikasi',
+            'title_en' => 'Experts in Web & App Development',
+            'description_id' => 'FKStudio adalah mitra pengembang digital yang berfokus pada jasa pembuatan website premium, landing page interaktif, dan aplikasi mobile berkinerja tinggi. Kami menggabungkan estetika UI/UX modern dengan performa teknologi mutakhir untuk mempercepat pertumbuhan bisnis Anda di era digital.',
+            'description_en' => 'FKStudio is a digital development partner focusing on premium custom website development, interactive landing pages, and high-performance mobile applications. We blend modern UI/UX aesthetics with cutting-edge tech stack to accelerate your business growth.',
+            'vision_id' => 'Menjadi agensi pengembang website dan aplikasi terpercaya yang menghadirkan solusi teknologi paling andal, asyik, dan mudah digunakan untuk semua kalangan bisnis.',
+            'vision_en' => 'To be a trusted web and mobile application development agency delivering the most reliable, interactive, and user-friendly technology solutions for all business scales.',
+            'mission_id' => "Menghadirkan website custom dan aplikasi mobile berkualitas premium dengan arsitektur kode bersih.\nMendampingi transformasi digital UMKM dan perusahaan korporat secara transparan dan solutif.\nMengoptimalkan performa kecepatan, keamanan, dan fungsionalitas di setiap produk yang dibuat.\nMemberikan layanan konsultasi IT dan pemeliharaan sistem jangka panjang yang responsif.",
+            'mission_en' => "Delivering premium custom websites and mobile apps with clean, maintainable codebases.\nSupporting the digital transformation of SMEs and corporations with transparent solutions.\nOptimizing speed performance, security, and responsive features in every built product.\nProviding responsive IT consulting and long-term proactive system maintenance.",
             'stats' => [
                 ['label_id' => 'Tahun Pengalaman', 'label_en' => 'Years Experience', 'value' => '5+'],
                 ['label_id' => 'Proyek Selesai', 'label_en' => 'Projects Completed', 'value' => '100+'],

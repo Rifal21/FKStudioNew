@@ -1,105 +1,110 @@
     <!-- Hero Section -->
     <header id="home"
-        class="relative min-h-[100svh] flex items-center justify-center pt-32 pb-20 lg:py-0 overflow-hidden bg-slate-950">
-        <!-- Floating Decorative Blobs -->
-        <div
-            class="absolute top-20 left-4 w-48 h-48 bg-blue-600/20 rounded-full blur-[80px] animate-pulse z-10 pointer-events-none">
-        </div>
-        <div
-            class="absolute bottom-10 right-4 w-72 h-72 bg-indigo-600/10 rounded-full blur-[100px] animate-bounce-slow z-10 pointer-events-none">
-        </div>
-
-        <!-- Slider Background (Full Screen) -->
-        <div class="absolute inset-0 z-0 bg-slate-950">
+        class="relative min-h-[100svh] flex items-center overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
+        
+        <!-- Swiper Background Slider (Full-Bleed, Highly Visible on Right half) -->
+        <div class="absolute inset-0 w-full h-full z-10">
             <div class="swiper heroSwiper w-full h-full">
                 <div class="swiper-wrapper">
                     @forelse($heroSlides as $slide)
-                        <div class="swiper-slide relative bg-slate-950">
+                        <div class="swiper-slide h-full w-full relative">
                             <img src="{{ $slide->media_url }}"
-                                alt="Hero Slide"
-                                class="absolute inset-0 w-full h-full object-cover object-center transform scale-105 animate-slow-zoom">
+                                alt="FKStudio Premium Showcase"
+                                class="w-full h-full object-cover object-center transform scale-100">
                         </div>
                     @empty
                         @if ($hero->image)
-                            <div class="swiper-slide relative bg-slate-950">
+                            <div class="swiper-slide h-full w-full relative">
                                 <img src="{{ $hero->media_url }}"
-                                    alt="Hero Background"
-                                    class="absolute inset-0 w-full h-full object-cover object-center transform scale-105 animate-slow-zoom">
+                                    alt="FKStudio Premium Showcase"
+                                    class="w-full h-full object-cover object-center transform scale-100">
                             </div>
                         @else
-                            <div class="swiper-slide relative bg-slate-950">
+                            <div class="swiper-slide h-full w-full relative">
                                 <img src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-                                    alt="Default Hero Background"
-                                    class="absolute inset-0 w-full h-full object-cover object-center transform scale-105 animate-slow-zoom opacity-40">
+                                    alt="Default Showcase"
+                                    class="w-full h-full object-cover object-center">
                             </div>
                         @endif
                     @endforelse
                 </div>
             </div>
-            <!-- Gradient Overlay for Readability - Darker on small screens -->
-            <div
-                class="absolute inset-0 bg-slate-950/70 lg:bg-transparent lg:bg-gradient-to-r lg:from-slate-950 lg:via-slate-950/80 lg:to-slate-950/20 z-10 pointer-events-none">
-            </div>
+
+            <!-- Master Horizontal Gradient Overlay: Blends background image seamlessly into the solid wording canvas -->
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-50 via-slate-50/95 to-slate-50/30 dark:from-slate-950 dark:via-slate-950/95 dark:to-slate-950/30 lg:from-slate-50 lg:via-slate-50/80 lg:to-transparent dark:lg:from-slate-950 dark:lg:via-slate-950/80 dark:lg:to-transparent z-20 pointer-events-none transition-colors duration-500"></div>
         </div>
 
-        <div class="container mx-auto px-6 md:px-8 relative z-20">
-            <div class="max-w-5xl" data-aos="fade-up" data-aos-duration="1200">
-                <div class="flex items-center space-x-4 mb-6 md:mb-8">
-                    <span class="w-10 md:w-16 h-[2px] bg-blue-500"></span>
-                    <span
-                        class="text-blue-400 font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] text-[10px] md:text-sm shadow-sm">Digital
-                        Agency</span>
-                </div>
+        <!-- Left Side: Content Container -->
+        <div class="container mx-auto px-6 md:px-8 relative z-30 w-full">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Left Column: Elegant Copywriting & Navigation -->
+                <div class="lg:col-span-6.5 xl:col-span-6 space-y-8 py-20 lg:py-32" data-aos="fade-right" data-aos-duration="1200">
 
-                <h1
-                    class="text-4xl sm:text-6xl lg:text-[7rem] font-black mb-6 md:mb-10 leading-[1.1] md:leading-[0.95] tracking-tighter">
-                    <span
-                        class="text-white drop-shadow-2xl">{{ app()->getLocale() == 'id' ? 'Solusi' : 'Creative' }}</span><br>
-                    <span
-                        class="gradient-text drop-shadow-xl">{{ app()->getLocale() == 'id' ? 'Digital Kreatif' : 'Digital Solution' }}</span>
-                </h1>
+                    {{-- badge text --}}
+                    <div class="inline-flex items-center space-x-2 bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-full px-4 py-2">
+                        <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                        <span class="text-xs font-medium text-slate-700 dark:text-slate-300">FKStudio IT Solution Partner</span>
+                    </div>
+                    <!-- Elegant H1 Headline -->
+                    <h1 class="text-4xl sm:text-5xl lg:text-[4.5rem] xl:text-[5rem] font-black leading-[1.1] tracking-tight text-slate-900 dark:text-white">
+                        <span class="gradient-text">{{ $hero->getTranslation('title') }}</span>
+                    </h1>
 
-                <p
-                    class="text-sm sm:text-xl lg:text-2xl text-slate-300 mb-8 md:mb-12 max-w-2xl leading-relaxed font-light">
-                    {{ $hero->getTranslation('subtitle') ?? 'We transform your ideas into extraordinary digital experiences that push boundaries.' }}
-                </p>
+                    <!-- Elegant Subtext -->
+                    <p class="text-base sm:text-lg lg:text-xl text-slate-650 dark:text-slate-300 max-w-xl leading-relaxed font-medium">
+                        {{ $hero->getTranslation('subtitle') ?? (app()->getLocale() == 'id' ? 'Kami menghadirkan jasa pembuatan website custom, platform e-commerce, dan aplikasi mobile berkinerja tinggi yang dirancang khusus untuk mempercepat pertumbuhan bisnis Anda.' : 'We deliver premium custom website development, robust e-commerce platforms, and high-performance mobile applications tailored to accelerate your business growth.') }}
+                    </p>
 
-                <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 items-stretch sm:items-center">
-                    <a href="{{ $hero->cta_link ?? '#contact' }}"
-                        class="group relative px-7 py-4 sm:px-10 sm:py-5 bg-blue-600 text-white rounded-2xl font-black text-base md:text-lg overflow-hidden transition-all hover:bg-blue-700 shadow-[0_20px_50px_rgba(37,99,235,0.4)] w-full sm:w-auto text-center">
-                        <span
-                            class="relative z-10 tracking-wide">{{ $hero->getTranslation('cta_text') ?? 'Start Project' }}</span>
-                        <div
-                            class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000">
-                        </div>
-                    </a>
+                    <!-- Elegant CTA Action Buttons & Swiper Navigation -->
+                    <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center pt-2">
+                        <!-- Primary CTA: Start Consultation -->
+                        <a href="{{ $hero->cta_link ?? '/products' }}"
+                            class="group relative px-8 py-4 bg-blue-600 text-white rounded-xl font-bold text-sm uppercase tracking-wider overflow-hidden transition-all duration-300 hover:bg-blue-700 shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 hover:-translate-y-0.5 w-full sm:w-auto text-center flex items-center justify-center gap-3">
+                            <span class="relative z-10">{{ $hero->getTranslation('cta_text') ?? (app()->getLocale() == 'id' ? 'Mulai Konsultasi' : 'Start Consultation') }}</span>
+                            <i class="fa-solid fa-arrow-right text-xs relative z-10 group-hover:translate-x-1 transition-transform duration-300"></i>
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                        </a>
 
-                    <div class="hidden sm:flex items-center space-x-4">
-                        <div class="flex -space-x-4">
-                            <div
-                                class="w-12 h-12 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center font-bold text-xs text-blue-400">
-                                JK</div>
-                            <div
-                                class="w-12 h-12 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center font-bold text-xs text-indigo-400">
-                                MA</div>
-                            <div
-                                class="w-12 h-12 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center font-bold text-xs text-cyan-400">
-                                +{{ $clients->count() }}</div>
-                        </div>
-                        <div class="text-sm text-slate-400">
-                            <span
-                                class="text-white font-bold">{{ app()->getLocale() == 'id' ? 'Klien' : 'Clients' }}</span><br>
-                            {{ app()->getLocale() == 'id' ? 'Puas Bergabung' : 'Happy Joining' }}
+                        <!-- Secondary CTA: View Portfolio -->
+                        <a href="#portfolio"
+                            class="group px-8 py-4 border border-slate-200 dark:border-white hover:border-blue-500/40 text-slate-700 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 rounded-xl font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:-translate-y-0.5 w-full sm:w-auto flex items-center justify-center gap-3">
+                            <span>{{ app()->getLocale() == 'id' ? 'Lihat Portofolio' : 'View Portfolio' }}</span>
+                        </a>
+
+                        <!-- Interactive Banner Navigation Arrows -->
+                        <div class="flex items-center space-x-2.5 justify-center sm:justify-start mt-2 sm:mt-0 sm:ml-2">
+                            <button class="hero-prev-btn w-12 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-700 dark:text-slate-300 flex items-center justify-center hover:bg-blue-600 dark:hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-sm active:scale-95 cursor-pointer">
+                                <i class="fa-solid fa-chevron-left text-xs"></i>
+                            </button>
+                            <button class="hero-next-btn w-12 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-700 dark:text-slate-300 flex items-center justify-center hover:bg-blue-600 dark:hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-sm active:scale-95 cursor-pointer">
+                                <i class="fa-solid fa-chevron-right text-xs"></i>
+                            </button>
                         </div>
                     </div>
+
+                    <!-- Trust Metrics / Clients Partners -->
+                    <div class="flex items-center space-x-4 pt-4 border-t border-slate-200/50 dark:border-slate-800 max-w-md">
+                        <div class="flex -space-x-3">
+                            <div class="w-10 h-10 rounded-full border-2 border-white dark:border-slate-950 bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-[10px] text-blue-600 shadow-sm">JK</div>
+                            <div class="w-10 h-10 rounded-full border-2 border-white dark:border-slate-950 bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-[10px] text-indigo-600 shadow-sm">MA</div>
+                            <div class="w-10 h-10 rounded-full border-2 border-white dark:border-slate-950 bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-[10px] text-cyan-600 shadow-sm">+{{ $clients->count() }}</div>
+                        </div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400 leading-snug">
+                            <span class="text-slate-800 dark:text-slate-200 font-extrabold">{{ app()->getLocale() == 'id' ? 'Mitra Bisnis Terpercaya' : 'Trusted Business Partners' }}</span><br>
+                            {{ app()->getLocale() == 'id' ? 'Telah berkolaborasi dengan brand terbaik.' : 'Collaborated with premium brands.' }}
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
 
-        <!-- Scroll Indicator -->
-        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 animate-bounce hidden lg:block">
-            <div class="w-6 h-10 rounded-full border-2 border-white/20 flex justify-center pt-2">
-                <div class="w-1 h-2 bg-blue-500 rounded-full"></div>
+        <!-- Scroll Indicator (Centered on Left Column) -->
+        <div class="absolute bottom-8 left-[50%] -translate-x-1/2 z-20 animate-bounce hidden lg:block">
+            <div class="w-5 h-8 rounded-full border-2 border-slate-350 dark:border-slate-700 flex justify-center pt-1.5">
+                <div class="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
             </div>
         </div>
+
     </header>

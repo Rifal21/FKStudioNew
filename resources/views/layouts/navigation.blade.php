@@ -81,6 +81,12 @@
                 <span>Portfolio</span>
             </a>
 
+            <a href="{{ route('dashboard.blogs.index') }}" 
+               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.blogs.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
+                <i class="fa-solid fa-newspaper w-5 group-hover:scale-110 transition-transform"></i>
+                <span>Manage Blog</span>
+            </a>
+
             <a href="{{ route('dashboard.packages.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.packages.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
                 <i class="fa-solid fa-tags w-5 group-hover:scale-110 transition-transform"></i>

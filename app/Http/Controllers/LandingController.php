@@ -12,6 +12,7 @@ use App\Models\HeroSlide;
 use App\Models\Client;
 use App\Models\Owner;
 use App\Models\Package;
+use App\Models\BlogPost;
 use Illuminate\Http\Request;
 
 class LandingController extends Controller
@@ -42,6 +43,15 @@ class LandingController extends Controller
         return view('landing.packages', compact('settings', 'about', 'packages'));
     }
 
+    public function projectsIndex()
+    {
+        $settings = SiteSetting::first();
+        $about = AboutSection::first();
+        $projects = Project::orderBy('order')->get();
+
+        return view('landing.portfolio', compact('settings', 'about', 'projects'));
+    }
+
     public function showPackage($slug)
     {
         $settings = SiteSetting::first();
@@ -57,5 +67,29 @@ class LandingController extends Controller
             session(['locale' => $locale]);
         }
         return redirect()->back();
+    }
+
+    public function blogsIndex()
+    {
+        $settings = SiteSetting::first();
+        $about = AboutSection::first();
+        $blogs = BlogPost::with('author')->where('is_published', true)->orderBy('published_at', 'desc')->get();
+
+        return view('landing.blogs.index', compact('settings', 'about', 'blogs'));
+    }
+
+    public function showBlog($slug)
+    {
+        $settings = SiteSetting::first();
+        $about = AboutSection::first();
+        $blog = BlogPost::with('author')->where('slug', $slug)->where('is_published', true)->firstOrFail();
+        
+        // Fetch up to 3 other related posts
+        $relatedBlogs = BlogPost::where('id', '!=', $blog->id)
+            ->where('is_published', true)
+            ->limit(3)
+            ->get();
+
+        return view('landing.blogs.show', compact('settings', 'about', 'blog', 'relatedBlogs'));
     }
 }

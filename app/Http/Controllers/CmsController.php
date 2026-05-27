@@ -12,13 +12,15 @@ use App\Models\Client;
 use App\Models\Owner;
 use App\Models\Package;
 use App\Models\Invoice;
+use App\Models\BlogPost;
 use App\Traits\NextcloudStorage;
+use App\Traits\HasMediaUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class CmsController extends Controller
 {
-    use NextcloudStorage;
+    use NextcloudStorage, HasMediaUrl;
 
     public function dashboard()
     {
@@ -32,8 +34,9 @@ class CmsController extends Controller
         $ownersCount = Owner::count();
         $packagesCount = Package::count();
         $invoicesCount = Invoice::count();
+        $blogsCount = BlogPost::count();
         
-        return view('dashboard', compact('servicesCount', 'projectsCount', 'testimonialsCount', 'ownersCount', 'packagesCount', 'invoicesCount'));
+        return view('dashboard', compact('servicesCount', 'projectsCount', 'testimonialsCount', 'ownersCount', 'packagesCount', 'invoicesCount', 'blogsCount'));
     }
 
     // Site Settings
@@ -510,5 +513,112 @@ class CmsController extends Controller
     {
         $tenant->delete();
         return redirect()->back()->with('success', 'Tenant deleted successfully');
+    }
+
+    // Blogs CRUD
+    public function blogsIndex()
+    {
+        $blogs = BlogPost::with('author')->orderBy('created_at', 'desc')->get();
+        return view('dashboard.blogs.index', compact('blogs'));
+    }
+
+    public function storeBlog(Request $request)
+    {
+        $request->validate([
+            'title_id' => 'required|string|max:255',
+            'title_en' => 'required|string|max:255',
+            'content' => 'required|string',
+            'author_name' => 'nullable|string|max:255',
+        ]);
+
+        $data = $request->except(['image']);
+        $data['slug'] = \Illuminate\Support\Str::slug($request->title_en);
+        
+        // Ensure unique slug
+        $originalSlug = $data['slug'];
+        $count = 1;
+        while (BlogPost::where('slug', $data['slug'])->exists()) {
+            $data['slug'] = $originalSlug . '-' . $count++;
+        }
+
+        $data['author_id'] = auth()->id();
+        $data['is_published'] = $request->has('is_published') ? 1 : 0;
+        $data['published_at'] = $request->has('is_published') ? now() : null;
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $this->uploadToNextcloud($request->file('image'), 'blogs');
+        }
+
+        BlogPost::create($data);
+        return redirect()->back()->with('success', 'Blog post created successfully');
+    }
+
+    public function updateBlog(Request $request, BlogPost $blog)
+    {
+        $request->validate([
+            'title_id' => 'required|string|max:255',
+            'title_en' => 'required|string|max:255',
+            'content' => 'required|string',
+            'author_name' => 'nullable|string|max:255',
+        ]);
+
+        $data = $request->except(['image']);
+        
+        // Re-slug if title changed
+        if ($blog->title_en !== $request->title_en) {
+            $data['slug'] = \Illuminate\Support\Str::slug($request->title_en);
+            $originalSlug = $data['slug'];
+            $count = 1;
+            while (BlogPost::where('slug', $data['slug'])->where('id', '!=', $blog->id)->exists()) {
+                $data['slug'] = $originalSlug . '-' . $count++;
+            }
+        }
+
+        $data['is_published'] = $request->has('is_published') ? 1 : 0;
+        if ($data['is_published'] && !$blog->is_published) {
+            $data['published_at'] = now();
+        } elseif (!$data['is_published']) {
+            $data['published_at'] = null;
+        }
+
+        if ($request->hasFile('image')) {
+            if ($blog->image) {
+                $this->deleteFromNextcloud($blog->image);
+            }
+            $data['image'] = $this->uploadToNextcloud($request->file('image'), 'blogs');
+        }
+
+        $blog->update($data);
+        return redirect()->back()->with('success', 'Blog post updated successfully');
+    }
+
+    public function deleteBlog(BlogPost $blog)
+    {
+        if ($blog->image) {
+            $this->deleteFromNextcloud($blog->image);
+        }
+        $blog->delete();
+        return redirect()->back()->with('success', 'Blog post deleted successfully');
+    }
+
+    public function uploadEditorImage(Request $request)
+    {
+        if ($request->hasFile('upload')) {
+            $path = $this->uploadToNextcloud($request->file('upload'), 'blogs/editor');
+            $url = $this->getUrl($path);
+            return response()->json([
+                'url' => $url
+            ]);
+        }
+        
+        if ($request->hasFile('image')) {
+            $path = $this->uploadToNextcloud($request->file('image'), 'blogs/editor');
+            $url = $this->getUrl($path);
+            return response()->json([
+                'url' => $url
+            ]);
+        }
+        
+        return response()->json(['error' => 'No image uploaded'], 400);
     }
 }

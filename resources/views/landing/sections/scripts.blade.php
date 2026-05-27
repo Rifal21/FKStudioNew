@@ -13,21 +13,34 @@
                 fadeEffect: {
                     crossFade: true
                 },
-                speed: 3000,
+                speed: 1200,
                 autoplay: {
-                    delay: 5000,
+                    delay: 4000,
                     disableOnInteraction: false,
                 },
                 loop: true,
                 watchSlidesProgress: true,
+                pagination: {
+                    el: ".hero-swiper-pagination",
+                    clickable: true,
+                    dynamicBullets: true,
+                },
+                navigation: {
+                    nextEl: ".hero-next-btn",
+                    prevEl: ".hero-prev-btn",
+                },
             });
 
             // Swiper About
             var swiperAbout = new Swiper(".aboutSwiper", {
-                effect: "cards",
+                effect: "fade",
+                fadeEffect: {
+                    crossFade: true
+                },
+                speed: 1200,
                 grabCursor: true,
                 autoplay: {
-                    delay: 4000,
+                    delay: 4500,
                     disableOnInteraction: false,
                 },
                 pagination: {

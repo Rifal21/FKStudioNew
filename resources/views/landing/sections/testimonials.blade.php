@@ -1,69 +1,79 @@
-    <!-- Testimonials -->
-    <section id="testimonials" class="py-20 md:py-32 bg-slate-950 relative overflow-hidden">
-        <!-- Background Accents -->
-        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px] pointer-events-none"></div>
-        <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[100px] pointer-events-none"></div>
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-24 md:py-40 bg-white dark:bg-slate-950 relative overflow-hidden transition-colors duration-500">
+        
+        <!-- Ambient Glowing Background Elements -->
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/5 dark:bg-blue-600/5 rounded-full blur-[120px] pointer-events-none animate-pulse"></div>
+        <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-500/5 dark:bg-indigo-600/5 rounded-full blur-[120px] pointer-events-none animate-pulse" style="animation-delay: 2.5s;"></div>
 
         <div class="container mx-auto px-6 relative z-10">
-            <div class="text-center max-w-4xl mx-auto mb-16 md:mb-24">
-                <div class="inline-flex items-center space-x-3 mb-4" data-aos="fade-up">
-                    <span class="w-10 h-[1px] bg-blue-500/50"></span>
-                    <span class="text-blue-500 font-black uppercase tracking-[0.4em] text-[10px]">
+            
+            <!-- Section Header -->
+            <div class="text-center max-w-4xl mx-auto mb-20 md:mb-32">
+                <div class="inline-flex items-center space-x-3 mb-6" data-aos="fade-up" data-aos-once="true">
+                    <span class="w-10 h-[1px] bg-blue-600/30"></span>
+                    <span class="text-blue-600 dark:text-blue-400 font-black uppercase tracking-[0.4em] text-[10px] md:text-xs">
                         {{ app()->getLocale() == 'id' ? 'Kepuasan Klien' : 'Client Satisfaction' }}
                     </span>
-                    <span class="w-10 h-[1px] bg-blue-500/50"></span>
+                    <span class="w-10 h-[1px] bg-blue-600/30"></span>
                 </div>
-                <h2 class="text-4xl md:text-6xl font-black text-white mb-6 tracking-tighter leading-none" data-aos="fade-up" data-aos-delay="100">
+                
+                <h2 class="text-5xl md:text-7xl font-black text-slate-900 dark:text-white mb-8 tracking-tighter leading-none" data-aos="fade-up" data-aos-once="true" data-aos-delay="100">
                     {{ app()->getLocale() == 'id' ? 'Apa Kata' : 'What' }} <span class="gradient-text">{{ app()->getLocale() == 'id' ? 'Mereka.' : 'They Say.' }}</span>
                 </h2>
-                <p class="text-base md:text-lg text-slate-400 max-w-xl mx-auto font-medium" data-aos="fade-up" data-aos-delay="200">
-                    Berikut adalah pengalaman klien bekerja bersama FKStudio.
+                
+                <p class="text-lg md:text-xl text-slate-655 dark:text-slate-350 max-w-xl mx-auto font-medium" data-aos="fade-up" data-aos-once="true" data-aos-delay="200">
+                    {{ app()->getLocale() == 'id' ? 'Berikut adalah pengalaman klien bekerja bersama FKStudio.' : 'Read authentic stories from business owners who partnered with FKStudio.' }}
                 </p>
             </div>
 
+            <!-- Swiper Slider Container -->
             <div class="swiper testimonialSwiper lg:max-w-6xl mx-auto overflow-visible">
-                <div class="swiper-wrapper py-6">
-                    @foreach ($testimonials as $tm)
+                <div class="swiper-wrapper py-8">
+                    @foreach ($testimonials as $index => $tm)
                         <div class="swiper-slide h-auto px-3">
-                            <div class="glass p-8 md:p-10 rounded-[2.5rem] text-left relative h-full flex flex-col justify-between border border-white/5 hover:border-blue-500/30 transition-all duration-700 shadow-xl"
-                                data-aos="fade-up">
-                                <!-- Quote Icon -->
-                                <div class="absolute -top-4 -left-4 md:-top-6 md:-left-6">
-                                    <div class="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white text-lg md:text-2xl shadow-xl shadow-blue-500/40 transform -rotate-12">
-                                        <i class="fa-solid fa-quote-left"></i>
-                                    </div>
-                                </div>
+                            
+                            <!-- High-Fidelity Glassmorphic Card -->
+                            <div class="bg-white/80 dark:bg-slate-900/40 p-8 md:p-12 rounded-[3rem] text-left relative h-full flex flex-col justify-between border border-slate-200/50 dark:border-white/5 hover:border-blue-500/20 dark:hover:border-blue-500/15 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(59,130,246,0.06)] shadow-md transition-all duration-700 flex flex-col"
+                                 data-aos="fade-up"
+                                 data-aos-once="true"
+                                 data-aos-delay="{{ 100 * ($index % 3) }}">
+                                
+                                <!-- Large Ambient Quotation Mark in Background -->
+                                <div class="absolute top-6 right-8 text-[7rem] md:text-[8rem] font-serif font-black text-blue-600/5 dark:text-blue-500/5 select-none pointer-events-none leading-none">”</div>
 
-                                <div class="relative pt-4">
-                                    <!-- Stars -->
-                                    <div class="flex text-yellow-500 mb-6 space-x-1">
+                                <div class="relative">
+                                    <!-- Amber Glowing Stars Grid -->
+                                    <div class="flex text-amber-500 mb-8 space-x-1.5">
                                         @for ($i = 0; $i < ($tm->rating ?? 5); $i++)
-                                            <i class="fa-solid fa-star text-[10px]"></i>
+                                            <i class="fa-solid fa-star text-xs drop-shadow-[0_0_8px_rgba(245,158,11,0.55)]"></i>
                                         @endfor
                                     </div>
 
-                                    <p class="text-base md:text-lg italic text-slate-300 mb-8 leading-relaxed font-medium">
+                                    <!-- Testimonial content -->
+                                    <p class="text-base md:text-lg italic text-slate-700 dark:text-white mb-10 leading-relaxed font-semibold md:font-medium">
                                         "{{ $tm->getTranslation('content') }}"
                                     </p>
                                 </div>
 
-                                <div class="flex items-center space-x-4 mt-6 border-t border-white/5 pt-8">
+                                <!-- Client Meta Block -->
+                                <div class="flex items-center space-x-4 border-t border-slate-200/50 dark:border-white/5 pt-6 mt-auto">
                                     @if ($tm->avatar)
-                                        <div class="relative group/avatar">
-                                            <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl blur opacity-25 group-hover/avatar:opacity-100 transition duration-700"></div>
+                                        <div class="relative shrink-0 group/avatar">
+                                            <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur-md opacity-20 group-hover/avatar:opacity-60 transition duration-700"></div>
                                             <img src="{{ $tm->media_url }}"
-                                                class="relative w-12 h-12 md:w-14 md:h-14 rounded-xl object-cover shadow-xl">
+                                                 class="relative w-12 h-12 md:w-14 md:h-14 rounded-2xl object-cover border border-white/40 dark:border-white/10 shadow-sm"
+                                                 alt="{{ $tm->name }}">
                                         </div>
                                     @else
-                                        <div class="w-12 h-12 md:w-14 md:h-14 bg-slate-800 rounded-xl flex items-center justify-center font-black text-blue-500 text-lg md:text-xl border border-white/5">
+                                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-blue-500/10 dark:bg-blue-500/5 border border-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-lg md:text-xl shrink-0">
                                             {{ substr($tm->name, 0, 1) }}
                                         </div>
                                     @endif
-                                    <div>
-                                        <h4 class="font-black text-lg text-white tracking-tight leading-none mb-1.5">
+                                    <div class="truncate">
+                                        <h4 class="font-black text-base md:text-lg text-slate-900 dark:text-white tracking-tight leading-none mb-1.5 truncate">
                                             {{ $tm->name }}
                                         </h4>
-                                        <p class="text-[9px] text-blue-500 uppercase tracking-[0.2em] font-black italic">
+                                        <p class="text-[9px] text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] font-black italic">
                                             {{ $tm->getTranslation('role') }}
                                         </p>
                                     </div>
@@ -73,14 +83,19 @@
                     @endforeach
                 </div>
 
-                <!-- Swiper Navigation -->
-                <div class="flex justify-center items-center mt-16 md:mt-24 space-x-10">
-                    <button class="testimonial-prev w-14 h-14 md:w-16 md:h-16 rounded-3xl border border-white/5 flex items-center justify-center text-slate-500 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-500 outline-none group transform hover:-translate-x-2">
-                        <i class="fa-solid fa-arrow-left text-xl"></i>
+                <!-- Custom Luxury Navigation Controls -->
+                <div class="flex justify-center items-center mt-16 md:mt-24 space-x-8" data-aos="fade-up" data-aos-once="true">
+                    <!-- Prev Button -->
+                    <button class="testimonial-prev w-14 h-14 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/40 text-slate-650 dark:text-slate-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-500 shadow-sm outline-none group transform hover:-translate-x-1 backdrop-blur-md">
+                        <i class="fa-solid fa-arrow-left text-sm group-hover:-translate-x-0.5 transition-transform"></i>
                     </button>
+                    
+                    <!-- Progress Bullet Pagination -->
                     <div class="testimonial-pagination !static !w-auto"></div>
-                    <button class="testimonial-next w-14 h-14 md:w-16 md:h-16 rounded-3xl border border-white/5 flex items-center justify-center text-slate-500 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-500 outline-none group transform hover:translate-x-2">
-                        <i class="fa-solid fa-arrow-right text-xl"></i>
+                    
+                    <!-- Next Button -->
+                    <button class="testimonial-next w-14 h-14 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/40 text-slate-655 dark:text-slate-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-500 shadow-sm outline-none group transform hover:translate-x-1 backdrop-blur-md">
+                        <i class="fa-solid fa-arrow-right text-sm group-hover:translate-x-0.5 transition-transform"></i>
                     </button>
                 </div>
             </div>

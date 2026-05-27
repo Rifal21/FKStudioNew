@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index'])->name('home');
 Route::get('/products', [LandingController::class, 'packagesIndex'])->name('package.index');
+Route::get('/portfolio', [LandingController::class, 'projectsIndex'])->name('portfolio.index');
+Route::get('/blog', [LandingController::class, 'blogsIndex'])->name('blog.index');
+Route::get('/blog/{slug}', [LandingController::class, 'showBlog'])->name('blog.show');
 Route::get('/packages/{slug}', [LandingController::class, 'showPackage'])->name('package.show');
 Route::get('switch-language/{locale}', [LandingController::class, 'switchLanguage'])->name('switch-language');
 Route::get('/sitemap.xml', [App\Http\Controllers\SeoController::class, 'sitemap'])->name('sitemap');
@@ -60,6 +63,13 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     Route::post('/projects', [CmsController::class, 'storeProject'])->name('projects.store');
     Route::patch('/projects/{project}', [CmsController::class, 'updateProject'])->name('projects.update');
     Route::delete('/projects/{project}', [CmsController::class, 'deleteProject'])->name('projects.destroy');
+
+    // Blogs
+    Route::get('/blogs', [CmsController::class, 'blogsIndex'])->name('blogs.index');
+    Route::post('/blogs', [CmsController::class, 'storeBlog'])->name('blogs.store');
+    Route::patch('/blogs/{blog}', [CmsController::class, 'updateBlog'])->name('blogs.update');
+    Route::delete('/blogs/{blog}', [CmsController::class, 'deleteBlog'])->name('blogs.destroy');
+    Route::post('/blogs/upload-image', [CmsController::class, 'uploadEditorImage'])->name('blogs.upload_image');
 
     // Testimonials
     Route::get('/testimonials', [CmsController::class, 'testimonialsIndex'])->name('testimonials.index');

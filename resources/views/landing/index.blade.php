@@ -98,33 +98,50 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
+    <!-- Theme Switcher Prevention script -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
     <!-- Custom Styles -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
+            background-color: #f8fafc;
+            color: #1e293b;
         }
 
         .gradient-text {
-            @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-600;
+            @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600;
         }
 
         .glass {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(12px);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+        }
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .glass-dark {
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(15, 23, 42, 0.05);
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+        }
+        .dark .glass-dark {
+            background: rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .blob {
-            filter: blur(40px);
-            opacity: 0.15;
+            filter: blur(80px);
+            opacity: 0.35;
             z-index: -1;
         }
 
@@ -156,11 +173,14 @@
         }
 
         .testimonial-pagination .swiper-pagination-bullet {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(15, 23, 42, 0.2);
             opacity: 1;
             width: 8px;
             height: 8px;
             transition: all 0.3s ease;
+        }
+        .dark .testimonial-pagination .swiper-pagination-bullet {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .testimonial-pagination .swiper-pagination-bullet-active {
@@ -171,7 +191,7 @@
     </style>
 </head>
 
-<body class="antialiased selection:bg-blue-500 selection:text-white" x-data="{ mobileMenu: false, scrolled: false, activeSection: 'home' }"
+<body class="antialiased selection:bg-blue-500 selection:text-white bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300" x-data="{ mobileMenu: false, scrolled: false, activeSection: 'home' }"
     x-on:scroll.window="scrolled = (window.pageYOffset > 50); 
         let sections = ['home', 'about', 'services', 'portfolio', 'packages'];
         for (let i = sections.length - 1; i >= 0; i--) {
@@ -184,14 +204,16 @@
 
     <!-- Background Decoration Blobs -->
     <div class="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-        <div class="absolute top-1/4 -left-20 w-96 h-96 bg-blue-600 rounded-full blob animate-pulse"></div>
-        <div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-indigo-700 rounded-full blob animate-pulse"
+        <div class="absolute top-1/4 -left-20 w-96 h-96 bg-blue-300/40 dark:bg-blue-600/10 rounded-full blob animate-pulse"></div>
+        <div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-indigo-300/35 dark:bg-indigo-700/10 rounded-full blob animate-pulse"
             style="animation-delay: 2s;"></div>
+        <div class="absolute top-1/2 left-1/3 w-80 h-80 bg-rose-200/30 dark:bg-rose-500/5 rounded-full blob animate-bounce-slow"
+            style="animation-delay: 4s;"></div>
     </div>
 
     <!-- Preloader -->
     <div x-data="{ loading: true }" x-init="setTimeout(() => loading = false, 800)" x-show="loading"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950">
+        class="fixed inset-0 z-50 flex items-center justify-center bg-slate-50 dark:bg-slate-950">
         <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
 

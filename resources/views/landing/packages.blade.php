@@ -44,61 +44,80 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
+    <!-- Theme Switcher Prevention script -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
     <!-- Custom Styles -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
+            background-color: #f8fafc;
+            color: #1e293b;
         }
 
         .gradient-text {
-            @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-600;
+            @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600;
         }
 
         .glass {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(12px);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+        }
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .glass-dark {
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(15, 23, 42, 0.05);
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+        }
+        .dark .glass-dark {
+            background: rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .blob {
-            filter: blur(40px);
-            opacity: 0.15;
+            filter: blur(80px);
+            opacity: 0.35;
             z-index: -1;
         }
     </style>
 </head>
 
-<body class="antialiased selection:bg-blue-500 selection:text-white" x-data="{ mobileMenu: false, scrolled: true, activeSection: '' }">
+<body class="antialiased selection:bg-blue-500 selection:text-white bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300" x-data="{ mobileMenu: false, scrolled: true, activeSection: '' }">
 
     @include('landing.sections.navbar')
 
     <main class="pt-32 pb-20">
-        <section class="relative py-20 overflow-hidden">
-            <!-- Background Accents -->
-            <div class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none"></div>
-            <div class="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <!-- Floating Decor Blobs -->
+        <div class="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+            <div class="absolute top-1/4 -left-20 w-96 h-96 bg-blue-300/40 dark:bg-blue-600/10 rounded-full blob animate-pulse"></div>
+            <div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-indigo-300/35 dark:bg-indigo-700/10 rounded-full blob animate-pulse" style="animation-delay: 2s;"></div>
+        </div>
 
+        <section class="relative py-20 overflow-hidden">
             <div class="container mx-auto px-6 relative z-10">
                 <div class="text-center max-w-4xl mx-auto mb-20 md:mb-32">
                     <div class="inline-flex items-center space-x-3 mb-6" data-aos="fade-up">
-                        <span class="w-10 h-[1px] bg-blue-500/50"></span>
-                        <span class="text-blue-500 font-black uppercase tracking-[0.4em] text-[10px] md:text-xs">
+                        <span class="w-10 h-[1px] bg-blue-600/30"></span>
+                        <span class="text-blue-600 dark:text-blue-400 font-black uppercase tracking-[0.4em] text-[10px] md:text-xs">
                             {{ app()->getLocale() == 'id' ? 'Daftar Produk' : 'Product List' }}
                         </span>
-                        <span class="w-10 h-[1px] bg-blue-500/50"></span>
+                        <span class="w-10 h-[1px] bg-blue-600/30"></span>
                     </div>
-                    <h1 class="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-8 tracking-tighter leading-none" data-aos="fade-up" data-aos-delay="100">
+                    <h1 class="text-5xl md:text-7xl lg:text-8xl font-black text-slate-900 dark:text-white mb-8 tracking-tighter leading-none" data-aos="fade-up" data-aos-delay="100">
                         {{ app()->getLocale() == 'id' ? 'Pilihan' : 'Our' }} <span class="gradient-text">{{ app()->getLocale() == 'id' ? 'Terbaik.' : 'Packages.' }}</span>
                     </h1>
-                    <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto font-medium" data-aos="fade-up" data-aos-delay="200">
+                    <p class="text-lg md:text-xl text-slate-600 dark:text-slate-350 max-w-2xl mx-auto font-medium" data-aos="fade-up" data-aos-delay="200">
                         Pilih paket yang paling sesuai dengan skala bisnis dan visi masa depan Anda.
                     </p>
                 </div>
@@ -115,21 +134,21 @@
                             @endif
 
                             <!-- Card Glow Backdrop -->
-                            <div class="absolute -inset-1 bg-gradient-to-b from-blue-600/20 to-indigo-600/20 rounded-[3rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                            <div class="absolute -inset-1 bg-gradient-to-b {{ $package->is_featured ? 'from-blue-600/15 to-indigo-600/15 shadow-xl' : 'from-slate-200/20 to-transparent dark:from-slate-800/10' }} rounded-[3rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                             
-                            <div class="relative h-full glass p-8 md:p-12 rounded-[3rem] border border-white/5 flex flex-col transition-all duration-500 group-hover:translate-y-[-10px] group-hover:border-blue-500/30">
+                            <div class="relative h-full bg-white dark:bg-slate-900/40 p-8 md:p-12 rounded-[3rem] border border-slate-200/60 dark:border-white/5 shadow-md dark:shadow-lg hover:shadow-xl flex flex-col transition-all duration-500 group-hover:translate-y-[-10px] group-hover:border-blue-500/30 dark:group-hover:border-blue-500/25 transition-colors duration-500">
                                 <div class="mb-10">
-                                    <h3 class="text-2xl md:text-3xl font-black text-white mb-4 group-hover:text-blue-400 transition-colors duration-500 tracking-tight">
+                                    <h3 class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-200 mb-4 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-500 tracking-tight">
                                         {{ $package->getTranslation('name') }}
                                     </h3>
                                     <div class="flex items-baseline gap-2">
-                                        <span class="text-3xl md:text-4xl font-black text-blue-500 tracking-tighter">{{ $package->price }}</span>
-                                        <span class="text-slate-500 text-[10px] font-black uppercase tracking-widest">/ Project</span>
+                                        <span class="text-3xl md:text-4xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">{{ $package->price }}</span>
+                                        <span class="text-slate-400 text-[10px] font-black uppercase tracking-widest">/ Project</span>
                                     </div>
                                 </div>
 
                                 <div class="flex-grow">
-                                    <p class="text-slate-400 text-sm md:text-base leading-relaxed mb-10 font-medium">
+                                    <p class="text-slate-500 dark:text-slate-400 text-sm md:text-base leading-relaxed mb-10 font-medium">
                                         {{ Str::limit($package->getTranslation('description'), 100) }}
                                     </p>
 
@@ -139,18 +158,18 @@
                                             $features = array_slice($features ?? [], 0, 5);
                                         @endphp
                                         @foreach ($features as $feature)
-                                            <li class="flex items-start gap-4 text-sm text-slate-300 group/item">
-                                                <div class="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center group-hover/item:bg-blue-500 transition-colors duration-300">
-                                                    <i class="fa-solid fa-check text-[8px] text-blue-400 group-hover/item:text-white"></i>
+                                            <li class="flex items-start gap-4 text-sm text-slate-600 dark:text-slate-350 group/item">
+                                                <div class="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-blue-55 bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900/50 flex items-center justify-center group-hover/item:bg-blue-600 transition-colors duration-300">
+                                                    <i class="fa-solid fa-check text-[8px] text-blue-500 group-hover/item:text-white"></i>
                                                 </div>
-                                                <span class="group-hover/item:text-white transition-colors font-medium">{{ $feature }}</span>
+                                                <span class="group-hover/item:text-slate-900 dark:group-hover/item:text-white transition-colors font-medium">{{ $feature }}</span>
                                             </li>
                                         @endforeach
                                     </ul>
                                 </div>
 
                                 <a href="{{ route('package.show', $package->slug) }}"
-                                    class="relative group/btn block w-full py-5 text-center rounded-2xl font-black text-sm uppercase tracking-widest transition-all overflow-hidden {{ $package->is_featured ? 'bg-blue-600 text-white shadow-2xl shadow-blue-600/30' : 'bg-white/5 text-white hover:bg-white/10 border border-white/10' }}">
+                                    class="relative group/btn block w-full py-5 text-center rounded-2xl font-black text-sm uppercase tracking-widest transition-all overflow-hidden {{ $package->is_featured ? 'bg-blue-600 text-white shadow-2xl shadow-blue-600/30' : 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800' }}">
                                     <span class="relative z-10">{{ app()->getLocale() == 'id' ? 'Lihat Detail' : 'View Details' }}</span>
                                     <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
                                 </a>

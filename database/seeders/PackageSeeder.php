@@ -9,7 +9,7 @@ class PackageSeeder extends Seeder
 {
     public function run(): void
     {
-        Package::truncate();
+        Package::query()->delete();
 
         Package::create([
             'name_id' => 'Starter Spark',
