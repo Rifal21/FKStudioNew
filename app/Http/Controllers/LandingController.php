@@ -83,6 +83,9 @@ class LandingController extends Controller
         $settings = SiteSetting::first();
         $about = AboutSection::first();
         $blog = BlogPost::with('author')->where('slug', $slug)->where('is_published', true)->firstOrFail();
+
+        // Increment view counter
+        $blog->increment('views');
         
         // Fetch up to 3 other related posts
         $relatedBlogs = BlogPost::where('id', '!=', $blog->id)

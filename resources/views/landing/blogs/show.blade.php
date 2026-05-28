@@ -176,15 +176,25 @@
                 </h1>
 
                 <!-- Author & Date Profile Banner -->
-                <div class="flex items-center space-x-4 border-b border-slate-200/60 dark:border-white/5 pb-8">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center font-bold text-white shadow-md">
-                        {{ substr($blog->author_name ?: $blog->author->name, 0, 1) }}
+                <div class="flex items-center justify-between border-b border-slate-200/60 dark:border-white/5 pb-8">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center font-bold text-white shadow-md">
+                            {{ substr($blog->author_name ?: $blog->author->name, 0, 1) }}
+                        </div>
+                        <div>
+                            <p class="text-sm font-black text-slate-900 dark:text-white">{{ $blog->author_name ?: $blog->author->name }}</p>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+                                {{ $blog->published_at ? $blog->published_at->format('M d, Y') : $blog->created_at->format('M d, Y') }}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-sm font-black text-slate-900 dark:text-white">{{ $blog->author_name ?: $blog->author->name }}</p>
-                        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-0.5">
-                            {{ $blog->published_at ? $blog->published_at->format('M d, Y') : $blog->created_at->format('M d, Y') }}
-                        </p>
+                    <!-- View Count Badge -->
+                    <div class="flex items-center space-x-1.5 px-4 py-2 bg-slate-100/80 dark:bg-slate-900/50 rounded-2xl border border-slate-200/50 dark:border-white/5">
+                        <i class="fa-solid fa-eye text-slate-400 dark:text-slate-500 text-xs"></i>
+                        <span class="text-xs font-black text-slate-500 dark:text-slate-400">
+                            {{ number_format($blog->views) }}
+                            {{ app()->getLocale() == 'id' ? 'dibaca' : 'views' }}
+                        </span>
                     </div>
                 </div>
             </div>

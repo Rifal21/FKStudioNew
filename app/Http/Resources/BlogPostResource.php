@@ -23,6 +23,7 @@ class BlogPostResource extends JsonResource
             'content'       => $this->content,
             'author_name'   => $this->author_name ?: optional($this->author)->name,
             'cover_url'     => $this->image ? $this->media_url : null,
+            'views'         => (int) $this->views,
             'is_published'  => $this->is_published,
             'published_at'  => $this->published_at?->toIso8601String(),
             'created_at'    => $this->created_at->toIso8601String(),

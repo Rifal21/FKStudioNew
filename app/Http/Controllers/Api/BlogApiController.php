@@ -70,6 +70,9 @@ class BlogApiController extends Controller
             ->with('author')
             ->firstOrFail();
 
+        // Increment view counter
+        $blog->increment('views');
+
         return new BlogPostResource($blog);
     }
 
