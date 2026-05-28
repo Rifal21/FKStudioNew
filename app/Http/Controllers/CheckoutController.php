@@ -429,4 +429,16 @@ class CheckoutController extends Controller
 
         return view('landing.user.orders', compact('orders', 'settings'));
     }
+
+    public function userWebsites()
+    {
+        $orders = PackageOrder::where('user_id', Auth::id())
+            ->where('work_status', 'completed')
+            ->whereNotNull('website_url')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+        $settings = SiteSetting::first();
+
+        return view('landing.user.websites', compact('orders', 'settings'));
+    }
 }

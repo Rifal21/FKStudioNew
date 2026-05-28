@@ -35,6 +35,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // User Orders & Bookings
     Route::get('/my-orders', [CheckoutController::class, 'userOrders'])->name('user.orders');
+    Route::get('/my-websites', [CheckoutController::class, 'userWebsites'])->name('user.websites');
+
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () {
@@ -140,10 +146,6 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     Route::delete('/users/{user}', [CmsController::class, 'deleteUser'])->name('users.destroy');
 
     });
-
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__.'/auth.php';

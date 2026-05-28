@@ -1,5 +1,10 @@
-    <nav :class="(scrolled || mobileMenu) ? 'top-4 w-[calc(100%-2rem)] max-w-6xl bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border border-slate-200/40 dark:border-white/5 shadow-xl rounded-[2rem] lg:rounded-full py-3.5 px-6' : 'top-0 w-full bg-transparent py-8 px-6 sm:px-8 lg:px-12'"
-        class="fixed left-1/2 -translate-x-1/2 z-40 transition-all duration-500 ease-out"
+@php
+    if (!isset($settings) || !$settings) {
+        $settings = \App\Models\SiteSetting::first() ?: new \App\Models\SiteSetting();
+    }
+@endphp
+<nav :class="(scrolled || mobileMenu) ? 'top-4 w-[calc(100%-2rem)] max-w-6xl bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border border-slate-200/40 dark:border-white/5 shadow-xl rounded-[2rem] lg:rounded-full py-3.5 px-6' : 'top-0 w-full bg-transparent py-8 px-6 sm:px-8 lg:px-12'"
+    class="fixed left-1/2 -translate-x-1/2 z-40 transition-all duration-500 ease-out"
         x-data="{ 
             mobileMenu: false,
             isDark: localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches),
@@ -33,6 +38,13 @@
                 @php
                     $isHome = request()->routeIs('home');
                     $isPackagePage = request()->routeIs('package.*');
+                    $completedOrder = null;
+                    if(auth()->check()) {
+                        $completedOrder = \App\Models\PackageOrder::where('user_id', auth()->id())
+                            ->where('work_status', 'completed')
+                            ->whereNotNull('website_url')
+                            ->first();
+                    }
                 @endphp
 
                 <a href="{{ route('home') }}#home"
@@ -90,17 +102,68 @@
                 <!-- Auth Links -->
                 <div class="flex items-center space-x-3 ml-2">
                     @auth
-                        @if(auth()->user()->isSuperAdmin())
-                            <a href="{{ route('dashboard') }}" class="px-6 py-3 bg-blue-600 text-white text-[10px] md:text-xs font-black uppercase tracking-widest rounded-full hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 hover:shadow-blue-600/35 hover:-translate-y-0.5 duration-300 group flex items-center">
-                                <span>Dashboard</span>
-                                <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
-                            </a>
-                        @else
-                            <a href="{{ route('user.orders') }}" class="px-6 py-3 bg-blue-600 text-white text-[10px] md:text-xs font-black uppercase tracking-widest rounded-full hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 hover:shadow-blue-600/35 hover:-translate-y-0.5 duration-300 group flex items-center">
-                                <span>Pesanan Saya</span>
-                                <i class="fa-solid fa-box ml-2 group-hover:scale-110 transition-transform"></i>
-                            </a>
-                        @endif
+                        <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                            <!-- Avatar Trigger Button -->
+                            <button @click="open = !open" class="flex items-center space-x-2 p-1 rounded-full hover:bg-slate-100/80 dark:hover:bg-white/5 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-sm uppercase tracking-wider shadow-lg shadow-blue-500/20 border border-white/10 group-hover:scale-105 transition-transform duration-300">
+                                    {{ substr(auth()->user()->name, 0, 1) }}
+                                </div>
+                                <i class="fa-solid fa-chevron-down text-[10px] text-slate-500 transition-transform duration-300" :class="open ? 'rotate-180' : ''"></i>
+                            </button>
+
+                            <!-- Dropdown Menu -->
+                            <div x-show="open" 
+                                x-cloak
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
+                                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
+                                class="absolute right-0 mt-3 w-56 glass bg-white dark:bg-slate-900/95 backdrop-blur-2xl rounded-2xl border border-slate-200/50 dark:border-white/5 shadow-2xl p-2 z-50 space-y-1">
+                                
+                                <!-- User Info Header -->
+                                <div class="px-4 py-3 border-b border-slate-150 dark:border-white/5 mb-1 select-none">
+                                    <p class="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Masuk sebagai</p>
+                                    <p class="text-xs font-black text-slate-800 dark:text-white truncate uppercase mt-0.5">{{ auth()->user()->name }}</p>
+                                </div>
+
+                                @if(auth()->user()->isSuperAdmin())
+                                    <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 px-4 py-2.5 text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all">
+                                        <i class="fa-solid fa-chart-line w-4 text-blue-500"></i>
+                                        <span>Dashboard Admin</span>
+                                    </a>
+                                @endif
+
+                                <a href="{{ route('profile.edit') }}" class="flex items-center space-x-3 px-4 py-2.5 text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all">
+                                    <i class="fa-solid fa-user w-4 text-blue-500"></i>
+                                    <span>Profil Saya</span>
+                                </a>
+
+                                <a href="{{ route('user.orders') }}" class="flex items-center space-x-3 px-4 py-2.5 text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all">
+                                    <i class="fa-solid fa-box w-4 text-blue-500"></i>
+                                    <span>Pesanan Saya</span>
+                                </a>
+
+                                @if($completedOrder)
+                                    <a href="{{ route('user.websites') }}" class="flex items-center space-x-3 px-4 py-2.5 text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-350 hover:text-emerald-500 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all">
+                                        <i class="fa-solid fa-globe w-4 text-emerald-500"></i>
+                                        <span>Website Saya</span>
+                                    </a>
+                                @endif
+
+                                <div class="h-px bg-slate-150 dark:bg-white/5 my-1"></div>
+
+                                <!-- Logout Action -->
+                                <form method="POST" action="{{ route('logout') }}" class="block w-full">
+                                    @csrf
+                                    <button type="submit" class="flex w-full items-center space-x-3 px-4 py-2.5 text-[11px] font-black uppercase tracking-wider text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all text-left">
+                                        <i class="fa-solid fa-sign-out w-4"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     @else
                         <a href="{{ route('login') }}" class="px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.15em] text-slate-600 dark:text-slate-350 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded-full hover:bg-slate-100/50 dark:hover:bg-white/5">
                             Login
@@ -166,15 +229,52 @@
 
                 <div class="flex flex-col space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                     @auth
-                        @if(auth()->user()->isSuperAdmin())
-                            <a href="{{ route('dashboard') }}" class="w-full py-4 bg-blue-600 text-white text-center font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-blue-500/20">
-                                Dashboard
-                            </a>
-                        @else
-                            <a href="{{ route('user.orders') }}" class="w-full py-4 bg-blue-600 text-white text-center font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-blue-500/20">
-                                Pesanan Saya
-                            </a>
-                        @endif
+                        <!-- Mobile User Profile Block -->
+                        <div class="p-5 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200/50 dark:border-white/5 space-y-3">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-sm uppercase shadow-md shadow-blue-500/10">
+                                    {{ substr(auth()->user()->name, 0, 1) }}
+                                </div>
+                                <div class="overflow-hidden">
+                                    <p class="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Masuk sebagai</p>
+                                    <p class="text-xs font-black text-slate-800 dark:text-white truncate uppercase">{{ auth()->user()->name }}</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/60 dark:border-white/5">
+                                @if(auth()->user()->isSuperAdmin())
+                                    <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all">
+                                        <i class="fa-solid fa-chart-line w-4 text-blue-500"></i>
+                                        <span>Dashboard Admin</span>
+                                    </a>
+                                @endif
+
+                                <a href="{{ route('profile.edit') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all">
+                                    <i class="fa-solid fa-user w-4 text-blue-500"></i>
+                                    <span>Profil Saya</span>
+                                </a>
+
+                                <a href="{{ route('user.orders') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all">
+                                    <i class="fa-solid fa-box w-4 text-blue-500"></i>
+                                    <span>Pesanan Saya</span>
+                                </a>
+
+                                @if($completedOrder)
+                                    <a href="{{ route('user.websites') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all">
+                                        <i class="fa-solid fa-globe w-4 text-emerald-500"></i>
+                                        <span>Website Saya</span>
+                                    </a>
+                                @endif
+
+                                <form method="POST" action="{{ route('logout') }}" class="block w-full">
+                                    @csrf
+                                    <button type="submit" class="flex w-full items-center space-x-3 px-3 py-2 text-xs font-black uppercase tracking-wider text-rose-500 hover:bg-rose-500/5 rounded-xl transition-all text-left">
+                                        <i class="fa-solid fa-sign-out w-4"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     @else
                         <a href="{{ route('login') }}" class="w-full py-4 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-center font-black uppercase tracking-widest rounded-2xl border border-slate-200/80 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
                             Login

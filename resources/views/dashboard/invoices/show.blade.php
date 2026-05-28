@@ -217,31 +217,33 @@
                 
                 <!-- Left: Payment & QRIS -->
                 <div class="flex-grow space-y-2">
-                    <div class="grid grid-cols-2 gap-8">
-                        <div>
-                            <p class="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 mb-2">Payment Methods</p>
-                            <div class="space-y-4">
-                                @if($settings->payment_methods)
-                                    @foreach($settings->payment_methods as $payment)
-                                        <div class="group">
-                                            <p class="text-[10px] font-black text-slate-900 uppercase tracking-tight mb-0.5 group-hover:text-blue-600 transition-colors">{{ $payment['bank'] }}</p>
-                                            <p class="text-[11px] text-slate-500 font-bold tracking-tighter">{{ $payment['number'] }}</p>
-                                            <p class="text-[9px] text-slate-400 font-medium uppercase">{{ $payment['name'] }}</p>
-                                        </div>
-                                    @endforeach
-                                @endif
-                            </div>
-                        </div>
-                        
-                        @if($settings->invoice_qris)
-                            <div class="flex flex-col items-center">
-                                <div class="p-2 border-2 border-slate-100 rounded-2xl bg-white shadow-xl shadow-slate-200/50">
-                                    <img src="{{ $settings->invoice_qris_url }}" class="w-32 h-32 object-contain">
+                    @if($invoice->status !== 'Paid')
+                        <div class="grid grid-cols-2 gap-8">
+                            <div>
+                                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 mb-2">Payment Methods</p>
+                                <div class="space-y-4">
+                                    @if($settings->payment_methods)
+                                        @foreach($settings->payment_methods as $payment)
+                                            <div class="group">
+                                                <p class="text-[10px] font-black text-slate-900 uppercase tracking-tight mb-0.5 group-hover:text-blue-600 transition-colors">{{ $payment['bank'] }}</p>
+                                                <p class="text-[11px] text-slate-500 font-bold tracking-tighter">{{ $payment['number'] }}</p>
+                                                <p class="text-[9px] text-slate-400 font-medium uppercase">{{ $payment['name'] }}</p>
+                                            </div>
+                                        @endforeach
+                                    @endif
                                 </div>
-                                <p class="mt-3 text-[8px] font-black uppercase tracking-widest text-slate-300">Scan for Faster Payment</p>
                             </div>
-                        @endif
-                    </div>
+                            
+                            @if($settings->invoice_qris)
+                                <div class="flex flex-col items-center">
+                                    <div class="p-2 border-2 border-slate-100 rounded-2xl bg-white shadow-xl shadow-slate-200/50">
+                                        <img src="{{ $settings->invoice_qris_url }}" class="w-32 h-32 object-contain">
+                                    </div>
+                                    <p class="mt-3 text-[8px] font-black uppercase tracking-widest text-slate-300">Scan for Faster Payment</p>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
 
                     @if($invoice->notes)
                         <div class="bg-slate-50/50 p-6 rounded-2xl border border-slate-100">

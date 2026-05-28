@@ -405,31 +405,35 @@
         <!-- Footer Section -->
         <table class="footer-table">
             <tr>
-                <!-- Payment Methods -->
-                <td style="width: 30%; vertical-align: top;">
-                    <div class="section-label">Payment Methods</div>
-                    <div class="payment-methods">
-                        @if($settings->payment_methods)
-                            @foreach($settings->payment_methods as $payment)
-                                <div class="bank-item">
-                                    <div class="bank-name">{{ $payment['bank'] }}</div>
-                                    <div class="bank-number" style="font-size: 11px;">{{ $payment['number'] }}</div>
-                                    <div class="bank-holder">{{ $payment['name'] }}</div>
-                                </div>
-                            @endforeach
-                        @endif
-                    </div>
-                </td>
-
-                <!-- QRIS Section -->
-                <td style="width: 35%; vertical-align: top; text-align: center;">
-                    @if($settings->invoice_qris)
-                        <div class="qris-box" style="display: inline-block; margin-top: 5px;">
-                            <img src="{{ $settings->invoice_qris_url }}" class="qris-img" style="width: 100px; height: 100px; border-radius: 15px;">
-                            <div style="font-size: 7px; font-weight: 900; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px;">Scan for faster payment</div>
+                @if($invoice->status !== 'Paid')
+                    <!-- Payment Methods -->
+                    <td style="width: 30%; vertical-align: top;">
+                        <div class="section-label">Payment Methods</div>
+                        <div class="payment-methods">
+                            @if($settings->payment_methods)
+                                @foreach($settings->payment_methods as $payment)
+                                    <div class="bank-item">
+                                        <div class="bank-name">{{ $payment['bank'] }}</div>
+                                        <div class="bank-number" style="font-size: 11px;">{{ $payment['number'] }}</div>
+                                        <div class="bank-holder">{{ $payment['name'] }}</div>
+                                    </div>
+                                @endforeach
+                            @endif
                         </div>
-                    @endif
-                </td>
+                    </td>
+
+                    <!-- QRIS Section -->
+                    <td style="width: 35%; vertical-align: top; text-align: center;">
+                        @if($settings->invoice_qris)
+                            <div class="qris-box" style="display: inline-block; margin-top: 5px;">
+                                <img src="{{ $settings->invoice_qris_url }}" class="qris-img" style="width: 100px; height: 100px; border-radius: 15px;">
+                                <div style="font-size: 7px; font-weight: 900; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px;">Scan for faster payment</div>
+                            </div>
+                        @endif
+                    </td>
+                @else
+                    <td style="width: 65%; vertical-align: top;"></td>
+                @endif
 
                 <!-- Totals Section -->
                 <td style="width: 35%; vertical-align: top;">
