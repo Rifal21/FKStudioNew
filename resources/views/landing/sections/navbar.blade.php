@@ -176,23 +176,33 @@
                 </div>
             </div>
 
-            <!-- Mobile Menu Button -->
-            <button @click="mobileMenu = !mobileMenu" class="lg:hidden text-slate-800 dark:text-slate-200 focus:outline-none">
-                <svg x-show="!mobileMenu" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7">
-                    </path>
-                </svg>
-                <svg x-show="mobileMenu" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                    </path>
-                </svg>
-            </button>
+            <!-- Mobile Controls -->
+            <div class="flex items-center space-x-3 lg:hidden">
+                @auth
+                    <!-- Mobile Avatar Shortcut Button -->
+                    <button @click="mobileMenu = !mobileMenu" class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-xs uppercase shadow-md shadow-blue-500/15 focus:outline-none ring-2 ring-white/10 active:scale-95 transition-transform duration-250">
+                        {{ substr(auth()->user()->name, 0, 1) }}
+                    </button>
+                @endauth
+
+                <!-- Mobile Menu Button -->
+                <button @click="mobileMenu = !mobileMenu" class="text-slate-800 dark:text-slate-200 focus:outline-none">
+                    <svg x-show="!mobileMenu" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7">
+                        </path>
+                    </svg>
+                    <svg x-show="mobileMenu" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
         </div>
 
         <!-- Mobile Menu -->
         <div x-show="mobileMenu" x-cloak x-transition 
-            :class="(scrolled || mobileMenu) ? 'top-[calc(100%+0.5rem)] left-0 w-full bg-white/95 dark:bg-slate-950/95 border border-slate-200/40 dark:border-white/5 rounded-3xl shadow-2xl' : 'top-full left-0 w-full bg-white/95 dark:bg-slate-950/95 border-t border-slate-200/80 dark:border-slate-800 rounded-b-2xl shadow-xl'"
-            class="lg:hidden absolute backdrop-blur-2xl p-6 mt-2 transition-all duration-500 z-30">
+            :class="(scrolled || mobileMenu) ? 'top-[calc(100%+0.5rem)] left-0 w-full bg-white dark:bg-slate-900 border border-slate-200/40 dark:border-white/5 rounded-3xl shadow-2xl' : 'top-full left-0 w-full bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800 rounded-b-2xl shadow-xl'"
+            class="lg:hidden absolute p-6 mt-2 transition-all duration-500 z-30 max-h-[75vh] overflow-y-auto">
             <div class="flex flex-col space-y-2">
                 <a href="{{ route('home') }}#home" @click="mobileMenu = false"
                     :class="(activeSection === 'home' && {{ $isHome ? 'true' : 'false' }}) ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 font-bold border-l-4 border-blue-500' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900/50 border-l-4 border-transparent'"
