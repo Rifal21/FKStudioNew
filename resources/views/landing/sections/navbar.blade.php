@@ -96,9 +96,6 @@
                                 <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
                             </a>
                         @else
-                            <a href="{{ route('user.websites') }}" class="px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.15em] text-slate-600 dark:text-slate-350 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded-full hover:bg-slate-100/50 dark:hover:bg-white/5">
-                                Website Saya
-                            </a>
                             <a href="{{ route('user.orders') }}" class="px-6 py-3 bg-blue-600 text-white text-[10px] md:text-xs font-black uppercase tracking-widest rounded-full hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 hover:shadow-blue-600/35 hover:-translate-y-0.5 duration-300 group flex items-center">
                                 <span>Pesanan Saya</span>
                                 <i class="fa-solid fa-box ml-2 group-hover:scale-110 transition-transform"></i>
@@ -174,9 +171,6 @@
                                 Dashboard
                             </a>
                         @else
-                            <a href="{{ route('user.websites') }}" class="w-full py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-350 text-center font-black uppercase tracking-widest rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
-                                Website Saya
-                            </a>
                             <a href="{{ route('user.orders') }}" class="w-full py-4 bg-blue-600 text-white text-center font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-blue-500/20">
                                 Pesanan Saya
                             </a>

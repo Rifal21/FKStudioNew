@@ -189,6 +189,11 @@
                         <input type="text" name="invoice_signer_title" value="{{ $settings->invoice_signer_title }}"
                             class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-500 transition-all font-medium" placeholder="Contoh: Authorized Representative">
                     </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Tarif Pajak PPN (%)</label>
+                        <input type="number" name="tax_rate" step="0.01" min="0" max="100" value="{{ $settings->tax_rate ?? 11.00 }}"
+                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-500 transition-all font-medium" placeholder="Contoh: 11.00">
+                    </div>
                     <div class="md:col-span-2 space-y-2">
                         <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Company Address on Invoice</label>
                         <textarea name="invoice_company_address" rows="2" 
@@ -263,90 +268,21 @@
                             </div>
                         </div>
 
-                        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center space-x-4"
-                            x-data="{ 
-                                qrisRemoved: false,
-                                handleRemoveQris() {
-                                    this.qrisRemoved = true;
-                                    this.invoiceQrisPreview = null;
-                                }
-                            }">
-                            <div class="relative group">
-                                <div class="w-16 h-16 bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center border border-slate-200">
-                                    <template x-if="invoiceQrisPreview">
-                                        <img :src="invoiceQrisPreview" class="w-full h-full object-contain p-1">
-                                    </template>
-                                    <template x-if="!invoiceQrisPreview">
-                                        @if ($settings->invoice_qris)
-                                            <div x-show="!qrisRemoved" class="w-full h-full">
-                                                <img src="{{ $settings->invoice_qris_url }}" class="w-full h-full object-contain p-1">
-                                            </div>
-                                            <div x-show="qrisRemoved" class="w-full h-full flex items-center justify-center">
-                                                <i class="fa-solid fa-qrcode text-slate-300 text-2xl"></i>
-                                            </div>
-                                        @else
-                                            <i class="fa-solid fa-qrcode text-slate-300 text-2xl"></i>
-                                        @endif
-                                    </template>
+                        <!-- Dedicated Payment Methods Banner Reference -->
+                        <div class="p-6 bg-indigo-50/45 rounded-3xl border border-indigo-100/50 flex items-center justify-between col-span-2 mt-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-credit-card"></i>
                                 </div>
-                                <label class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-xl opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                                    <i class="fa-solid fa-camera"></i>
-                                    <input type="file" name="invoice_qris" class="hidden" @change="handleInvoiceQris(); qrisRemoved = false">
-                                </label>
-                                
-                                @if ($settings->invoice_qris)
-                                    <button type="button" @click="handleRemoveQris" x-show="!qrisRemoved && !invoiceQrisPreview"
-                                        class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors z-10">
-                                        <i class="fa-solid fa-xmark text-[10px]"></i>
-                                    </button>
-                                @endif
-                                <input type="hidden" name="remove_invoice_qris" :value="qrisRemoved ? '1' : '0'">
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-900">QRIS</h4>
-                                <p class="text-[10px] text-slate-500 uppercase">Payment QR</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Dynamic Bank Accounts -->
-                    <div class="md:col-span-2 pt-8" x-data="{ 
-                        banks: {{ json_encode($settings->payment_methods ?? [['bank' => '', 'number' => '', 'name' => '']]) }},
-                        addBank() { this.banks.push({ bank: '', number: '', name: '' }) },
-                        removeBank(index) { if(this.banks.length > 1) this.banks.splice(index, 1) }
-                    }">
-                        <div class="flex justify-between items-center mb-6">
-                            <h4 class="text-xs font-black uppercase tracking-widest text-slate-400">Bank Accounts / Payment Methods</h4>
-                            <button type="button" @click="addBank" class="text-[10px] font-black uppercase tracking-widest text-emerald-600 hover:text-emerald-700">
-                                <i class="fa-solid fa-plus mr-1"></i> Add Account
-                            </button>
-                        </div>
-                        
-                        <div class="space-y-4">
-                            <template x-for="(bank, index) in banks" :key="index">
-                                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                    <div class="md:col-span-3">
-                                        <input type="text" :name="`payment_methods[${index}][bank]`" x-model="bank.bank" placeholder="Bank Name"
-                                            class="block w-full bg-white border-none rounded-xl p-3 focus:ring-2 focus:ring-emerald-500 font-bold text-sm">
-                                    </div>
-                                    <div class="md:col-span-4">
-                                        <input type="text" :name="`payment_methods[${index}][number]`" x-model="bank.number" placeholder="Account Number"
-                                            class="block w-full bg-white border-none rounded-xl p-3 focus:ring-2 focus:ring-emerald-500 font-bold text-sm">
-                                    </div>
-                                    <div class="md:col-span-4">
-                                        <input type="text" :name="`payment_methods[${index}][name]`" x-model="bank.name" placeholder="Account Holder"
-                                            class="block w-full bg-white border-none rounded-xl p-3 focus:ring-2 focus:ring-emerald-500 font-bold text-sm">
-                                    </div>
-                                    <div class="md:col-span-1 flex items-center justify-center">
-                                        <button type="button" @click="removeBank(index)" class="text-red-400 hover:text-red-600">
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </button>
-                                    </div>
+                                <div>
+                                    <h4 class="font-black text-slate-900 text-sm">Manual Payment Methods</h4>
+                                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-0.5">Manage bank accounts & QRIS scan codes</p>
                                 </div>
-                            </template>
+                            </div>
+                            <a href="{{ route('dashboard.payment_methods.edit') }}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-md">
+                                Manage Payments <i class="fa-solid fa-arrow-right ml-1"></i>
+                            </a>
                         </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Contact & Social -->

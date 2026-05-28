@@ -26,10 +26,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/checkout/{package}', [CheckoutController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::post('/checkout/confirm/{order}', [CheckoutController::class, 'confirmPayment'])->name('checkout.confirm');
-    
-    // User Transactions & Websites
+
+    // API Domain Check
+    Route::get('/api/domains/check', [CheckoutController::class, 'checkDomainAvailability'])->name('api.domains.check');
+    Route::post('/checkout/apply-voucher', [CheckoutController::class, 'applyVoucher'])->name('checkout.apply_voucher');
+
+    // User Orders & Bookings
     Route::get('/my-orders', [CheckoutController::class, 'userOrders'])->name('user.orders');
-    Route::get('/my-websites', [CheckoutController::class, 'userWebsites'])->name('user.websites');
 });
 
 Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () {
@@ -105,17 +108,29 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     Route::get('/invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
     Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
 
+    // Vouchers
+    Route::get('/vouchers', [CmsController::class, 'vouchersIndex'])->name('vouchers.index');
+    Route::post('/vouchers', [CmsController::class, 'storeVoucher'])->name('vouchers.store');
+    Route::patch('/vouchers/{voucher}', [CmsController::class, 'updateVoucher'])->name('vouchers.update');
+    Route::delete('/vouchers/{voucher}', [CmsController::class, 'deleteVoucher'])->name('vouchers.destroy');
+
+    // Manual Payment Methods
+    Route::get('/payment-methods', [CmsController::class, 'editPaymentMethods'])->name('payment_methods.edit');
+    Route::post('/payment-methods', [CmsController::class, 'updatePaymentMethods'])->name('payment_methods.update');
+
     // Orders
     Route::get('/orders', [CmsController::class, 'ordersIndex'])->name('orders.index');
     Route::patch('/orders/{order}', [CmsController::class, 'updateOrderStatus'])->name('orders.update');
+    Route::patch('/orders/{order}/work-status', [CmsController::class, 'updateOrderWorkStatus'])->name('orders.work_status');
+    Route::post('/orders/{order}/register-domain', [CmsController::class, 'registerOrderDomain'])->name('orders.register_domain');
+    Route::post('/orders/{order}/tagih-pelunasan', [CmsController::class, 'tagihPelunasan'])->name('orders.tagih_pelunasan');
 
     // Tickets
     Route::get('/tickets', [CmsController::class, 'ticketsIndex'])->name('tickets.index');
     Route::patch('/tickets/{ticket}', [CmsController::class, 'updateTicketStatus'])->name('tickets.update');
 
-    // Tenants
-    Route::get('/tenants', [CmsController::class, 'tenantsIndex'])->name('tenants.index');
-    Route::delete('/tenants/{tenant}', [CmsController::class, 'deleteTenant'])->name('tenants.destroy');
+    // Tenants (removed - booking system replaced tenancy)
+    // Route::get('/tenants', ...) - deprecated
 
     // Users
     Route::get('/users', [CmsController::class, 'usersIndex'])->name('users.index');

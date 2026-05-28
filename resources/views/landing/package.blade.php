@@ -97,57 +97,75 @@
     <main class="pt-32 pb-20">
         <section class="relative py-20 overflow-hidden">
             <!-- Background Accents -->
-            <div class="absolute top-1/4 -left-20 w-96 h-96 bg-blue-300/40 rounded-full blob animate-pulse"></div>
-            <div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-indigo-300/35 rounded-full blob animate-pulse" style="animation-delay: 2s;"></div>
+            <div class="absolute top-1/4 -left-20 w-[30rem] h-[30rem] bg-blue-500/10 dark:bg-blue-600/5 rounded-full blob animate-pulse"></div>
+            <div class="absolute bottom-1/4 -right-20 w-[30rem] h-[30rem] bg-indigo-500/10 dark:bg-indigo-600/5 rounded-full blob animate-pulse" style="animation-delay: 2s;"></div>
 
             <div class="container mx-auto px-6 relative z-10">
-                <div class="max-w-4xl mx-auto">
-                    <div class="mb-12" data-aos="fade-right">
-                        <a href="{{ route('home') }}#packages" class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors mb-8 group font-extrabold">
-                            <i class="fa-solid fa-arrow-left mr-3 group-hover:-translate-x-1 transition-transform"></i>
-                            <span class="text-xs font-black uppercase tracking-widest">{{ app()->getLocale() == 'id' ? 'Kembali ke Paket' : 'Back to Packages' }}</span>
+                <div class="max-w-6xl mx-auto">
+                    <div class="mb-16" data-aos="fade-right">
+                        <!-- Sleek capsule Back Button -->
+                        <a href="{{ route('home') }}#packages" class="inline-flex items-center px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-blue-600 dark:text-blue-400 rounded-full transition-all group font-black border border-slate-200/50 dark:border-white/5 shadow-sm text-xs mb-8 uppercase tracking-widest">
+                            <i class="fa-solid fa-arrow-left mr-2 group-hover:-translate-x-1.5 transition-transform"></i>
+                            {{ app()->getLocale() == 'id' ? 'Kembali ke Paket' : 'Back to Packages' }}
                         </a>
                         
-                        <div class="inline-flex items-center space-x-3 mb-6">
-                            <span class="w-12 h-[1px] bg-blue-600/30"></span>
-                            <span class="text-blue-600 dark:text-blue-400 font-black uppercase tracking-[0.4em] text-[10px] md:text-xs">
-                                {{ app()->getLocale() == 'id' ? 'Detail Paket' : 'Package Detail' }}
-                            </span>
-                        </div>
-                        
-                        <h1 class="text-5xl md:text-7xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter leading-none">
-                            {{ $package->getTranslation('name') }}
-                        </h1>
-                        <div class="flex items-baseline gap-4 mb-8">
-                            <span class="text-4xl md:text-5xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">{{ $package->price }}</span>
-                            <span class="text-slate-400 text-lg font-bold uppercase tracking-widest">/ Project</span>
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                            <div>
+                                <div class="inline-flex items-center space-x-2 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full text-blue-600 dark:text-blue-450 font-black uppercase tracking-widest text-[9px] mb-6">
+                                    <i class="fa-solid fa-gem text-[10px] animate-pulse"></i>
+                                    <span>{{ app()->getLocale() == 'id' ? 'Layanan Unggulan' : 'Premium Service' }}</span>
+                                </div>
+                                <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
+                                    {{ $package->getTranslation('name') }}
+                                </h1>
+                            </div>
+                            
+                            <div class="flex-shrink-0 md:text-right">
+                                <div class="inline-flex items-baseline bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-white/5 px-8 py-5 rounded-[2rem] shadow-xl">
+                                    <span class="text-3xl md:text-5xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">{{ $package->price }}</span>
+                                    <span class="text-slate-400 text-xs font-bold uppercase tracking-widest ml-3">/ Project</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
                         <div class="lg:col-span-2 space-y-12" data-aos="fade-up">
-                            <div class="bg-white dark:bg-slate-900/40 p-8 md:p-12 rounded-[2.5rem] border border-slate-200/60 dark:border-white/5 shadow-md dark:shadow-lg transition-colors duration-500">
-                                <h3 class="text-2xl font-black text-slate-800 dark:text-slate-200 mb-6 tracking-tight">{{ app()->getLocale() == 'id' ? 'Deskripsi' : 'Description' }}</h3>
-                                <div class="text-slate-600 dark:text-slate-300 text-lg leading-relaxed space-y-4 font-medium">
+                            <!-- Description Card -->
+                            <div class="glass p-8 md:p-12 rounded-[3rem] border border-slate-200/60 dark:border-white/5 shadow-md dark:shadow-xl transition-all duration-300">
+                                <h3 class="text-xl font-black text-slate-900 dark:text-white mb-6 tracking-tight flex items-center">
+                                    <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center mr-3 text-sm">
+                                        <i class="fa-solid fa-align-left"></i>
+                                    </span>
+                                    {{ app()->getLocale() == 'id' ? 'Deskripsi Detail' : 'Detailed Description' }}
+                                </h3>
+                                <div class="text-slate-600 dark:text-slate-300 text-base md:text-lg leading-relaxed space-y-4 font-medium italic border-l-4 border-blue-500/40 pl-6">
                                     {!! nl2br(e($package->getTranslation('description'))) !!}
                                 </div>
                             </div>
 
-                            <div class="bg-white dark:bg-slate-900/40 p-8 md:p-12 rounded-[2.5rem] border border-slate-200/60 dark:border-white/5 shadow-md dark:shadow-lg transition-colors duration-500">
-                                <h3 class="text-2xl font-black text-slate-800 dark:text-slate-200 mb-8 tracking-tight">{{ app()->getLocale() == 'id' ? 'Apa yang Anda Dapatkan' : 'What You Get' }}</h3>
-                                <ul class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Interactive Grid Checklist Card -->
+                            <div class="glass p-8 md:p-12 rounded-[3rem] border border-slate-200/60 dark:border-white/5 shadow-md dark:shadow-xl transition-all duration-300">
+                                <h3 class="text-xl font-black text-slate-900 dark:text-white mb-8 tracking-tight flex items-center">
+                                    <span class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 flex items-center justify-center mr-3 text-sm">
+                                        <i class="fa-solid fa-cubes"></i>
+                                    </span>
+                                    {{ app()->getLocale() == 'id' ? 'Fitur & Keuntungan Utama' : 'Key Features & Benefits' }}
+                                </h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     @php
                                         $features = app()->getLocale() == 'id' ? $package->features_id : $package->features_en;
                                     @endphp
                                     @foreach ($features ?? [] as $feature)
-                                        <li class="flex items-start gap-4 text-slate-600 dark:text-slate-350 group">
-                                            <div class="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900/50 flex items-center justify-center group-hover:bg-blue-600 transition-colors duration-300">
-                                                <i class="fa-solid fa-check text-[10px] text-blue-500 group-hover:text-white"></i>
+                                        <div class="bg-white/50 dark:bg-slate-900/40 p-5 rounded-2xl border border-slate-200/60 dark:border-white/5 shadow-sm hover:shadow-md hover:scale-[1.02] hover:border-blue-500/30 transition-all duration-300 flex items-start gap-4 group">
+                                            <div class="flex-shrink-0 w-8 h-8 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 border border-blue-500/20 flex items-center justify-center group-hover:bg-blue-600 transition-colors duration-300">
+                                                <i class="fa-solid fa-check text-xs text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors"></i>
                                             </div>
-                                            <span class="group-hover:text-slate-900 dark:group-hover:text-white transition-colors font-medium">{{ $feature }}</span>
-                                        </li>
+                                            <span class="text-slate-700 dark:text-slate-350 font-semibold text-sm leading-relaxed group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{{ $feature }}</span>
+                                        </div>
                                     @endforeach
-                                </ul>
+                                </div>
                             </div>
                         </div>
 
@@ -155,25 +173,59 @@
                             <div class="sticky top-32">
                                 <div class="relative group">
                                     <!-- Card Glow Backdrop -->
-                                    <div class="absolute -inset-1 bg-gradient-to-b from-blue-600/15 dark:from-blue-600/20 to-indigo-600/15 dark:to-indigo-600/20 rounded-[2.5rem] blur-xl opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
+                                    <div class="absolute -inset-1.5 bg-gradient-to-b from-blue-600/20 dark:from-blue-600/30 to-indigo-600/20 dark:to-indigo-600/30 rounded-[3rem] blur-2xl opacity-60 group-hover:opacity-100 transition-opacity duration-700"></div>
                                     
-                                    <div class="relative bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] border border-blue-200 dark:border-blue-800/40 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)] text-center transition-colors duration-500">
-                                        <h4 class="text-slate-800 dark:text-slate-200 font-black uppercase tracking-widest text-xs mb-6">{{ app()->getLocale() == 'id' ? 'Siap Memulai?' : 'Ready to Start?' }}</h4>
-                                        <p class="text-slate-500 dark:text-slate-400 text-sm mb-10 leading-relaxed font-medium">
-                                            {{ app()->getLocale() == 'id' ? 'Amankan slot Anda sekarang dan mari kita bangun sesuatu yang luar biasa bersama.' : 'Secure your slot now and let\'s build something extraordinary together.' }}
+                                    <div class="relative bg-white dark:bg-slate-950 p-8 md:p-10 rounded-[3rem] border border-blue-200/60 dark:border-blue-800/40 shadow-2xl text-center transition-colors duration-500">
+                                        <h4 class="text-slate-900 dark:text-white font-black uppercase tracking-widest text-xs mb-6">{{ app()->getLocale() == 'id' ? 'Siap Memulai?' : 'Ready to Start?' }}</h4>
+                                        <p class="text-slate-500 dark:text-slate-400 text-sm mb-8 leading-relaxed font-medium">
+                                            {{ app()->getLocale() == 'id' ? 'Amankan slot pemesanan Anda sekarang dan mari bangun website impian Anda bersama.' : 'Secure your custom development slot now and let\'s build your dream website together.' }}
                                         </p>
                                         
+                                        <!-- Interactive Features Pills (DP & Voucher) -->
+                                        <div class="space-y-3 mb-8">
+                                            <div class="flex items-center gap-3 p-3 bg-indigo-500/5 dark:bg-indigo-500/10 border border-indigo-500/20 rounded-2xl text-left">
+                                                <div class="w-8 h-8 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 flex-shrink-0">
+                                                    <i class="fa-solid fa-receipt text-xs"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="text-[9px] font-black uppercase tracking-wider text-indigo-500">Down Payment (DP 50%)</div>
+                                                    <div class="text-[8px] text-slate-500 dark:text-slate-400 font-medium">Mulai dengan DP 50%, pelunasan setelah selesai</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex items-center gap-3 p-3 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-left">
+                                                <div class="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 flex-shrink-0">
+                                                    <i class="fa-solid fa-ticket text-xs"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="text-[9px] font-black uppercase tracking-wider text-emerald-500">Dukungan Voucher Diskon</div>
+                                                    <div class="text-[8px] text-slate-500 dark:text-slate-400 font-medium font-bold">Gunakan kode voucher di checkout untuk potongan extra</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <a href="{{ $package->cta_link ?? route('checkout', $package->id) }}"
                                            {{ $package->cta_link && str_starts_with($package->cta_link, 'http') ? 'target="_blank"' : '' }}
-                                           class="relative group/btn block w-full py-6 bg-blue-600 text-white rounded-2xl font-black text-lg uppercase tracking-widest transition-all overflow-hidden shadow-2xl shadow-blue-600/30">
+                                           class="relative group/btn block w-full py-6 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-base uppercase tracking-widest transition-all overflow-hidden shadow-xl shadow-blue-600/35 hover:-translate-y-0.5">
                                             <span class="relative z-10">{{ $package->getTranslation('cta_text') }}</span>
                                             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
                                         </a>
 
-                                        <p class="mt-8 text-[10px] text-slate-500 dark:text-slate-450 font-bold uppercase tracking-widest">
-                                            <i class="fa-solid fa-shield-halved mr-2 text-blue-600 dark:text-blue-400"></i>
-                                            {{ app()->getLocale() == 'id' ? 'Pembayaran Aman & Terpercaya' : 'Safe & Trusted Payment' }}
-                                        </p>
+                                        <!-- Elegant Trust Badges -->
+                                        <div class="grid grid-cols-3 gap-2 mt-8 pt-6 border-t border-slate-100 dark:border-white/5">
+                                            <div class="text-center">
+                                                <i class="fa-solid fa-bolt text-sm text-blue-500 mb-1"></i>
+                                                <div class="text-[8px] font-black uppercase text-slate-400">Fast Launch</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <i class="fa-solid fa-shield-halved text-sm text-emerald-500 mb-1"></i>
+                                                <div class="text-[8px] font-black uppercase text-slate-400">Secure Pay</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <i class="fa-solid fa-headset text-sm text-purple-500 mb-1"></i>
+                                                <div class="text-[8px] font-black uppercase text-slate-400">24/7 VIP Support</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('package_orders', function (Blueprint $table) {
-            $table->string('payment_reference')->nullable()->after('status');
-            $table->string('payment_url')->nullable()->after('payment_reference');
+            $table->boolean('buy_domain')->default(false)->after('business_type');
+            $table->string('domain_name')->nullable()->after('buy_domain');
+            $table->decimal('domain_price', 15, 2)->nullable()->after('domain_name');
+            $table->string('domain_status')->nullable()->after('domain_price'); // pending, registered, failed
         });
     }
 
@@ -23,7 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('package_orders', function (Blueprint $table) {
-            $table->dropColumn(['payment_reference', 'payment_url']);
+            $table->dropColumn(['buy_domain', 'domain_name', 'domain_price', 'domain_status']);
         });
     }
 };

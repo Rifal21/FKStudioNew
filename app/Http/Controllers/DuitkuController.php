@@ -29,31 +29,45 @@ class DuitkuController extends Controller
         $orderId = $request->merchantOrderId;
         $resultCode = $request->resultCode; // 00 for success
 
-        $order = PackageOrder::find($orderId);
+        $isFinalPayment = str_ends_with($orderId, '-final');
+        $cleanOrderId = $isFinalPayment ? str_replace('-final', '', $orderId) : $orderId;
+
+        $order = PackageOrder::find($cleanOrderId);
 
         if (!$order) {
-            Log::error('Duitku Callback: Order not found', ['order_id' => $orderId]);
+            Log::error('Duitku Callback: Order not found', ['order_id' => $cleanOrderId]);
             return response()->json(['message' => 'Order not found'], 404);
         }
 
-        DB::transaction(function () use ($order, $resultCode, $request) {
+        DB::transaction(function () use ($order, $resultCode, $request, $isFinalPayment) {
             if ($resultCode == '00') {
-                $order->update([
-                    'status' => 'paid',
-                    'payment_reference' => $request->reference,
-                ]);
-
-                if ($order->invoice) {
-                    $order->invoice->update([
-                        'status' => 'Paid',
+                if ($isFinalPayment) {
+                    $order->update([
+                        'status' => 'completed',
+                        'payment_reference' => $request->reference,
                     ]);
+
+                    if ($order->final_invoice_id) {
+                        $order->finalInvoice()->update([
+                            'status' => 'Paid',
+                        ]);
+                    }
+                } else {
+                    $order->update([
+                        'status' => 'paid',
+                        'payment_reference' => $request->reference,
+                    ]);
+
+                    if ($order->invoice) {
+                        $order->invoice->update([
+                            'status' => 'Paid',
+                        ]);
+                    }
                 }
 
                 // Automatically provision tenant
                 $order->provisionTenant();
             } else {
-                // If failed or expired, we might want to update status but usually we wait or handle accordingly
-                // For now just log it or update to failed if it's a specific failure code
                 Log::info('Duitku Callback: Payment not successful', ['resultCode' => $resultCode]);
             }
         });

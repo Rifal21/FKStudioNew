@@ -11,10 +11,12 @@ class PackageOrder extends Model
     use HasFactory, HasUuid;
 
     public $incrementing = false;
-
     protected $keyType = 'string';
-
     protected $guarded = [];
+
+    protected $casts = [
+        'delivery_date' => 'date',
+    ];
 
     public function user()
     {
@@ -36,37 +38,60 @@ class PackageOrder extends Model
         return $this->belongsTo(Invoice::class);
     }
 
+    public function dpInvoice()
+    {
+        return $this->belongsTo(Invoice::class, 'dp_invoice_id');
+    }
+
+    public function finalInvoice()
+    {
+        return $this->belongsTo(Invoice::class, 'final_invoice_id');
+    }
+
+    /**
+     * Work status label in Indonesian/English.
+     */
+    public function workStatusLabel(string $locale = 'id'): string
+    {
+        $labels = [
+            'id' => [
+                'pending'     => 'Menunggu',
+                'in_progress' => 'Sedang Dikerjakan',
+                'revision'    => 'Revisi',
+                'completed'   => 'Selesai',
+                'cancelled'   => 'Dibatalkan',
+            ],
+            'en' => [
+                'pending'     => 'Pending',
+                'in_progress' => 'In Progress',
+                'revision'    => 'Revision',
+                'completed'   => 'Completed',
+                'cancelled'   => 'Cancelled',
+            ],
+        ];
+
+        return $labels[$locale][$this->work_status] ?? ucfirst($this->work_status);
+    }
+
+    /**
+     * Work status step index (0-based) for stepper UI.
+     */
+    public function workStatusStep(): int
+    {
+        return match ($this->work_status) {
+            'pending'     => 0,
+            'in_progress' => 1,
+            'revision'    => 2,
+            'completed'   => 3,
+            default       => 0,
+        };
+    }
+
+    /**
+     * Provision tenant (Legacy method from tenancy architecture, kept empty to avoid crashes).
+     */
     public function provisionTenant()
     {
-        if ($this->subdomain && ! $this->tenant_id) {
-            $tenant = Tenant::create([
-                'id' => $this->subdomain,
-                'package_order_id' => $this->id,
-                'branding_name' => $this->branding_name,
-            ]);
-
-            // For local dev, use localhost. For production, use env config.
-            $baseDomain = env('TENANCY_BASE_DOMAIN', 'fkstudio.id');
-            $tenant->domains()->create([
-                'domain' => $this->subdomain.'.'.$baseDomain,
-            ]);
-
-            $this->update(['tenant_id' => $tenant->id]);
-
-            // Seed tenant with the purchaser's user account
-            $tenant->run(function () {
-                User::create([
-                    'name' => $this->user->name,
-                    'email' => $this->user->email,
-                    'password' => $this->user->password,
-                    'role' => 'super_admin', // They are the super admin of their own tenant
-                    'email_verified_at' => $this->user->email_verified_at,
-                ]);
-            });
-
-            return $tenant;
-        }
-
-        return null;
+        return true;
     }
 }

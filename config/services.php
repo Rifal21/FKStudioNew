@@ -49,4 +49,10 @@ return [
         ],
     ],
 
+    'idcloudhost' => [
+        'api_url' => env('IDCLOUDHOST_API_URL', 'https://my.idcloudhost.com/api.php'),
+        'api_username' => env('IDCLOUDHOST_API_USERNAME'),
+        'api_key' => env('IDCLOUDHOST_API_KEY'),
+    ],
+
 ];

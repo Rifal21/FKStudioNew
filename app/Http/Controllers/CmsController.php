@@ -48,6 +48,11 @@ class CmsController extends Controller
 
     public function updateSettings(Request $request)
     {
+        $request->validate([
+            'site_name' => 'required|string|max:255',
+            'tax_rate' => 'required|numeric|min:0|max:100',
+        ]);
+
         $settings = SiteSetting::first();
         $data = $request->except(['_token', 'site_logo', 'site_favicon', 'social', 'remove_invoice_qris', 'og_image']);
         
@@ -435,7 +440,7 @@ class CmsController extends Controller
     // Orders Management
     public function ordersIndex()
     {
-        $orders = \App\Models\PackageOrder::with(['user', 'package', 'invoice', 'tickets'])->orderBy('created_at', 'desc')->get();
+        $orders = \App\Models\PackageOrder::with(['user', 'package', 'invoice', 'dpInvoice', 'finalInvoice', 'tickets'])->orderBy('created_at', 'desc')->get();
         return view('dashboard.orders.index', compact('orders'));
     }
 
@@ -458,6 +463,128 @@ class CmsController extends Controller
         }
 
         return redirect()->back()->with('success', 'Order status updated successfully');
+    }
+
+    public function tagihPelunasan(\App\Models\PackageOrder $order)
+    {
+        if ($order->payment_scheme !== 'dp' || $order->final_invoice_id) {
+            return redirect()->back()->with('error', 'Pelunasan sudah ditagih atau skema bukan DP.');
+        }
+
+        // Create the final invoice
+        $year      = date('Y');
+        $month     = date('m');
+        $day       = date('d');
+        $lastInv   = \App\Models\Invoice::where('invoice_number', 'LIKE', 'INV-%')->latest()->first();
+        $lastNum   = $lastInv ? (int) end(explode('-', $lastInv->invoice_number)) : 0;
+        $nextNum   = str_pad($lastNum + 1, 4, '0', STR_PAD_LEFT);
+        $invNumber = "INV-$year$month$day-FKS-$nextNum";
+
+        $remainingAmount = (float) $order->remaining_balance;
+        
+        $packagePrice = (float) str_replace(['Rp', '.', ','], '', $order->package_price);
+        $domainPrice = $order->buy_domain ? (float) $order->domain_price : 0.0;
+        $discountAmount = (float) $order->discount_amount;
+        $taxAmount = (float) $order->tax_amount;
+
+        $invoice = \App\Models\Invoice::create([
+            'invoice_number' => $invNumber,
+            'client_name'    => $order->user->name,
+            'client_email'   => $order->user->email,
+            'client_address' => '-',
+            'issue_date'     => now(),
+            'due_date'       => now()->addDays(7),
+            'status'         => 'Unpaid',
+            'notes'          => 'Pelunasan (50%) untuk Order #' . $order->id,
+            'total_amount'   => $remainingAmount,
+            'discount'       => $discountAmount * 0.5,
+            'tax'            => $taxAmount * 0.5,
+            'discount_type'  => 'fixed',
+            'tax_type'       => 'fixed',
+        ]);
+
+        // Item 1: Pelunasan Paket Website
+        $item1Price = $packagePrice * 0.5;
+        $invoice->items()->create([
+            'description' => 'Pelunasan (50%) - Paket Website: ' . $order->package_name,
+            'quantity'    => 1,
+            'unit_price'  => $item1Price,
+            'subtotal'    => $item1Price,
+        ]);
+
+        // Item 2: Registrasi Domain Baru (Jika Beli)
+        if ($order->buy_domain && $order->domain_name) {
+            $item2Price = $domainPrice * 0.5;
+            $invoice->items()->create([
+                'description' => 'Pelunasan (50%) - Registrasi Domain Baru: ' . $order->domain_name,
+                'quantity'    => 1,
+                'unit_price'  => $item2Price,
+                'subtotal'    => $item2Price,
+            ]);
+        }
+
+        // Item 3: Diskon Voucher (Jika Ada)
+        if ($discountAmount > 0) {
+            $item3Price = $discountAmount * 0.5;
+            $invoice->items()->create([
+                'description' => 'Pelunasan (50%) - Potongan Voucher: ' . $order->voucher_code,
+                'quantity'    => 1,
+                'unit_price'  => -$item3Price,
+                'subtotal'    => -$item3Price,
+            ]);
+        }
+
+        // Item 4: PPN
+        $settings  = SiteSetting::first();
+        $taxRate   = (float) ($settings->tax_rate ?? 11.00);
+        $item4Price = $taxAmount * 0.5;
+        $invoice->items()->create([
+            'description' => 'Pelunasan (50%) - PPN (' . $taxRate . '%)',
+            'quantity'    => 1,
+            'unit_price'  => $item4Price,
+            'subtotal'    => $item4Price,
+        ]);
+
+        // Create Duitku invoice for this final invoice if method is Duitku
+        $paymentMethod = $order->payment_method;
+        $duitkuMethod  = null;
+
+        if (str_starts_with($paymentMethod, 'Duitku|')) {
+            [$paymentMethod, $duitkuMethod] = explode('|', $paymentMethod);
+        }
+
+        $paymentUrl = null;
+        $paymentReference = null;
+
+        if ($paymentMethod === 'Duitku') {
+            $duitkuService = app(\App\Services\DuitkuService::class);
+            $duitkuResponse = $duitkuService->createInvoice([
+                'merchantOrderId' => $order->id . '-final',
+                'paymentAmount'   => $remainingAmount,
+                'productDetails'  => 'Pelunasan (50%) Pemesanan Website: ' . $order->website_name . ' (' . $order->package_name . ')',
+                'email'           => $order->user->email,
+                'customerName'    => $order->user->name,
+                'paymentMethod'   => $duitkuMethod,
+            ]);
+
+            if ($duitkuResponse['success']) {
+                $paymentUrl = $duitkuResponse['paymentUrl'];
+                $paymentReference = $duitkuResponse['reference'];
+            }
+        }
+
+        $order->update([
+            'final_invoice_id' => $invoice->id,
+        ]);
+
+        if ($paymentUrl) {
+            $order->update([
+                'payment_url' => $paymentUrl,
+                'payment_reference' => $paymentReference
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Tagihan pelunasan (50%) berhasil dikirim ke klien!');
     }
 
     // Tickets Management
@@ -495,24 +622,50 @@ class CmsController extends Controller
         return redirect()->back()->with('success', 'User deleted successfully');
     }
 
-    // Tenant Management
-    public function tenantsIndex()
+    // Order Work Status Update (Booking System)
+    public function updateOrderWorkStatus(Request $request, \App\Models\PackageOrder $order)
     {
-        $tenants = \App\Models\Tenant::with('domains')->orderBy('created_at', 'desc')->get();
-        
-        // Map owners to tenants
-        foreach ($tenants as $tenant) {
-            $order = \App\Models\PackageOrder::find($tenant->package_order_id);
-            $tenant->owner = $order ? $order->user : null;
-        }
+        $request->validate([
+            'work_status'   => 'required|in:pending,in_progress,revision,completed,cancelled',
+            'delivery_date' => 'nullable|date',
+        ]);
 
-        return view('dashboard.tenants.index', compact('tenants'));
+        $order->update([
+            'work_status'   => $request->work_status,
+            'delivery_date' => $request->delivery_date,
+        ]);
+
+        return redirect()->back()->with('success', 'Status pengerjaan berhasil diperbarui.');
     }
 
-    public function deleteTenant(\App\Models\Tenant $tenant)
+    // Register Domain via IDCloudHost API
+    public function registerOrderDomain(\App\Models\PackageOrder $order, \App\Services\IDCloudHostService $idch)
     {
-        $tenant->delete();
-        return redirect()->back()->with('success', 'Tenant deleted successfully');
+        if (!$order->buy_domain || !$order->domain_name) {
+            return redirect()->back()->with('error', 'Pesanan ini tidak memuat pembelian domain.');
+        }
+
+        if ($order->domain_status === 'registered') {
+            return redirect()->back()->with('info', 'Domain sudah terdaftar sebelumnya.');
+        }
+
+        // Jalankan registrasi
+        $result = $idch->registerDomain($order->domain_name, 1, [
+            'name' => $order->user->name,
+            'email' => $order->user->email,
+        ]);
+
+        if ($result['success']) {
+            $order->update([
+                'domain_status' => 'registered'
+            ]);
+            return redirect()->back()->with('success', 'Domain berhasil didaftarkan secara resmi via IDCloudHost API!');
+        } else {
+            $order->update([
+                'domain_status' => 'failed'
+            ]);
+            return redirect()->back()->with('error', 'Pendaftaran Gagal: ' . $result['message']);
+        }
     }
 
     // Blogs CRUD
@@ -620,5 +773,95 @@ class CmsController extends Controller
         }
         
         return response()->json(['error' => 'No image uploaded'], 400);
+    }
+
+    // Vouchers CRUD
+    public function vouchersIndex()
+    {
+        $vouchers = \App\Models\Voucher::orderBy('created_at', 'desc')->get();
+        return view('dashboard.vouchers.index', compact('vouchers'));
+    }
+
+    public function storeVoucher(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string|max:100|unique:vouchers,code',
+            'type' => 'required|string|in:percent,fixed',
+            'value' => 'required|numeric|min:0',
+            'max_uses' => 'nullable|integer|min:0',
+            'expires_at' => 'nullable|date',
+        ]);
+
+        $data = $request->only(['code', 'type', 'value', 'max_uses', 'expires_at']);
+        $data['code'] = strtoupper(trim($data['code']));
+        $data['is_active'] = $request->has('is_active') ? 1 : 0;
+        $data['used_count'] = 0;
+
+        \App\Models\Voucher::create($data);
+
+        return redirect()->back()->with('success', 'Voucher created successfully');
+    }
+
+    public function updateVoucher(Request $request, \App\Models\Voucher $voucher)
+    {
+        $request->validate([
+            'code' => 'required|string|max:100|unique:vouchers,code,' . $voucher->id,
+            'type' => 'required|string|in:percent,fixed',
+            'value' => 'required|numeric|min:0',
+            'max_uses' => 'nullable|integer|min:0',
+            'expires_at' => 'nullable|date',
+        ]);
+
+        $data = $request->only(['code', 'type', 'value', 'max_uses', 'expires_at']);
+        $data['code'] = strtoupper(trim($data['code']));
+        $data['is_active'] = $request->has('is_active') ? 1 : 0;
+
+        $voucher->update($data);
+
+        return redirect()->back()->with('success', 'Voucher updated successfully');
+    }
+
+    public function deleteVoucher(\App\Models\Voucher $voucher)
+    {
+        $voucher->delete();
+        return redirect()->back()->with('success', 'Voucher deleted successfully');
+    }
+
+    public function editPaymentMethods()
+    {
+        $settings = \App\Models\SiteSetting::first();
+        return view('dashboard.payment_methods.edit', compact('settings'));
+    }
+
+    public function updatePaymentMethods(Request $request)
+    {
+        \Log::info('updatePaymentMethods Request:', [
+            'all' => $request->all(),
+            'has_file' => $request->hasFile('invoice_qris'),
+            'file' => $request->file('invoice_qris')
+        ]);
+
+        $settings = \App\Models\SiteSetting::first();
+        $data = [];
+
+        // Save payment methods bank array
+        $data['payment_methods'] = $request->payment_methods ?? [];
+
+        // Save QRIS file if uploaded
+        if ($request->hasFile('invoice_qris')) {
+            if ($settings->invoice_qris) {
+                $this->deleteFromNextcloud($settings->invoice_qris);
+            }
+            $data['invoice_qris'] = $this->uploadToNextcloud($request->file('invoice_qris'), 'invoices');
+        } elseif ($request->remove_invoice_qris == '1') {
+            if ($settings->invoice_qris) {
+                $this->deleteFromNextcloud($settings->invoice_qris);
+                $data['invoice_qris'] = null;
+            }
+        }
+
+        $settings->update($data);
+
+        return redirect()->back()->with('success', 'Payment methods updated successfully');
     }
 }

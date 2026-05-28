@@ -18,6 +18,7 @@ class SiteSettingSeeder extends Seeder
             'contact_email' => 'hello@fkstudio.com',
             'contact_phone' => '+62 812 3456 7890',
             'contact_address' => 'Jakarta, Indonesia',
+            'tax_rate' => 11.00,
         ]);
     }
 }

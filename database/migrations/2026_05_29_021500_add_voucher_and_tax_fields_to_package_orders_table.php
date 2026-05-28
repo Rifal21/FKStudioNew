@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('package_orders', function (Blueprint $table) {
-            $table->text('payment_url')->nullable()->change();
+            $table->string('voucher_code')->nullable()->after('payment_method');
+            $table->decimal('discount_amount', 15, 2)->default(0)->after('voucher_code');
+            $table->decimal('tax_amount', 15, 2)->default(0)->after('discount_amount');
+            $table->decimal('subtotal_amount', 15, 2)->default(0)->after('package_price');
         });
     }
 
@@ -22,7 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('package_orders', function (Blueprint $table) {
-            $table->string('payment_url')->nullable()->change();
+            $table->dropColumn(['voucher_code', 'discount_amount', 'tax_amount', 'subtotal_amount']);
         });
     }
 };
