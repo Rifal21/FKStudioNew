@@ -36,13 +36,13 @@ class DuitkuService
         }
 
         $merchantOrderId = $params['merchantOrderId'];
-        $paymentAmount = $params['paymentAmount'];
+        $paymentAmount = (int) $params['paymentAmount'];
         
         $signature = md5($this->merchantCode . $merchantOrderId . $paymentAmount . $this->apiKey);
 
         $payload = [
             'merchantCode' => $this->merchantCode,
-            'paymentAmount' => (int) $paymentAmount,
+            'paymentAmount' => $paymentAmount,
             'merchantOrderId' => $merchantOrderId,
             'productDetails' => $params['productDetails'],
             'email' => $params['email'],

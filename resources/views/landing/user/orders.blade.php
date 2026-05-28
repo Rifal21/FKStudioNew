@@ -113,6 +113,7 @@
                                     <span class="text-slate-500 block text-[10px] mb-0.5 uppercase tracking-wider">Metode Pembayaran</span>
                                     <span class="text-white font-bold block">{{ str_replace('Duitku|', '', $order->payment_method ?: 'Belum memilih') }}</span>
                                 </div>
+                            </div>
                             <!-- Detailed Breakdown Box -->
                             <div class="mt-6 p-4 bg-white/5 border border-white/5 rounded-2xl max-w-xl space-y-2 select-none">
                                 <div class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2 border-b border-white/5 pb-2 flex items-center">
@@ -151,7 +152,7 @@
                                         Bayar DP (50%) Sekarang
                                     </a>
                                 @elseif($order->status === 'paid' && $order->final_invoice_id && $order->finalInvoice && $order->finalInvoice->status === 'Unpaid')
-                                    <a href="{{ $order->payment_url ?: route('invoices.public.show', $order->final_invoice_id) }}" class="w-full md:w-auto px-6 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest text-center hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20">
+                                    <a href="{{ route('checkout.pelunasan', $order->id) }}" class="w-full md:w-auto px-6 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest text-center hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20">
                                         Bayar Pelunasan (50%) Sekarang
                                     </a>
                                 @endif

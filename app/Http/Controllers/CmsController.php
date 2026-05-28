@@ -462,6 +462,13 @@ class CmsController extends Controller
             }
         }
 
+        // Sync Final Invoice status
+        if ($order->final_invoice_id) {
+            if ($request->status === 'completed') {
+                $order->finalInvoice()->update(['status' => 'Paid']);
+            }
+        }
+
         return redirect()->back()->with('success', 'Order status updated successfully');
     }
 
@@ -476,7 +483,11 @@ class CmsController extends Controller
         $month     = date('m');
         $day       = date('d');
         $lastInv   = \App\Models\Invoice::where('invoice_number', 'LIKE', 'INV-%')->latest()->first();
-        $lastNum   = $lastInv ? (int) end(explode('-', $lastInv->invoice_number)) : 0;
+        $lastNum   = 0;
+        if ($lastInv) {
+            $parts = explode('-', $lastInv->invoice_number);
+            $lastNum = (int) end($parts);
+        }
         $nextNum   = str_pad($lastNum + 1, 4, '0', STR_PAD_LEFT);
         $invNumber = "INV-$year$month$day-FKS-$nextNum";
 
@@ -522,28 +533,6 @@ class CmsController extends Controller
                 'subtotal'    => $item2Price,
             ]);
         }
-
-        // Item 3: Diskon Voucher (Jika Ada)
-        if ($discountAmount > 0) {
-            $item3Price = $discountAmount * 0.5;
-            $invoice->items()->create([
-                'description' => 'Pelunasan (50%) - Potongan Voucher: ' . $order->voucher_code,
-                'quantity'    => 1,
-                'unit_price'  => -$item3Price,
-                'subtotal'    => -$item3Price,
-            ]);
-        }
-
-        // Item 4: PPN
-        $settings  = SiteSetting::first();
-        $taxRate   = (float) ($settings->tax_rate ?? 11.00);
-        $item4Price = $taxAmount * 0.5;
-        $invoice->items()->create([
-            'description' => 'Pelunasan (50%) - PPN (' . $taxRate . '%)',
-            'quantity'    => 1,
-            'unit_price'  => $item4Price,
-            'subtotal'    => $item4Price,
-        ]);
 
         // Create Duitku invoice for this final invoice if method is Duitku
         $paymentMethod = $order->payment_method;

@@ -218,7 +218,11 @@ class CheckoutController extends Controller
             $month     = date('m');
             $day       = date('d');
             $lastInv   = \App\Models\Invoice::where('invoice_number', 'LIKE', 'INV-%')->latest()->first();
-            $lastNum   = $lastInv ? (int) end(explode('-', $lastInv->invoice_number)) : 0;
+            $lastNum   = 0;
+            if ($lastInv) {
+                $parts = explode('-', $lastInv->invoice_number);
+                $lastNum = (int) end($parts);
+            }
             $nextNum   = str_pad($lastNum + 1, 4, '0', STR_PAD_LEFT);
             $invNumber = "INV-$year$month$day-FKS-$nextNum";
 
@@ -261,30 +265,6 @@ class CheckoutController extends Controller
                     'subtotal'    => $item2Price,
                 ]);
             }
-
-            // Item 3: Diskon Voucher (Jika Ada)
-            if ($discountAmount > 0) {
-                $item3Price = $paymentScheme === 'dp' ? $discountAmount * 0.5 : $discountAmount;
-                $item3Desc = $paymentScheme === 'dp' ? 'Down Payment (50%) - Potongan Voucher: ' . $voucherCode : 'Potongan Voucher: ' . $voucherCode;
-
-                $invoice->items()->create([
-                    'description' => $item3Desc,
-                    'quantity'    => 1,
-                    'unit_price'  => -$item3Price,
-                    'subtotal'    => -$item3Price,
-                ]);
-            }
-
-            // Item 4: PPN
-            $item4Price = $paymentScheme === 'dp' ? $taxAmount * 0.5 : $taxAmount;
-            $item4Desc = $paymentScheme === 'dp' ? 'Down Payment (50%) - PPN (' . $taxRate . '%)' : 'PPN (' . $taxRate . '%)';
-
-            $invoice->items()->create([
-                'description' => $item4Desc,
-                'quantity'    => 1,
-                'unit_price'  => $item4Price,
-                'subtotal'    => $item4Price,
-            ]);
 
             if ($paymentScheme === 'dp') {
                 $order->update([
@@ -354,16 +334,89 @@ class CheckoutController extends Controller
 
         $path = $request->file('attachment')->store('payment_proofs', 'public');
 
+        $isPelunasanPayment = ($order->status === 'paid' && $order->payment_scheme === 'dp' && $order->final_invoice_id && $order->finalInvoice && $order->finalInvoice->status === 'Unpaid');
+        $subject = $isPelunasanPayment 
+            ? 'Konfirmasi Pelunasan - ' . $order->package_name 
+            : 'Konfirmasi Pembayaran - ' . $order->package_name;
+
         Ticket::create([
             'user_id'          => Auth::id(),
             'package_order_id' => $order->id,
-            'subject'          => 'Konfirmasi Pembayaran - ' . $order->package_name,
+            'subject'          => $subject,
             'message'          => $request->message,
             'attachment'       => $path,
             'status'           => 'open',
         ]);
 
         return redirect()->back()->with('success', 'Konfirmasi pembayaran terkirim. Admin akan segera memprosesnya.');
+    }
+
+    public function showPelunasan(PackageOrder $order)
+    {
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($order->payment_scheme !== 'dp' || $order->status !== 'paid' || !$order->final_invoice_id) {
+            return redirect()->route('user.orders')->with('error', 'Pesanan ini tidak dalam tahap pelunasan.');
+        }
+
+        if ($order->finalInvoice && $order->finalInvoice->status === 'Paid') {
+            return redirect()->route('user.orders')->with('success', 'Pelunasan untuk pesanan ini sudah dibayar.');
+        }
+
+        $settings = SiteSetting::first();
+        $totalAmount = (float) $order->remaining_balance;
+        $duitkuMethods = $this->duitkuService->getPaymentMethods($totalAmount);
+
+        return view('landing.checkout-pelunasan', compact('order', 'settings', 'duitkuMethods'));
+    }
+
+    public function processPelunasan(Request $request, PackageOrder $order)
+    {
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'payment_method' => 'required',
+        ], [
+            'payment_method.required' => 'Silakan pilih metode pembayaran.',
+        ]);
+
+        $paymentMethod = $request->payment_method;
+
+        $order->update([
+            'payment_method' => $paymentMethod
+        ]);
+
+        $duitkuMethod = null;
+        if (str_starts_with($paymentMethod, 'Duitku|')) {
+            [$paymentMethod, $duitkuMethod] = explode('|', $paymentMethod);
+        }
+
+        if ($paymentMethod === 'Duitku') {
+            $duitkuResponse = $this->duitkuService->createInvoice([
+                'merchantOrderId' => $order->id . '-final',
+                'paymentAmount'   => (int) $order->remaining_balance,
+                'productDetails'  => 'Pelunasan (50%) Pemesanan Website: ' . $order->website_name . ' (' . $order->package_name . ')',
+                'email'           => Auth::user()->email,
+                'customerName'    => Auth::user()->name,
+                'paymentMethod'   => $duitkuMethod,
+            ]);
+
+            if ($duitkuResponse['success']) {
+                $order->update([
+                    'payment_url'       => $duitkuResponse['paymentUrl'],
+                    'payment_reference' => $duitkuResponse['reference'],
+                ]);
+                return redirect($duitkuResponse['paymentUrl']);
+            }
+
+            return redirect()->back()->with('error', $duitkuResponse['message']);
+        }
+
+        return redirect()->route('checkout.success', $order->id)->with('success', 'Metode pembayaran pelunasan berhasil dipilih!');
     }
 
     public function userOrders()

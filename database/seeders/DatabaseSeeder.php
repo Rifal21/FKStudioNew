@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
             OwnerSeeder::class,
             PackageSeeder::class,
             BlogPostSeeder::class,
+            VoucherSeeder::class,
         ]);
     }
 }

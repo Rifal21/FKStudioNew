@@ -122,6 +122,27 @@
                                     @endif
                                     
                                     <div class="text-[9px] text-slate-400 uppercase tracking-widest mt-2"><i class="fa-solid fa-credit-card mr-1"></i> {{ str_replace('Duitku|', '', $order->payment_method ?: 'Belum memilih') }}</div>
+
+                                    @php
+                                        $paymentTickets = $order->tickets->filter(fn($t) => !empty($t->attachment));
+                                    @endphp
+                                    @if($paymentTickets->isNotEmpty())
+                                        <div class="mt-3 pt-2 border-t border-slate-100 text-left">
+                                            <div class="text-[8px] font-black text-blue-500 uppercase tracking-widest mb-1.5 flex items-center">
+                                                <i class="fa-solid fa-receipt mr-1"></i> Bukti Transfer ({{ $paymentTickets->count() }})
+                                            </div>
+                                            <div class="flex flex-wrap gap-1.5">
+                                                @foreach($paymentTickets as $pt)
+                                                    <a href="{{ Storage::url($pt->attachment) }}" target="_blank" class="block w-9 h-9 rounded-lg overflow-hidden border border-slate-200 group relative hover:border-blue-500 transition-colors" title="Buka bukti transfer: {{ $pt->subject }}">
+                                                        <img src="{{ Storage::url($pt->attachment) }}" class="w-full h-full object-cover">
+                                                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                                            <i class="fa-solid fa-eye text-white text-[8px]"></i>
+                                                        </div>
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="p-6">
                                     @php
@@ -198,6 +219,20 @@
                                                 </form>
                                             </div>
                                         @endif
+
+                                         <!-- Konfirmasi Pelunasan for DP payment scheme -->
+                                         @if($order->status === 'paid' && $order->payment_scheme === 'dp' && $order->final_invoice_id && $order->finalInvoice && $order->finalInvoice->status === 'Unpaid')
+                                             <div class="flex items-center space-x-2">
+                                                 <form action="{{ route('dashboard.orders.update', $order->id) }}" method="POST">
+                                                     @csrf
+                                                     @method('PATCH')
+                                                     <input type="hidden" name="status" value="completed">
+                                                     <button type="submit" class="px-3 py-1.5 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded hover:bg-emerald-700 transition-colors flex items-center gap-1 shadow shadow-emerald-600/10" title="Konfirmasi Pembayaran Pelunasan & Selesaikan Order">
+                                                         <i class="fa-solid fa-circle-check mr-1"></i> Konfirmasi Pelunasan
+                                                     </button>
+                                                 </form>
+                                             </div>
+                                         @endif
 
                                         <!-- Tagih Pelunasan button for DP payment scheme -->
                                         @if($order->payment_scheme === 'dp' && $order->status === 'paid' && !$order->final_invoice_id)

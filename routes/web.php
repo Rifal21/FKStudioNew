@@ -22,14 +22,16 @@ Route::post('/chat', [ChatController::class, 'sendMessage'])->name('chat.send');
 Route::get('/invoice/v/{invoice}', [InvoiceController::class, 'publicShow'])->name('invoices.public.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // API & Static Routes (defined first to prevent wildcard conflicts)
+    Route::post('/checkout/apply-voucher', [CheckoutController::class, 'applyVoucher'])->name('checkout.apply_voucher');
+    Route::get('/api/domains/check', [CheckoutController::class, 'checkDomainAvailability'])->name('api.domains.check');
+
     Route::get('/checkout/{package}', [CheckoutController::class, 'show'])->name('checkout');
     Route::post('/checkout/{package}', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/checkout/pelunasan/{order}', [CheckoutController::class, 'showPelunasan'])->name('checkout.pelunasan');
+    Route::post('/checkout/pelunasan/{order}', [CheckoutController::class, 'processPelunasan'])->name('checkout.pelunasan.process');
     Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::post('/checkout/confirm/{order}', [CheckoutController::class, 'confirmPayment'])->name('checkout.confirm');
-
-    // API Domain Check
-    Route::get('/api/domains/check', [CheckoutController::class, 'checkDomainAvailability'])->name('api.domains.check');
-    Route::post('/checkout/apply-voucher', [CheckoutController::class, 'applyVoucher'])->name('checkout.apply_voucher');
 
     // User Orders & Bookings
     Route::get('/my-orders', [CheckoutController::class, 'userOrders'])->name('user.orders');
