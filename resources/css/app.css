@@ -282,3 +282,34 @@
     border-radius: 4px !important;
     background: #7c3aed !important;
 }
+
+/* ==========================================================================
+   Rich text (blog articles from the editor)
+   ========================================================================== */
+@layer components {
+    .rich-text {
+        @apply text-base leading-8 text-ink md:text-lg;
+        overflow-wrap: anywhere;
+    }
+    .rich-text > * + * { @apply mt-5; }
+    .rich-text h2 { @apply mt-10 text-2xl font-extrabold md:text-3xl; }
+    .rich-text h3 { @apply mt-8 text-xl font-bold md:text-2xl; }
+    .rich-text h4 { @apply mt-6 text-lg font-bold; }
+    .rich-text p { @apply text-muted; }
+    .rich-text strong { @apply font-bold text-ink; }
+    .rich-text a { @apply font-semibold text-brand-text underline decoration-brand-300 underline-offset-4 hover:decoration-brand-600; }
+    .rich-text ul { @apply list-disc space-y-2 pl-6 text-muted marker:text-brand-500; }
+    .rich-text ol { @apply list-decimal space-y-2 pl-6 text-muted marker:font-bold marker:text-brand-500; }
+    .rich-text blockquote { @apply rounded-r-lg border-l-4 border-brand-500 bg-brand-soft px-5 py-3 italic text-ink; }
+    .rich-text img { @apply h-auto w-full rounded-lg border border-line; }
+    .rich-text figure { @apply my-8; }
+    .rich-text figcaption { @apply mt-2 text-center text-small text-muted; }
+    .rich-text hr { @apply my-10 border-line; }
+    .rich-text code { @apply rounded bg-surface-2 px-1.5 py-0.5 text-[0.9em] text-brand-text; }
+    .rich-text pre { @apply overflow-x-auto rounded-lg bg-[#17123A] p-4 text-small text-white; }
+    .rich-text pre code { @apply bg-transparent p-0 text-white; }
+    .rich-text table { @apply block w-full overflow-x-auto text-small; }
+    .rich-text th, .rich-text td { @apply border border-line px-3 py-2 text-left; }
+    .rich-text th { @apply bg-surface-2 font-semibold; }
+    .rich-text iframe { @apply aspect-video h-auto w-full rounded-lg; }
+}
