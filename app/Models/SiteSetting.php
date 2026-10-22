@@ -29,6 +29,8 @@ class SiteSetting extends Model
     protected $casts = [
         'social_links' => 'array',
         'payment_methods' => 'array',
+        'waha_enabled' => 'boolean',
+        'waha_api_key' => 'encrypted',
     ];
 
 }

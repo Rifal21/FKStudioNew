@@ -18,12 +18,19 @@ class Invoice extends Model
     protected $casts = [
         'issue_date' => 'date',
         'due_date' => 'date',
+        'billing_period' => 'date',
+        'wa_sent_at' => 'datetime',
         'total_amount' => 'decimal:2',
     ];
 
     public function items()
     {
-        return $this->hasMany(InvoiceItem::class);
+        return $this->hasMany(InvoiceItem::class)->orderBy('position');
+    }
+
+    public function subscription()
+    {
+        return $this->belongsTo(Subscription::class);
     }
 
     public function packageOrder()
