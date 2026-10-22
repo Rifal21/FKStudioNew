@@ -22,6 +22,8 @@
     if ($digits && str_starts_with($digits, '0')) $digits = '62' . substr($digits, 1);
 @endphp
 
+<x-seo.schema :data="['@type' => 'FAQPage', 'mainEntity' => array_map(fn ($f) => ['@type' => 'Question', 'name' => $f[0], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $f[1]]], $faqs)]" />
+
 <section id="faq" class="scroll-mt-20 py-16 md:py-24">
     <div class="container-page">
         <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">

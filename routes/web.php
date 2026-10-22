@@ -25,6 +25,7 @@ Route::get('/packages/{slug}', [LandingController::class, 'showPackage'])->name(
 Route::get('switch-language/{locale}', [LandingController::class, 'switchLanguage'])->name('switch-language');
 Route::get('/sitemap.xml', [App\Http\Controllers\SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [App\Http\Controllers\SeoController::class, 'robots'])->name('robots');
+Route::get('/llms.txt', [App\Http\Controllers\SeoController::class, 'llms'])->name('llms');
 Route::post('/chat', [ChatController::class, 'sendMessage'])->name('chat.send');
 Route::get('/invoice/v/{invoice}', [InvoiceController::class, 'publicShow'])->name('invoices.public.show');
 

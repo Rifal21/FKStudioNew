@@ -15,6 +15,8 @@
     :description="$id ? 'Artikel, tips, dan wawasan seputar website, teknologi, dan pertumbuhan bisnis digital dari FKStudio.' : 'Articles, tips, and insights on websites, technology and digital business growth from FKStudio.'">
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
+    <x-seo.schema :data="\App\Support\Seo::breadcrumbs([[$id ? 'Beranda' : 'Home', route('home')], ['Blog', route('blog.index')]])" />
+
     <div x-data="{ category: 'all', q: '', index: @js($index), get leadOn() { return this.category === 'all' && !this.q }, show(i) { const it = this.index[i]; return (this.category === 'all' || this.category === it.c) && (!this.q || it.t.includes(this.q.toLowerCase())); } }">
         <x-site.page-head
             :title="$id ? 'Catatan dari tim FKStudio' : 'Notes from the FKStudio team'"

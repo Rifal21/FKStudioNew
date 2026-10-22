@@ -4,12 +4,16 @@
     'image' => null,
     'landing' => false,
     'bodyClass' => '',
+    'noindex' => false,   // private pages: checkout, orders, styleguide
+    'type' => 'website',  // 'article' for blog posts
+    'publishedAt' => null,
+    'modifiedAt' => null,
 ])
 
 @php
     $siteName = $site->site_name ?: 'FKStudio';
     $pageTitle = $title ? "{$title} | {$siteName}" : ($site->seo_title ?: $siteName);
-    $pageDescription = $description ?? $site->seo_description;
+    $pageDescription = $description ?: ($site->seo_description ?: \App\Support\Seo::FALLBACK_DESCRIPTION);
     $pageImage = $image ?? ($site->og_image ? $site->og_image_url : ($site->site_logo ? $site->logo_url : null));
 @endphp
 <!DOCTYPE html>
@@ -28,12 +32,23 @@
         <meta name="keywords" content="{{ $site->seo_keywords }}">
     @endif
     <link rel="canonical" href="{{ url()->current() }}">
+    @if ($noindex)
+        <meta name="robots" content="noindex, nofollow">
+    @else
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    @endif
 
     @if ($site->google_console_verification)
         <meta name="google-site-verification" content="{{ $site->google_console_verification }}">
     @endif
 
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="{{ $type }}">
+    <meta property="og:site_name" content="{{ $siteName }}">
+    <meta property="og:locale" content="{{ app()->getLocale() === 'id' ? 'id_ID' : 'en_US' }}">
+    @if ($type === 'article' && $publishedAt)
+        <meta property="article:published_time" content="{{ $publishedAt }}">
+        @if ($modifiedAt)<meta property="article:modified_time" content="{{ $modifiedAt }}">@endif
+    @endif
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title" content="{{ $pageTitle }}">
     <meta property="og:description" content="{{ $pageDescription }}">
@@ -47,22 +62,7 @@
         <link rel="icon" type="image/png" href="{{ $site->favicon_url }}">
     @endif
 
-    <script type="application/ld+json">
-        {!! json_encode([
-            '@context' => 'https://schema.org',
-            '@type' => 'Organization',
-            'name' => $siteName,
-            'url' => url('/'),
-            'logo' => $site->site_logo ? $site->logo_url : null,
-            'contactPoint' => array_filter([
-                '@type' => 'ContactPoint',
-                'telephone' => $site->contact_phone,
-                'email' => $site->contact_email,
-                'contactType' => 'customer service',
-            ]),
-            'sameAs' => array_values(array_filter(is_array($site->social_links) ? $site->social_links : [])),
-        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
-    </script>
+    <x-seo.schema :data="['@graph' => [\App\Support\Seo::organization($site), \App\Support\Seo::website($site)]]" />
 
     @include('partials.head-assets', ['landing' => $landing])
     {{ $head ?? '' }}

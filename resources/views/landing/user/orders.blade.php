@@ -10,7 +10,7 @@
         ['label' => 'Selesai', 'icon' => 'fa-circle-check'],
     ];
 @endphp
-<x-layouts.public title="Pesanan Saya" description="Pantau status pembayaran dan pengerjaan website Anda.">
+<x-layouts.public :noindex="true" title="Pesanan Saya" description="Pantau status pembayaran dan pengerjaan website Anda.">
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
     <div class="relative pb-16 pt-28 md:pb-24 md:pt-36">

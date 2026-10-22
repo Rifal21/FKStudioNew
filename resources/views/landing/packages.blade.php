@@ -11,6 +11,11 @@
     :description="$id ? 'Pilih paket pembuatan website dan layanan digital FKStudio dengan harga transparan dan pembayaran fleksibel.' : 'Choose a FKStudio website and digital service package with transparent pricing and flexible payment.'">
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
+    <x-seo.schema :data="['@graph' => [
+        \App\Support\Seo::breadcrumbs([[$id ? 'Beranda' : 'Home', route('home')], [$id ? 'Paket Layanan' : 'Service Packages', route('package.index')]]),
+        ['@type' => 'ItemList', 'name' => $id ? 'Paket layanan FKStudio' : 'FKStudio service packages', 'itemListElement' => $packages->values()->map(fn ($p, $i) => ['@type' => 'ListItem', 'position' => $i + 1, 'item' => \App\Support\Seo::product($p)])->all()],
+    ]]" />
+
     <x-site.page-head
         :title="$id ? 'Paket layanan' : 'Service packages'"
         :lead="$id ? 'Harga tertera di tiap paket. Bayar DP 50% dulu atau langsung lunas.' : 'Prices are listed on every package. Pay a 50% deposit first or pay in full.'" />
