@@ -4,6 +4,7 @@
     x-init="
         @if (session('success')) $store.toast.push('success', @js(session('success'))); @endif
         @if (session('error')) $store.toast.push('error', @js(session('error')), 6000); @endif
+        @if (session('info')) $store.toast.push('info', @js(session('info'))); @endif
     "
     class="pointer-events-none fixed inset-x-4 top-4 z-[90] flex flex-col items-center gap-2 sm:inset-x-auto sm:right-4 sm:items-end"
     aria-live="polite"

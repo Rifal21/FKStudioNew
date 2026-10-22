@@ -1,154 +1,154 @@
 <x-app-layout>
-    <x-slot name="header">
-        {{ __('Invoice Management') }}
-    </x-slot>
+    <x-slot name="header">Invoice</x-slot>
 
-    <div class="space-y-8 pb-20">
-        <!-- Quick Actions & Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6" data-aos="fade-down">
-            <div class="glass p-8 rounded-[2.5rem] flex items-center justify-between group hover:bg-emerald-500/5 transition-all">
-                <div>
-                    <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Total Generated</p>
-                    <h4 class="text-3xl font-black text-slate-900">{{ count($invoices) }}</h4>
-                </div>
-                <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-file-invoice"></i>
-                </div>
-            </div>
-            
-            <div class="md:col-span-2 glass p-8 rounded-[2.5rem] flex items-center justify-between group hover:bg-blue-600/5 transition-all">
-                <div class="max-w-md">
-                    <h4 class="text-xl font-black text-slate-900 mb-1">Generate New Invoice</h4>
-                    <p class="text-xs text-slate-500 font-medium">Create professional invoices for your clients in seconds with custom branding.</p>
-                </div>
-                <a href="{{ route('dashboard.invoices.create') }}" 
-                    class="px-8 py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-black hover:scale-105 transition-all shadow-xl shadow-slate-900/20 text-xs uppercase tracking-widest">
-                    <i class="fa-solid fa-plus mr-2"></i> Create New
-                </a>
-            </div>
+    @php
+        $statusMap = [
+            'Paid' => ['label' => 'Lunas', 'variant' => 'success'],
+            'Sent' => ['label' => 'Terkirim', 'variant' => 'info'],
+            'Unpaid' => ['label' => 'Belum dibayar', 'variant' => 'warning'],
+            'Draft' => ['label' => 'Draft', 'variant' => 'neutral'],
+            'Cancelled' => ['label' => 'Dibatalkan', 'variant' => 'danger'],
+        ];
+        $invoiceGroups = [
+            'auto' => $invoices->filter(fn ($i) => $i->packageOrder !== null),
+            'manual' => $invoices->filter(fn ($i) => $i->packageOrder === null),
+        ];
+        $paidCount = $invoices->where('status', 'Paid')->count();
+        $openCount = $invoices->count() - $paidCount;
+    @endphp
+
+    <div class="mx-auto max-w-7xl space-y-6" x-data="{ tab: 'auto' }">
+        <x-ui.page-header title="Invoice" description="Kelola invoice otomatis dari pesanan paket dan invoice manual untuk klien Anda.">
+            <x-slot:actions>
+                <x-ui.button :href="route('dashboard.invoices.create')" icon="fa-plus">Buat invoice</x-ui.button>
+            </x-slot:actions>
+        </x-ui.page-header>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <x-ui.stat-card label="Total invoice" :value="$invoices->count()" icon="fa-file-invoice" tone="brand" />
+            <x-ui.stat-card label="Sudah lunas" :value="$paidCount" icon="fa-circle-check" tone="mint" />
+            <x-ui.stat-card label="Belum lunas" :value="$openCount" icon="fa-hourglass-half" tone="sun" />
         </div>
 
-        <!-- Invoices List -->
-        @php
-            $invoiceGroups = [
-                'auto' => $invoices->filter(fn($i) => $i->packageOrder !== null),
-                'manual' => $invoices->filter(fn($i) => $i->packageOrder === null),
-            ];
-        @endphp
-        
-        <div x-data="{ tab: 'auto' }" class="glass rounded-[3rem] overflow-hidden shadow-xl" data-aos="fade-up">
-            <div class="p-8 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <h3 class="text-lg font-black text-slate-900 uppercase tracking-widest flex items-center">
-                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-3 animate-pulse"></span>
-                    Recent Invoices
-                </h3>
-                
-                <div class="flex space-x-2 bg-slate-200/50 p-1 rounded-2xl">
-                    <button @click="tab = 'auto'" :class="tab === 'auto' ? 'bg-white text-blue-600 shadow-md' : 'text-slate-500 hover:text-slate-700'" class="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-                        <i class="fa-solid fa-robot mr-1"></i> Automatic
-                    </button>
-                    <button @click="tab = 'manual'" :class="tab === 'manual' ? 'bg-white text-blue-600 shadow-md' : 'text-slate-500 hover:text-slate-700'" class="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-                        <i class="fa-solid fa-user-pen mr-1"></i> Manual
-                    </button>
-                </div>
-            </div>
-            
-            @foreach(['auto', 'manual'] as $type)
-            <div x-show="tab === '{{ $type }}'" {!! $type === 'manual' ? 'x-cloak style="display: none;"' : '' !!} class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50/50">
-                            <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Number</th>
-                            <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Client</th>
-                            <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Date</th>
-                            <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Total</th>
-                            <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Status</th>
-                            <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-50">
-                        @forelse($invoiceGroups[$type] as $invoice)
-                            <tr class="group hover:bg-slate-50/50 transition-colors">
-                                <td class="px-8 py-6">
-                                    <span class="font-black text-slate-900">{{ $invoice->invoice_number }}</span>
-                                </td>
-                                <td class="px-8 py-6">
-                                    <div class="flex flex-col">
-                                        <span class="font-bold text-slate-900">{{ $invoice->client_name }}</span>
-                                        <span class="text-[10px] text-slate-400 font-medium">{{ $invoice->client_email }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-8 py-6">
-                                    <span class="text-sm font-medium text-slate-600">{{ $invoice->issue_date->format('M d, Y') }}</span>
-                                </td>
-                                <td class="px-8 py-6">
-                                    <span class="font-black text-blue-600">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</span>
-                                </td>
-                                <td class="px-8 py-6">
-                                    <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest
-                                        @if($invoice->status == 'Paid') bg-emerald-100 text-emerald-600
-                                        @elseif($invoice->status == 'Sent') bg-blue-100 text-blue-600
-                                        @else bg-slate-100 text-slate-500 @endif">
-                                        {{ $invoice->status }}
-                                    </span>
-                                </td>
-                                <td class="px-8 py-6">
-                                    <div class="flex items-center space-x-2">
-                                        <a href="{{ route('dashboard.invoices.show', $invoice->id) }}" target="_blank"
-                                            class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm" title="Preview">
-                                            <i class="fa-solid fa-eye text-xs"></i>
-                                        </a>
-                                        <a href="{{ route('dashboard.invoices.download', $invoice->id) }}"
-                                            class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-emerald-500 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all shadow-sm" title="Download PDF">
-                                            <i class="fa-solid fa-download text-xs"></i>
-                                        </a>
-                                        <button onclick="copyShareLink('{{ route('invoices.public.show', $invoice->id) }}')"
-                                            class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-900 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm" title="Copy Share Link">
-                                            <i class="fa-solid fa-share-nodes text-xs"></i>
-                                        </button>
-                                        
-                                        @if($type === 'manual')
-                                        <a href="{{ route('dashboard.invoices.edit', $invoice->id) }}"
-                                            class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-500 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm">
-                                            <i class="fa-solid fa-pencil text-xs"></i>
-                                        </a>
-                                        @endif
-                                        
-                                        <form action="{{ route('dashboard.invoices.destroy', $invoice->id) }}" method="POST">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" onclick="return confirm('Delete this invoice?')"
-                                                class="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm">
-                                                <i class="fa-solid fa-trash-can text-xs"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="px-8 py-20 text-center">
-                                    <div class="flex flex-col items-center">
-                                        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-200 text-3xl">
-                                            <i class="fa-solid fa-file-circle-minus"></i>
-                                        </div>
-                                        <p class="text-slate-400 font-bold">No {{ $type }} invoices found.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            @endforeach
+        {{-- Tabs --}}
+        <div class="inline-flex w-full gap-1 rounded-lg border border-line bg-surface-2 p-1 sm:w-auto" role="tablist" aria-label="Jenis invoice">
+            <button type="button" role="tab" @click="tab = 'auto'" :aria-selected="tab === 'auto'"
+                :class="tab === 'auto' ? 'bg-surface text-brand-text shadow-soft' : 'text-muted hover:text-ink'"
+                class="flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-md px-4 text-small font-semibold transition sm:flex-none">
+                <i class="fa-solid fa-robot" aria-hidden="true"></i> Otomatis
+                <span class="badge-neutral">{{ $invoiceGroups['auto']->count() }}</span>
+            </button>
+            <button type="button" role="tab" @click="tab = 'manual'" :aria-selected="tab === 'manual'"
+                :class="tab === 'manual' ? 'bg-surface text-brand-text shadow-soft' : 'text-muted hover:text-ink'"
+                class="flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-md px-4 text-small font-semibold transition sm:flex-none">
+                <i class="fa-solid fa-user-pen" aria-hidden="true"></i> Manual
+                <span class="badge-neutral">{{ $invoiceGroups['manual']->count() }}</span>
+            </button>
         </div>
+
+        @foreach (['auto', 'manual'] as $type)
+            <section x-show="tab === '{{ $type }}'" @if ($type !== 'auto') x-cloak @endif role="tabpanel" aria-label="Invoice {{ $type === 'auto' ? 'otomatis' : 'manual' }}">
+                @if ($invoiceGroups[$type]->isEmpty())
+                    <div class="card">
+                        <x-ui.empty-state icon="fa-file-circle-minus" :title="$type === 'auto' ? 'Belum ada invoice otomatis' : 'Belum ada invoice manual'"
+                            :text="$type === 'auto' ? 'Invoice otomatis muncul saat pelanggan membuat pesanan paket.' : 'Buat invoice manual untuk klien di luar pesanan paket.'">
+                            @if ($type === 'manual')
+                                <x-ui.button :href="route('dashboard.invoices.create')" icon="fa-plus">Buat invoice</x-ui.button>
+                            @endif
+                        </x-ui.empty-state>
+                    </div>
+                @else
+                    {{-- Desktop table --}}
+                    <div class="table-wrap hidden lg:block">
+                        <table class="table-base">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Nomor</th>
+                                    <th scope="col">Klien</th>
+                                    <th scope="col">Tanggal</th>
+                                    <th scope="col">Total</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col" class="text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($invoiceGroups[$type] as $invoice)
+                                    @php $st = $statusMap[$invoice->status] ?? ['label' => $invoice->status, 'variant' => 'neutral']; @endphp
+                                    <tr>
+                                        <td class="whitespace-nowrap font-bold">{{ $invoice->invoice_number }}</td>
+                                        <td>
+                                            <p class="font-semibold">{{ $invoice->client_name }}</p>
+                                            @if ($invoice->client_email)<p class="text-caption text-muted">{{ $invoice->client_email }}</p>@endif
+                                        </td>
+                                        <td class="whitespace-nowrap text-muted">{{ $invoice->issue_date->locale('id')->translatedFormat('d M Y') }}</td>
+                                        <td class="whitespace-nowrap font-bold text-brand-text">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</td>
+                                        <td><x-ui.badge :variant="$st['variant']" dot>{{ $st['label'] }}</x-ui.badge></td>
+                                        <td>
+                                            <div class="flex items-center justify-end gap-1">
+                                                <a href="{{ route('dashboard.invoices.show', $invoice->id) }}" target="_blank" rel="noopener" class="btn-icon" title="Pratinjau" aria-label="Pratinjau invoice {{ $invoice->invoice_number }}"><i class="fa-solid fa-eye" aria-hidden="true"></i></a>
+                                                <a href="{{ route('dashboard.invoices.download', $invoice->id) }}" class="btn-icon" title="Unduh PDF" aria-label="Unduh PDF invoice {{ $invoice->invoice_number }}"><i class="fa-solid fa-download" aria-hidden="true"></i></a>
+                                                <button type="button" class="btn-icon" title="Salin tautan" aria-label="Salin tautan publik invoice {{ $invoice->invoice_number }}"
+                                                    @click="navigator.clipboard.writeText(@js(route('invoices.public.show', $invoice->id))).then(() => window.toast('success', 'Tautan invoice disalin'), () => window.toast('error', 'Gagal menyalin tautan'))"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i></button>
+                                                @if ($type === 'manual')
+                                                    <a href="{{ route('dashboard.invoices.edit', $invoice->id) }}" class="btn-icon" title="Ubah" aria-label="Ubah invoice {{ $invoice->invoice_number }}"><i class="fa-solid fa-pencil" aria-hidden="true"></i></a>
+                                                @endif
+                                                <form action="{{ route('dashboard.invoices.destroy', $invoice->id) }}" method="POST"
+                                                    data-confirm="Invoice {{ $invoice->invoice_number }} akan dihapus permanen." data-confirm-title="Hapus invoice?" data-confirm-ok="Ya, hapus">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn-icon hover:bg-danger-50 hover:text-danger-700" title="Hapus" aria-label="Hapus invoice {{ $invoice->invoice_number }}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {{-- Mobile / tablet cards --}}
+                    <div class="space-y-3 lg:hidden">
+                        @foreach ($invoiceGroups[$type] as $invoice)
+                            @php $st = $statusMap[$invoice->status] ?? ['label' => $invoice->status, 'variant' => 'neutral']; @endphp
+                            <article class="card card-pad">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="min-w-0">
+                                        <p class="break-all text-small font-bold">{{ $invoice->invoice_number }}</p>
+                                        <p class="mt-0.5 font-semibold">{{ $invoice->client_name }}</p>
+                                        @if ($invoice->client_email)<p class="break-all text-caption text-muted">{{ $invoice->client_email }}</p>@endif
+                                    </div>
+                                    <x-ui.badge :variant="$st['variant']" dot class="shrink-0">{{ $st['label'] }}</x-ui.badge>
+                                </div>
+                                <dl class="mt-4 flex items-end justify-between gap-3 border-t border-line pt-3">
+                                    <div>
+                                        <dt class="text-caption text-muted">Tanggal</dt>
+                                        <dd class="text-small">{{ $invoice->issue_date->locale('id')->translatedFormat('d M Y') }}</dd>
+                                    </div>
+                                    <div class="text-right">
+                                        <dt class="text-caption text-muted">Total</dt>
+                                        <dd class="text-lg font-extrabold text-brand-text">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</dd>
+                                    </div>
+                                </dl>
+                                <div class="mt-3 flex flex-wrap items-center gap-1 border-t border-line pt-3">
+                                    <a href="{{ route('dashboard.invoices.show', $invoice->id) }}" target="_blank" rel="noopener" class="btn-icon" aria-label="Pratinjau invoice {{ $invoice->invoice_number }}"><i class="fa-solid fa-eye" aria-hidden="true"></i></a>
+                                    <a href="{{ route('dashboard.invoices.download', $invoice->id) }}" class="btn-icon" aria-label="Unduh PDF invoice {{ $invoice->invoice_number }}"><i class="fa-solid fa-download" aria-hidden="true"></i></a>
+                                    <button type="button" class="btn-icon" aria-label="Salin tautan publik invoice {{ $invoice->invoice_number }}"
+                                        @click="navigator.clipboard.writeText(@js(route('invoices.public.show', $invoice->id))).then(() => window.toast('success', 'Tautan invoice disalin'), () => window.toast('error', 'Gagal menyalin tautan'))"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i></button>
+                                    @if ($type === 'manual')
+                                        <a href="{{ route('dashboard.invoices.edit', $invoice->id) }}" class="btn-icon" aria-label="Ubah invoice {{ $invoice->invoice_number }}"><i class="fa-solid fa-pencil" aria-hidden="true"></i></a>
+                                    @endif
+                                    <form action="{{ route('dashboard.invoices.destroy', $invoice->id) }}" method="POST" class="ml-auto"
+                                        data-confirm="Invoice {{ $invoice->invoice_number }} akan dihapus permanen." data-confirm-title="Hapus invoice?" data-confirm-ok="Ya, hapus">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-icon hover:bg-danger-50 hover:text-danger-700" aria-label="Hapus invoice {{ $invoice->invoice_number }}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+                                    </form>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                @endif
+            </section>
+        @endforeach
     </div>
-    <script>
-        function copyShareLink(url) {
-            navigator.clipboard.writeText(url).then(() => {
-                alert('Public share link copied to clipboard!');
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-            });
-        }
-    </script>
 </x-app-layout>

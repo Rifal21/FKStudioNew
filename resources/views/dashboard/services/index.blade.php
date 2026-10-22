@@ -1,50 +1,88 @@
 <x-app-layout>
-    <x-slot name="header">
-        {{ __('Our Services') }}
-    </x-slot>
+    <x-slot name="header">Layanan</x-slot>
 
-    <div class="space-y-10 pb-20">
-        <!-- Add Section -->
-        <div class="glass p-10 rounded-[3rem] shadow-xl relative overflow-hidden" data-aos="fade-down">
-            <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
-            
-            <h3 class="text-2xl font-black text-slate-900 mb-8 flex items-center">
-                <span class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mr-4">
-                    <i class="fa-solid fa-plus"></i>
-                </span>
-                Create New Service
-            </h3>
+    <div class="mx-auto max-w-7xl space-y-6" x-data="{ open: false }" @keydown.escape.window="open = false">
+        <x-ui.page-header title="Layanan" description="Kelola layanan yang tampil di halaman utama situs.">
+            <x-slot:actions>
+                <x-ui.button icon="fa-plus" @click="open = true">Tambah layanan</x-ui.button>
+            </x-slot:actions>
+        </x-ui.page-header>
 
-            <form action="{{ route('dashboard.services.store') }}" method="POST" class="space-y-8">
-                @csrf
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="space-y-6">
-                        <div class="space-y-2">
-                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Title (ID)</label>
-                            <input type="text" name="title_id" required
-                                class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">
+        @if ($errors->any())
+            <div class="rounded-lg border border-danger-500/40 bg-danger-50 p-4 text-small text-danger-700 dark:bg-danger-500/15 dark:text-red-300" role="alert">
+                <p class="font-semibold">Layanan belum tersimpan. Periksa isian berikut:</p>
+                <ul class="mt-1 list-disc space-y-0.5 pl-5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        @if (count($services) > 0)
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+                @foreach ($services as $service)
+                    <x-ui.card hover class="flex flex-col" data-aos="fade-up" data-aos-delay="{{ min($loop->index, 6) * 50 }}">
+                        <div class="flex items-start justify-between gap-3">
+                            <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-2xl text-brand-text">
+                                <i class="{{ str_starts_with($service->icon, 'fa-') ? $service->icon : 'fa-solid fa-' . ($service->icon == 'swatch' ? 'palette' : ($service->icon == 'code-bracket' ? 'code' : 'rocket')) }}" aria-hidden="true"></i>
+                            </span>
+
+                            <form action="{{ route('dashboard.services.destroy', $service->id) }}" method="POST"
+                                data-confirm="Layanan ini akan dihapus permanen." data-confirm-title="Hapus layanan?" data-confirm-ok="Ya, hapus">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn-icon hover:bg-danger-50 hover:text-danger-700 dark:hover:bg-danger-500/15 dark:hover:text-red-300" aria-label="Hapus layanan {{ $service->title_id }}">
+                                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                                </button>
+                            </form>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Description (ID)</label>
-                            <textarea name="description_id" required rows="2" 
-                                class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium"></textarea>
+
+                        <div class="mt-4 min-w-0 flex-1">
+                            <h3 class="text-lg font-bold leading-tight">{{ $service->title_id }}</h3>
+                            <p class="mt-0.5 text-small text-muted">{{ $service->title_en }}</p>
+                            <p class="mt-3 line-clamp-3 text-small text-muted">{{ $service->description_id }}</p>
                         </div>
+
+                        <div class="divider mt-5"></div>
+                        <div class="mt-4 flex items-center justify-between gap-3">
+                            <code class="min-w-0 truncate text-caption text-muted">{{ $service->icon }}</code>
+                            <x-ui.badge variant="success" dot>Aktif</x-ui.badge>
+                        </div>
+                    </x-ui.card>
+                @endforeach
+            </div>
+        @else
+            <x-ui.card :padded="false">
+                <x-ui.empty-state icon="fa-box-open" title="Belum ada layanan" text="Tambahkan layanan pertama agar tampil di halaman utama.">
+                    <x-ui.button icon="fa-plus" @click="open = true">Tambah layanan</x-ui.button>
+                </x-ui.empty-state>
+            </x-ui.card>
+        @endif
+
+        {{-- Modal tambah layanan --}}
+        <div x-show="open" x-cloak x-transition.opacity.duration.150ms
+            class="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-4"
+            role="dialog" aria-modal="true" aria-labelledby="service-modal-title"
+            x-effect="if (open) $nextTick(() => $refs.firstField && $refs.firstField.focus())">
+            <div class="absolute inset-0 bg-ink/50 backdrop-blur-sm" @click="open = false" aria-hidden="true"></div>
+
+            <div class="card relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-b-none sm:rounded-lg">
+                <div class="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-line bg-surface px-5 py-4 md:px-6">
+                    <h2 id="service-modal-title" class="text-xl font-bold">Tambah layanan</h2>
+                    <button type="button" class="btn-icon -mr-2" @click="open = false" aria-label="Tutup"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                </div>
+
+                <form action="{{ route('dashboard.services.store') }}" method="POST" class="space-y-5 p-5 md:p-6">
+                    @csrf
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <x-ui.input name="title_id" label="Judul (Indonesia)" required x-ref="firstField" />
+                        <x-ui.input name="title_en" label="Judul (Inggris)" required />
+                        <x-ui.textarea name="description_id" label="Deskripsi (Indonesia)" rows="3" required />
+                        <x-ui.textarea name="description_en" label="Deskripsi (Inggris)" rows="3" required />
                     </div>
-                    <div class="space-y-6">
-                        <div class="space-y-2">
-                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Title (EN)</label>
-                            <input type="text" name="title_en" required
-                                class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 transition-all font-medium">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Description (EN)</label>
-                            <textarea name="description_en" required rows="2" 
-                                class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 transition-all font-medium"></textarea>
-                        </div>
-                    </div>
 
-                    <!-- Icon Selection -->
-                    <div class="md:col-span-2 space-y-4" x-data="{
+                    {{-- Pemilih ikon --}}
+                    <div x-data="{
                         icon: 'fa-solid fa-star',
                         search: '',
                         icons: [
@@ -61,107 +99,46 @@
                             return this.icons.filter(i => i.toLowerCase().includes(this.search.toLowerCase()));
                         }
                     }">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Icon Visual Identity</label>
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
-                            <!-- Preview & Manual -->
+                        <p class="label">Ikon layanan</p>
+                        <div class="grid grid-cols-1 gap-5 rounded-lg border border-line bg-surface-2 p-4 md:p-5 lg:grid-cols-3">
                             <div class="space-y-4">
-                                <div class="w-20 h-20 bg-white rounded-3xl shadow-xl flex items-center justify-center text-blue-600 text-3xl mx-auto lg:mx-0 ring-4 ring-blue-50">
-                                    <i :class="icon"></i>
-                                </div>
-                                <div class="space-y-1">
-                                    <label class="text-[10px] font-black uppercase text-slate-400">Custom Class</label>
-                                    <input type="text" name="icon" x-model="icon" required
-                                        class="block w-full bg-white border border-slate-100 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 transition-all font-mono text-sm">
+                                <span class="mx-auto flex h-20 w-20 items-center justify-center rounded-lg bg-surface text-3xl text-brand-text shadow-soft ring-4 ring-brand-100 lg:mx-0 dark:ring-brand-500/20">
+                                    <i :class="icon" aria-hidden="true"></i>
+                                </span>
+                                <div>
+                                    <label for="service-icon" class="label">Kelas ikon (kustom)</label>
+                                    <input type="text" id="service-icon" name="icon" x-model="icon" required class="input font-mono text-small">
                                 </div>
                             </div>
 
-                            <!-- Quick Select -->
-                            <div class="lg:col-span-2 space-y-4">
-                                <div class="flex items-center space-x-2 bg-white px-4 rounded-xl border border-slate-100 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
-                                    <i class="fa-solid fa-search text-slate-400 text-sm"></i>
-                                    <input type="text" x-model="search" placeholder="Filter icons..."
-                                        class="flex-1 bg-transparent border-none focus:ring-0 py-2 text-sm font-medium">
+                            <div class="space-y-3 lg:col-span-2">
+                                <div>
+                                    <label for="service-icon-search" class="label">Cari ikon</label>
+                                    <div class="relative">
+                                        <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-small text-muted" aria-hidden="true"></i>
+                                        <input type="text" id="service-icon-search" x-model="search" placeholder="Ketik untuk menyaring ikon..." class="input pl-10">
+                                    </div>
                                 </div>
-                                <div class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-7 gap-3 max-h-40 overflow-y-auto p-2 custom-scrollbar">
+                                <div class="custom-scrollbar grid max-h-48 grid-cols-4 gap-2 overflow-y-auto p-1 sm:grid-cols-6 lg:grid-cols-7">
                                     <template x-for="i in filteredIcons" :key="i">
-                                        <button type="button" @click="icon = i"
-                                            class="aspect-square rounded-2xl border-2 flex items-center justify-center transition-all group relative"
-                                            :class="icon === i ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-white bg-white text-slate-400 hover:border-blue-200 hover:text-blue-500 shadow-sm'">
-                                            <i :class="i" class="text-lg group-hover:scale-125 transition-transform"></i>
-                                            <div x-show="icon === i" class="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white"></div>
+                                        <button type="button" @click="icon = i" :aria-label="'Pilih ikon ' + i" :aria-pressed="icon === i"
+                                            class="flex aspect-square min-h-[44px] items-center justify-center rounded-md border text-lg transition"
+                                            :class="icon === i ? 'border-brand-500 bg-brand-soft text-brand-text' : 'border-line bg-surface text-muted hover:border-brand-300 hover:text-brand-text'">
+                                            <i :class="i" aria-hidden="true"></i>
                                         </button>
                                     </template>
                                 </div>
+                                <p x-show="filteredIcons.length === 0" x-cloak class="hint">Tidak ada ikon yang cocok. Anda tetap bisa mengisi kelas ikon secara manual.</p>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="flex justify-end pt-4">
-                    <button type="submit"
-                        class="px-12 py-5 bg-slate-900 text-white font-black rounded-[2rem] hover:bg-black hover:scale-105 shadow-2xl shadow-slate-900/20 transition-all uppercase tracking-[0.2em] text-xs">
-                        Publish Service
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- List Section -->
-        <div class="space-y-6">
-            <h3 class="text-xl font-black text-slate-900 flex items-center ml-4">
-                <span class="w-8 h-8 bg-slate-100 text-slate-500 rounded-lg flex items-center justify-center mr-3 text-sm">
-                    <i class="fa-solid fa-list-check"></i>
-                </span>
-                Active Services List
-            </h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @foreach ($services as $service)
-                    <div class="glass p-8 rounded-[2.5rem] card-hover group relative overflow-hidden" data-aos="fade-up" data-aos-delay="{{ $loop->index * 50 }}">
-                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
-                        
-                        <div class="flex items-start justify-between mb-6">
-                            <div class="w-16 h-16 bg-blue-50 rounded-[1.5rem] flex items-center justify-center text-blue-600 text-2xl shadow-sm ring-4 ring-white">
-                                <i class="{{ str_starts_with($service->icon, 'fa-') ? $service->icon : 'fa-solid fa-' . ($service->icon == 'swatch' ? 'palette' : ($service->icon == 'code-bracket' ? 'code' : 'rocket')) }}"></i>
-                            </div>
-                            
-                            <form action="{{ route('dashboard.services.destroy', $service->id) }}" method="POST">
-                                @csrf @method('DELETE')
-                                <button type="submit" onclick="return confirm('Hapus layanan ini?')" 
-                                    class="w-10 h-10 bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all flex items-center justify-center">
-                                    <i class="fa-solid fa-trash-can text-sm"></i>
-                                </button>
-                            </form>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div>
-                                <h4 class="text-lg font-black text-slate-900 leading-tight">{{ $service->title_id }}</h4>
-                                <p class="text-xs font-bold text-slate-400 italic">{{ $service->title_en }}</p>
-                            </div>
-                            
-                            <p class="text-sm text-slate-500 line-clamp-3 leading-relaxed">{{ $service->description_id }}</p>
-                            
-                            <div class="pt-4 border-t border-slate-50 flex items-center justify-between">
-                                <span class="text-[10px] font-black uppercase tracking-widest text-slate-300 font-mono">{{ $service->icon }}</span>
-                                <div class="flex items-center space-x-1">
-                                    <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                                    <span class="text-[10px] font-black text-green-600 uppercase tracking-widest">Active</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+                        <x-ui.button variant="secondary" @click="open = false">Batal</x-ui.button>
+                        <x-ui.button type="submit" icon="fa-check">Simpan layanan</x-ui.button>
                     </div>
-                @endforeach
+                </form>
             </div>
-            
-            @if(count($services) === 0)
-                <div class="text-center py-20 glass rounded-[3rem] border-2 border-dashed">
-                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200 text-4xl">
-                        <i class="fa-solid fa-box-open"></i>
-                    </div>
-                    <p class="text-slate-400 font-bold">No services added yet</p>
-                </div>
-            @endif
         </div>
     </div>
 </x-app-layout>

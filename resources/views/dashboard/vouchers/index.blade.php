@@ -1,9 +1,8 @@
 <x-app-layout>
-    <x-slot name="header">
-        {{ __('Discount Vouchers') }}
-    </x-slot>
+    <x-slot name="header">Voucher Diskon</x-slot>
 
-    <div class="space-y-10 pb-20" x-data="{
+    <div class="mx-auto max-w-7xl space-y-6" x-data="{
+        modalOpen: false,
         editMode: false,
         currentVoucher: {
             code: '',
@@ -13,6 +12,11 @@
             expires_at: '',
             is_active: 1
         },
+        openCreate() {
+            this.resetForm();
+            this.modalOpen = true;
+            this.$nextTick(() => this.$refs.codeInput && this.$refs.codeInput.focus());
+        },
         initEdit(voucherData) {
             this.currentVoucher = { ...voucherData };
             // Format expires_at date to yyyy-MM-dd for standard HTML input
@@ -20,7 +24,11 @@
                 this.currentVoucher.expires_at = this.currentVoucher.expires_at.split('T')[0];
             }
             this.editMode = true;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            this.modalOpen = true;
+            this.$nextTick(() => this.$refs.codeInput && this.$refs.codeInput.focus());
+        },
+        closeModal() {
+            this.modalOpen = false;
         },
         resetForm() {
             this.editMode = false;
@@ -33,199 +41,179 @@
                 is_active: 1
             };
         }
-    }">
-        
-        <!-- Add/Edit Voucher Section -->
-        <div class="glass p-10 rounded-[3rem] shadow-xl relative overflow-hidden" data-aos="fade-down">
-            <div class="absolute -right-20 -top-20 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl"></div>
-            
-            <div class="flex justify-between items-center mb-8">
-                <h3 class="text-2xl font-black text-slate-900 flex items-center">
-                    <span class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mr-4">
-                        <i class="fa-solid" :class="editMode ? 'fa-pen-to-square' : 'fa-plus'"></i>
-                    </span>
-                    <span x-text="editMode ? 'Edit Discount Voucher' : 'Create New Voucher'"></span>
-                </h3>
-                <button x-show="editMode" @click="resetForm()" 
-                    class="px-6 py-2 bg-slate-100 text-slate-500 font-bold rounded-xl hover:bg-slate-200 transition-all">
-                    Cancel Edit
+    }" @keydown.escape.window="if (modalOpen) closeModal()">
+
+        <x-ui.page-header title="Voucher Diskon" description="Buat dan atur kode diskon untuk pelanggan.">
+            <x-slot:actions>
+                <button type="button" class="btn btn-primary" @click="openCreate()">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i> Buat Voucher
                 </button>
+            </x-slot:actions>
+        </x-ui.page-header>
+
+        @if ($errors->any())
+            <div class="rounded-lg border border-danger-500/40 bg-danger-50 px-4 py-3 text-small text-danger-700 dark:bg-danger-500/15 dark:text-danger-100" role="alert">
+                <ul class="list-inside list-disc space-y-0.5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
+        @endif
 
-            <form :action="editMode ? '{{ route('dashboard.vouchers.index') }}/' + currentVoucher.id : '{{ route('dashboard.vouchers.store') }}'" 
-                  method="POST" class="space-y-8">
-                @csrf
-                <template x-if="editMode">
-                    <input type="hidden" name="_method" value="PATCH">
-                </template>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- General Details -->
-                    <div class="space-y-6">
-                        <div class="space-y-2">
-                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Voucher Code (e.g. LAUNCHING50)</label>
-                            <input type="text" name="code" required x-model="currentVoucher.code" placeholder="FKSTUDIO10"
-                                class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 transition-all font-bold uppercase tracking-wider">
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-6">
-                            <div class="space-y-2">
-                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Discount Type</label>
-                                <select name="type" required x-model="currentVoucher.type"
-                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 transition-all font-bold">
-                                    <option value="percent">Percent (%)</option>
-                                    <option value="fixed">Fixed Amount (Rp)</option>
-                                </select>
-                            </div>
-                            
-                            <div class="space-y-2">
-                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Nominal / Value</label>
-                                <input type="number" name="value" required x-model="currentVoucher.value" min="0" placeholder="10"
-                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 transition-all font-bold">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Constraints -->
-                    <div class="space-y-6">
-                        <div class="grid grid-cols-2 gap-6">
-                            <div class="space-y-2">
-                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Max Uses (Kuota Pakai)</label>
-                                <input type="number" name="max_uses" x-model="currentVoucher.max_uses" min="0" placeholder="Tanpa batas"
-                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 transition-all font-bold">
-                            </div>
-                            
-                            <div class="space-y-2">
-                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Expires At (Masa Berlaku)</label>
-                                <input type="date" name="expires_at" x-model="currentVoucher.expires_at"
-                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 transition-all font-bold">
-                            </div>
-                        </div>
-
-                        <div class="flex items-center space-x-4 h-full pt-6">
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" name="is_active" value="1" x-model="currentVoucher.is_active" :checked="currentVoucher.is_active" class="sr-only peer">
-                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                                <span class="ml-3 text-sm font-black uppercase tracking-widest text-slate-500 italic">Voucher Status Active</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-end pt-4">
-                    <button type="submit"
-                        class="px-12 py-5 bg-indigo-600 text-white font-black rounded-[2rem] hover:bg-indigo-700 hover:scale-105 shadow-2xl shadow-indigo-600/20 transition-all uppercase tracking-[0.2em] text-xs">
-                        <span x-text="editMode ? 'Update Voucher' : 'Publish Voucher'"></span>
+        {{-- List --}}
+        @if (count($vouchers) === 0)
+            <x-ui.card>
+                <x-ui.empty-state icon="fa-ticket" title="Belum ada voucher" text="Buat voucher pertama untuk memberi diskon kepada pelanggan.">
+                    <button type="button" class="btn btn-primary" @click="openCreate()">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i> Buat Voucher
                     </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- List Section -->
-        <div class="space-y-6">
-            <h3 class="text-xl font-black text-slate-900 flex items-center ml-4">
-                <span class="w-8 h-8 bg-slate-100 text-slate-500 rounded-lg flex items-center justify-center mr-3 text-sm">
-                    <i class="fa-solid fa-tags"></i>
-                </span>
-                Active Discount Vouchers
-            </h3>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                </x-ui.empty-state>
+            </x-ui.card>
+        @else
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($vouchers as $voucher)
-                    <div class="glass p-8 rounded-[3rem] card-hover group relative overflow-hidden flex flex-col {{ $voucher->is_active ? 'ring-2 ring-indigo-500/10' : 'opacity-60' }}" data-aos="fade-up" data-aos-delay="{{ $loop->index * 50 }}">
-                        
-                        <!-- Voucher Ticket Top Decorator -->
-                        <div class="absolute top-0 right-0 p-6 flex items-center space-x-2">
-                            @if($voucher->is_active && ($voucher->max_uses === null || $voucher->used_count < $voucher->max_uses))
-                                <span class="bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full">Ready</span>
-                            @else
-                                <span class="bg-red-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full">Inactive / Exhausted</span>
-                            @endif
-                        </div>
-
-                        <div class="flex items-start justify-between mb-6">
-                            <div>
-                                <div class="font-mono text-xl font-black text-indigo-600 tracking-wider bg-indigo-50 border border-indigo-100 rounded-2xl px-4 py-2 inline-block uppercase select-all">
-                                    {{ $voucher->code }}
-                                </div>
-                                <div class="mt-4">
-                                    <p class="text-3xl font-black text-slate-900">
-                                        @if($voucher->type === 'percent')
-                                            {{ $voucher->value }}% <span class="text-sm font-bold text-slate-400">Discount</span>
-                                        @else
-                                            Rp {{ number_format($voucher->value, 0, ',', '.') }} <span class="text-sm font-bold text-slate-400">Off</span>
-                                        @endif
-                                    </p>
-                                </div>
+                    @php
+                        $exhausted = $voucher->max_uses !== null && $voucher->used_count >= $voucher->max_uses;
+                        $usagePercent = $voucher->max_uses ? min(100, round(($voucher->used_count / $voucher->max_uses) * 100)) : 0;
+                    @endphp
+                    <article class="card card-pad flex flex-col {{ $voucher->is_active ? '' : 'opacity-75' }}">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex flex-wrap items-center gap-2">
+                                @if (! $voucher->is_active)
+                                    <x-ui.badge variant="neutral" dot>Nonaktif</x-ui.badge>
+                                @elseif ($exhausted)
+                                    <x-ui.badge variant="danger" dot>Kuota habis</x-ui.badge>
+                                @else
+                                    <x-ui.badge variant="success" dot>Siap dipakai</x-ui.badge>
+                                @endif
                             </div>
-                            
-                            <div class="flex space-x-2">
-                                <button @click="initEdit({{ $voucher->toJson() }})" class="w-10 h-10 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-xl transition-all flex items-center justify-center">
-                                    <i class="fa-solid fa-pen text-sm"></i>
+                            <div class="-mr-2 -mt-2 flex items-center">
+                                <button type="button" @click="initEdit({{ $voucher->toJson() }})" class="btn-icon" aria-label="Ubah voucher {{ $voucher->code }}" title="Ubah">
+                                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
                                 </button>
-                                <form action="{{ route('dashboard.vouchers.destroy', $voucher->id) }}" method="POST">
+                                <form action="{{ route('dashboard.vouchers.destroy', $voucher->id) }}" method="POST"
+                                      data-confirm="Voucher {{ $voucher->code }} akan dihapus permanen." data-confirm-title="Hapus voucher?" data-confirm-ok="Ya, hapus">
                                     @csrf @method('DELETE')
-                                    <button type="submit" onclick="return confirm('Hapus voucher ini?')" 
-                                        class="w-10 h-10 bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all flex items-center justify-center">
-                                        <i class="fa-solid fa-trash-can text-sm"></i>
+                                    <button type="submit" class="btn-icon hover:text-danger-600" aria-label="Hapus voucher {{ $voucher->code }}" title="Hapus">
+                                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </div>
                         </div>
 
-                        <div class="space-y-6 flex-grow">
-                            <!-- Usage Progress -->
-                            <div class="space-y-2">
-                                <div class="flex justify-between text-xs text-slate-500 font-bold uppercase tracking-wider">
-                                    <span>Usage / Quota:</span>
-                                    <span>
-                                        {{ $voucher->used_count }} / {{ $voucher->max_uses ?? '∞' }}
-                                    </span>
-                                </div>
-                                @if($voucher->max_uses)
-                                    @php
-                                        $percent = min(100, round(($voucher->used_count / $voucher->max_uses) * 100));
-                                    @endphp
-                                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                                        <div class="bg-indigo-600 h-2 rounded-full transition-all duration-500" style="width: {{ $percent }}%"></div>
-                                    </div>
-                                @else
-                                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                                        <div class="bg-slate-300 h-2 rounded-full" style="width: 10%"></div>
-                                    </div>
-                                @endif
+                        <div class="mt-3">
+                            <div class="inline-block select-all rounded-md border border-line bg-brand-soft px-3 py-1.5 font-mono text-lg font-bold uppercase tracking-wider text-brand-text">
+                                {{ $voucher->code }}
                             </div>
+                            <p class="mt-3 text-3xl font-extrabold">
+                                @if ($voucher->type === 'percent')
+                                    {{ (float) $voucher->value }}% <span class="text-small font-semibold text-muted">diskon</span>
+                                @else
+                                    Rp {{ number_format($voucher->value, 0, ',', '.') }} <span class="text-small font-semibold text-muted">potongan</span>
+                                @endif
+                            </p>
+                        </div>
 
-                            <!-- Expiration Display -->
-                            <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
-                                <div class="flex items-center text-slate-400">
-                                    <i class="fa-solid fa-calendar mr-1.5 text-slate-300"></i>
-                                    @if($voucher->expires_at)
-                                        Exp: {{ \Carbon\Carbon::parse($voucher->expires_at)->format('d M Y') }}
+                        <div class="mt-5 flex-1 space-y-4">
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-small text-muted">
+                                    <span>Pemakaian / kuota</span>
+                                    <span class="font-semibold text-ink">{{ $voucher->used_count }} / {{ $voucher->max_uses ?? '∞' }}</span>
+                                </div>
+                                <div class="h-2 w-full overflow-hidden rounded-full bg-surface-2" role="progressbar" aria-label="Pemakaian voucher"
+                                     aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $usagePercent }}">
+                                    @if ($voucher->max_uses)
+                                        <div class="h-2 rounded-full bg-brand-600" style="width: {{ $usagePercent }}%"></div>
                                     @else
-                                        No Expiration
+                                        <div class="h-2 rounded-full bg-line" style="width: 10%"></div>
                                     @endif
                                 </div>
-                                <div class="flex items-center space-x-1">
-                                    <div class="w-1.5 h-1.5 {{ $voucher->is_active ? 'bg-green-500' : 'bg-red-500' }} rounded-full"></div>
-                                    <span class="{{ $voucher->is_active ? 'text-green-600' : 'text-red-500' }}">
-                                        {{ $voucher->is_active ? 'Active' : 'Disabled' }}
-                                    </span>
-                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 border-t border-line pt-4 text-small text-muted">
+                                <i class="fa-solid fa-calendar" aria-hidden="true"></i>
+                                @if ($voucher->expires_at)
+                                    Berlaku hingga {{ \Carbon\Carbon::parse($voucher->expires_at)->format('d M Y') }}
+                                @else
+                                    Tanpa batas waktu
+                                @endif
                             </div>
                         </div>
-                    </div>
+                    </article>
                 @endforeach
             </div>
-            
-            @if(count($vouchers) === 0)
-                <div class="text-center py-20 glass rounded-[3rem] border-2 border-dashed">
-                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200 text-4xl">
-                        <i class="fa-solid fa-ticket"></i>
-                    </div>
-                    <p class="text-slate-400 font-bold">No vouchers available</p>
+        @endif
+
+        {{-- Create / edit modal --}}
+        <div x-show="modalOpen" x-cloak x-transition.opacity.duration.200ms class="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center"
+             role="dialog" aria-modal="true" aria-labelledby="voucher-modal-title">
+            <div class="absolute inset-0 bg-ink/50 backdrop-blur-sm" @click="closeModal()"></div>
+
+            <div class="card relative max-h-[90vh] w-full max-w-xl overflow-y-auto">
+                <div class="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
+                    <h2 id="voucher-modal-title" class="text-lg font-bold" x-text="editMode ? 'Ubah Voucher Diskon' : 'Buat Voucher Baru'"></h2>
+                    <button type="button" class="btn-icon shrink-0" @click="closeModal()" aria-label="Tutup">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                    </button>
                 </div>
-            @endif
+
+                <form :action="editMode ? '{{ route('dashboard.vouchers.index') }}/' + currentVoucher.id : '{{ route('dashboard.vouchers.store') }}'"
+                      method="POST" class="space-y-4 p-5">
+                    @csrf
+                    <template x-if="editMode">
+                        <input type="hidden" name="_method" value="PATCH">
+                    </template>
+
+                    <div>
+                        <label for="voucher-code" class="label">Kode voucher</label>
+                        <input id="voucher-code" type="text" name="code" required x-model="currentVoucher.code" x-ref="codeInput" placeholder="FKSTUDIO10"
+                               class="input font-mono font-semibold uppercase tracking-wider">
+                        <p class="hint">Contoh: LAUNCHING50</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="voucher-type" class="label">Jenis diskon</label>
+                            <select id="voucher-type" name="type" required x-model="currentVoucher.type" class="select">
+                                <option value="percent">Persen (%)</option>
+                                <option value="fixed">Nominal tetap (Rp)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="voucher-value" class="label">Nilai diskon</label>
+                            <input id="voucher-value" type="number" name="value" required x-model="currentVoucher.value" min="0" placeholder="10" class="input">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="voucher-max-uses" class="label">Kuota pakai</label>
+                            <input id="voucher-max-uses" type="number" name="max_uses" x-model="currentVoucher.max_uses" min="0" placeholder="Tanpa batas" class="input">
+                        </div>
+                        <div>
+                            <label for="voucher-expires" class="label">Masa berlaku</label>
+                            <input id="voucher-expires" type="date" name="expires_at" x-model="currentVoucher.expires_at" class="input">
+                        </div>
+                    </div>
+
+                    <label class="flex min-h-[44px] cursor-pointer items-center gap-3">
+                        <span class="relative inline-flex items-center">
+                            <input type="checkbox" name="is_active" value="1" x-model="currentVoucher.is_active" :checked="currentVoucher.is_active" class="peer sr-only">
+                            <span class="h-6 w-11 rounded-full bg-muted transition peer-checked:bg-brand-600 peer-focus-visible:ring-2 peer-focus-visible:ring-brand-500/50 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-surface after:transition-all after:content-[''] peer-checked:after:translate-x-5"></span>
+                        </span>
+                        <span class="text-small font-semibold">Voucher aktif</span>
+                    </label>
+
+                    <div class="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+                        <button type="button" class="btn btn-secondary" @click="closeModal()">Batal</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+                            <span x-text="editMode ? 'Simpan Perubahan' : 'Terbitkan Voucher'"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </x-app-layout>

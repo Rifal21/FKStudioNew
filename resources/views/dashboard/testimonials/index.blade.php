@@ -1,11 +1,11 @@
 <x-app-layout>
-    <x-slot name="header">
-        {{ __('Client Testimonials') }}
-    </x-slot>
+    <x-slot name="header">Testimoni</x-slot>
 
-    <div class="space-y-10 pb-20" x-data="{
+    <div class="mx-auto max-w-7xl space-y-6" x-data="{
         openAdd: false,
         openEdit: false,
+        newPreview: null,
+        newEditPreview: null,
         editData: {
             id: '',
             name: '',
@@ -14,7 +14,8 @@
             content_id: '',
             content_en: '',
             rating: 5,
-            action: ''
+            action: '',
+            avatar_url: ''
         },
         startEdit(tm) {
             this.editData = {
@@ -30,10 +31,7 @@
             };
             this.newEditPreview = null;
             this.openEdit = true;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         },
-        newPreview: null,
-        newEditPreview: null,
         handleFileChange(e, mode = 'add') {
             const file = e.target.files[0];
             if (file) {
@@ -41,290 +39,219 @@
                 else this.newEditPreview = URL.createObjectURL(file);
             }
         }
-    }">
-        <!-- Add Section -->
-        <div class="glass p-10 rounded-[3rem] shadow-xl relative overflow-hidden" data-aos="fade-down">
-            <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
-            
-            <div class="flex justify-between items-center mb-8">
-                <h3 class="text-2xl font-black text-slate-900 flex items-center">
-                    <span class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mr-4">
-                        <i class="fa-solid fa-plus"></i>
-                    </span>
-                    Register New Feedback
-                </h3>
-                <button @click="openAdd = !openAdd"
-                    class="px-8 py-3 bg-white border border-slate-200 text-slate-700 font-black rounded-[1.5rem] hover:bg-slate-900 hover:text-white transition-all text-xs uppercase tracking-widest">
-                    <span x-show="!openAdd">Start Creation</span>
-                    <span x-show="openAdd">Collapse Form</span>
-                </button>
+    }" @keydown.escape.window="openAdd = false; openEdit = false">
+
+        <x-ui.page-header title="Testimoni Klien" description="Kelola ulasan klien yang tampil di halaman publik. Setiap testimoni tersedia dalam dua bahasa.">
+            <x-slot:actions>
+                <x-ui.button variant="primary" icon="fa-plus" @click="openAdd = true">Tambah testimoni</x-ui.button>
+            </x-slot:actions>
+        </x-ui.page-header>
+
+        @if ($errors->any())
+            <div class="card card-pad border-danger-500" role="alert">
+                <p class="text-small font-semibold text-danger-600">Data belum dapat disimpan:</p>
+                <ul class="mt-1 list-disc space-y-0.5 pl-5 text-small text-danger-600">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
+        @endif
 
-            <div x-show="openAdd" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
-                <form action="{{ route('dashboard.testimonials.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
-                    @csrf
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div class="space-y-2">
-                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Client Full Name</label>
-                            <input type="text" name="name" required placeholder="John Doe"
-                                class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-bold">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Client Avatar</label>
-                            <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 bg-slate-50 rounded-xl overflow-hidden shadow-sm flex items-center justify-center border border-slate-100">
-                                    <template x-if="newPreview">
-                                        <img :src="newPreview" class="w-full h-full object-cover">
-                                    </template>
-                                    <template x-if="!newPreview">
-                                        <i class="fa-solid fa-user text-slate-300"></i>
-                                    </template>
+        @if (count($testimonials) > 0)
+            <p class="text-small text-muted">{{ count($testimonials) }} testimoni</p>
+
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                @foreach ($testimonials as $tm)
+                    <x-ui.card class="flex flex-col" hover>
+                        <div class="flex items-start gap-4">
+                            @if ($tm->avatar)
+                                <img src="{{ $tm->media_url }}" alt="{{ $tm->name }}" class="h-14 w-14 shrink-0 rounded-full object-cover">
+                            @else
+                                <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xl font-bold text-brand-text" aria-hidden="true">{{ strtoupper(substr($tm->name, 0, 1)) }}</span>
+                            @endif
+                            <div class="min-w-0 flex-1">
+                                <h3 class="truncate text-lg font-bold">{{ $tm->name }}</h3>
+                                <p class="truncate text-small text-muted">{{ $tm->role_id }}</p>
+                                <div class="mt-1.5 flex items-center gap-0.5" role="img" aria-label="Rating {{ $tm->rating }} dari 5">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <i class="fa-solid fa-star text-small {{ $i <= $tm->rating ? 'text-sun-500' : 'text-line' }}" aria-hidden="true"></i>
+                                    @endfor
                                 </div>
-                                <input type="file" name="avatar" accept="image/*" @change="handleFileChange($event, 'add')"
-                                    class="flex-1 text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                             </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Satisfaction Rating</label>
-                            <select name="rating"
-                                class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-bold appearance-none">
-                                <option value="5">⭐⭐⭐⭐⭐ 5 - Excellent</option>
-                                <option value="4">⭐⭐⭐⭐ 4 - Very Good</option>
-                                <option value="3">⭐⭐⭐ 3 - Good</option>
-                                <option value="2">⭐⭐ 2 - Fair</option>
-                                <option value="1">⭐ 1 - Poor</option>
-                            </select>
+
+                        <blockquote class="mt-4 flex-1 rounded-md bg-surface-2 p-4 text-small text-muted">
+                            <p class="line-clamp-4 italic">"{{ $tm->content_id }}"</p>
+                        </blockquote>
+
+                        <div class="mt-4 flex items-center justify-end gap-2 border-t border-line pt-4">
+                            <button type="button" class="btn-secondary btn-sm" @click="startEdit(@js($tm->toArray() + ['media_url' => $tm->media_url]))" aria-label="Ubah testimoni {{ $tm->name }}">
+                                <i class="fa-solid fa-pen" aria-hidden="true"></i> Ubah
+                            </button>
+                            <form action="{{ route('dashboard.testimonials.destroy', $tm->id) }}" method="POST"
+                                data-confirm="Testimoni dari {{ $tm->name }} akan dihapus permanen." data-confirm-title="Hapus testimoni?" data-confirm-ok="Ya, hapus">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn-icon hover:bg-danger-50 hover:text-danger-700" aria-label="Hapus testimoni {{ $tm->name }}">
+                                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </x-ui.card>
+                @endforeach
+            </div>
+        @else
+            <x-ui.card :padded="false">
+                <x-ui.empty-state icon="fa-comments" title="Belum ada testimoni" text="Tambahkan ulasan dari klien untuk membangun kepercayaan calon pelanggan.">
+                    <x-ui.button variant="primary" icon="fa-plus" @click="openAdd = true">Tambah testimoni</x-ui.button>
+                </x-ui.empty-state>
+            </x-ui.card>
+        @endif
+
+        {{-- Modal: tambah testimoni --}}
+        <div x-show="openAdd" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="add-title">
+            <div class="absolute inset-0 bg-ink/50 backdrop-blur-sm" x-show="openAdd"
+                x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                @click="openAdd = false"></div>
+            <div class="card relative max-h-[90vh] w-full max-w-3xl overflow-y-auto custom-scrollbar" x-show="openAdd"
+                x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+                <div class="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-line bg-surface px-5 py-4 md:px-6">
+                    <h2 id="add-title" class="text-lg font-bold">Tambah testimoni</h2>
+                    <button type="button" class="btn-icon" @click="openAdd = false" aria-label="Tutup">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <form action="{{ route('dashboard.testimonials.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6 p-5 md:p-6">
+                    @csrf
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+                        <x-ui.input id="add-name" name="name" label="Nama klien" placeholder="Budi Santoso" :required="true" />
+                        <div>
+                            <label for="add-avatar" class="label">Foto klien</label>
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-2 text-muted">
+                                    <template x-if="newPreview"><img :src="newPreview" alt="" class="h-full w-full object-cover"></template>
+                                    <template x-if="!newPreview"><i class="fa-solid fa-user" aria-hidden="true"></i></template>
+                                </div>
+                                <input id="add-avatar" type="file" name="avatar" accept="image/*" @change="handleFileChange($event, 'add')"
+                                    class="input min-w-0 flex-1 text-small file:mr-3 file:rounded-sm file:border-0 file:bg-brand-soft file:px-3 file:py-1 file:text-caption file:font-semibold file:text-brand-text">
+                            </div>
+                        </div>
+                        <x-ui.select id="add-rating" name="rating" label="Rating">
+                            <option value="5">5 - Sangat baik</option>
+                            <option value="4">4 - Baik</option>
+                            <option value="3">3 - Cukup</option>
+                            <option value="2">2 - Kurang</option>
+                            <option value="1">1 - Buruk</option>
+                        </x-ui.select>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <div class="space-y-4 rounded-lg border border-line bg-surface-2 p-4">
+                            <span class="badge-brand"><i class="fa-solid fa-flag" aria-hidden="true"></i> Bahasa Indonesia (ID)</span>
+                            <x-ui.input id="add-role-id" name="role_id" label="Jabatan / perusahaan (ID)" placeholder="Direktur di PT Maju" :required="true" />
+                            <x-ui.textarea id="add-content-id" name="content_id" label="Isi testimoni (ID)" rows="4" placeholder="Apa kata klien..." :required="true" />
+                        </div>
+                        <div class="space-y-4 rounded-lg border border-line bg-surface-2 p-4">
+                            <span class="badge-info"><i class="fa-solid fa-earth-americas" aria-hidden="true"></i> Bahasa Inggris (EN)</span>
+                            <x-ui.input id="add-role-en" name="role_en" label="Jabatan / perusahaan (EN)" placeholder="CEO at Maju Inc." :required="true" />
+                            <x-ui.textarea id="add-content-en" name="content_en" label="Isi testimoni (EN)" rows="4" placeholder="What the client said..." :required="true" />
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-                        <div class="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 space-y-6 relative overflow-hidden group">
-                            <div class="absolute -right-10 -bottom-10 opacity-5 group-hover:scale-125 transition-transform duration-700">
-                                <i class="fa-solid fa-flag text-[10rem]"></i>
-                            </div>
-                            <span class="inline-flex items-center px-4 py-1.5 bg-blue-100 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest leading-none">
-                                <i class="fa-solid fa-flag mr-2"></i> Indonesian (ID)
-                            </span>
-                            <div class="space-y-2 relative">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Position / Company</label>
-                                <input type="text" name="role_id" required placeholder="CEO at TechCorp"
-                                    class="block w-full bg-white border-none rounded-xl p-3 focus:ring-2 focus:ring-blue-500 transition-all font-bold text-sm">
-                            </div>
-                            <div class="space-y-2 relative">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Feedback Content</label>
-                                <textarea name="content_id" required rows="3" placeholder="Apa kata klien..."
-                                    class="block w-full bg-white border-none rounded-xl p-3 focus:ring-2 focus:ring-blue-500 transition-all font-medium text-sm leading-relaxed"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 space-y-6 relative overflow-hidden group">
-                            <div class="absolute -right-10 -bottom-10 opacity-5 group-hover:scale-125 transition-transform duration-700">
-                                <i class="fa-solid fa-earth-americas text-[10rem]"></i>
-                            </div>
-                            <span class="inline-flex items-center px-4 py-1.5 bg-indigo-100 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest leading-none">
-                                <i class="fa-solid fa-earth-americas mr-2"></i> English (EN)
-                            </span>
-                            <div class="space-y-2 relative">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Position / Company</label>
-                                <input type="text" name="role_en" required placeholder="CEO at TechCorp"
-                                    class="block w-full bg-white border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-sm">
-                            </div>
-                            <div class="space-y-2 relative">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Feedback Content</label>
-                                <textarea name="content_en" required rows="3" placeholder="What the client said..."
-                                    class="block w-full bg-white border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-sm leading-relaxed"></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end pt-4">
-                        <button type="submit"
-                            class="px-12 py-5 bg-slate-900 text-white font-black rounded-[2rem] hover:bg-black hover:scale-105 shadow-2xl shadow-slate-900/20 transition-all uppercase tracking-[0.2em] text-xs">
-                            Store Testimonial
-                        </button>
+                    <div class="flex flex-col-reverse gap-3 border-t border-line pt-4 sm:flex-row sm:justify-end">
+                        <button type="button" class="btn-secondary" @click="openAdd = false">Batal</button>
+                        <button type="submit" class="btn-primary"><i class="fa-solid fa-check" aria-hidden="true"></i> Simpan testimoni</button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- List Section -->
-        <div class="space-y-6">
-            <h3 class="text-xl font-black text-slate-900 flex items-center ml-4">
-                <span class="w-8 h-8 bg-slate-100 text-slate-500 rounded-lg flex items-center justify-center mr-3 text-sm">
-                    <i class="fa-solid fa-quote-left"></i>
-                </span>
-                Client Wall ({{ count($testimonials) }})
-            </h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                @foreach ($testimonials as $tm)
-                    <div class="glass p-8 rounded-[3rem] card-hover group relative overflow-hidden" data-aos="fade-up" data-aos-delay="{{ $loop->index * 50 }}">
-                        <div class="absolute -right-4 -top-4 w-32 h-32 bg-yellow-500/5 rounded-full blur-2xl group-hover:bg-yellow-500/10 transition-colors"></div>
-                        
-                        <div class="flex items-start justify-between mb-8 relative">
-                            <div class="flex items-center space-x-4">
-                                <div class="relative">
-                                    @if ($tm->avatar)
-                                        <img src="{{ $tm->media_url }}" class="w-20 h-20 rounded-[2rem] object-cover ring-4 ring-white shadow-xl shadow-slate-200">
-                                    @else
-                                        <div class="w-20 h-20 bg-blue-600 rounded-[2rem] flex items-center justify-center font-black text-white text-3xl shadow-xl shadow-blue-200">
-                                            {{ substr($tm->name, 0, 1) }}
-                                        </div>
-                                    @endif
-                                    <div class="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-xl shadow-lg flex items-center justify-center">
-                                        <i class="fa-solid fa-quote-left text-blue-600 text-[10px]"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <h4 class="text-xl font-black text-slate-900 leading-tight">{{ $tm->name }}</h4>
-                                    <p class="text-xs font-black text-blue-600 uppercase tracking-widest mt-1">{{ $tm->role_id }}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-0.5 px-3 py-1.5 bg-yellow-50 rounded-full border border-yellow-100">
-                                @for ($i = 0; $i < $tm->rating; $i++)
-                                    <i class="fa-solid fa-star text-[10px] text-yellow-500"></i>
-                                @endfor
-                                @for ($i = $tm->rating; $i < 5; $i++)
-                                    <i class="fa-solid fa-star text-[10px] text-slate-200"></i>
-                                @endfor
-                            </div>
-                        </div>
-
-                        <div class="space-y-4 mb-8 relative">
-                            <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
-                                <p class="text-sm text-slate-600 italic leading-relaxed">"{{ $tm->content_id }}"</p>
-                            </div>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="flex items-center space-x-3 pt-6 border-t border-slate-50">
-                            <button @click="startEdit({{ $tm->toJson() }})"
-                                class="flex-1 py-3 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-black hover:scale-[1.02] transition-all">
-                                Update Data
-                            </button>
-                            <form action="{{ route('dashboard.testimonials.destroy', $tm->id) }}" method="POST">
-                                @csrf @method('DELETE')
-                                <button type="submit" onclick="return confirm('Hapus testimoni ini?')" 
-                                    class="w-12 h-12 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl transition-all flex items-center justify-center">
-                                    <i class="fa-solid fa-trash-can text-sm"></i>
-                                </button>
-                            </form>
-                        </div>
+        {{-- Modal: ubah testimoni --}}
+        <div x-show="openEdit" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+            <div class="absolute inset-0 bg-ink/50 backdrop-blur-sm" x-show="openEdit"
+                x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                @click="openEdit = false"></div>
+            <div class="card relative max-h-[90vh] w-full max-w-3xl overflow-y-auto custom-scrollbar" x-show="openEdit"
+                x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+                <div class="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-line bg-surface px-5 py-4 md:px-6">
+                    <div class="min-w-0">
+                        <h2 id="edit-title" class="text-lg font-bold">Ubah testimoni</h2>
+                        <p class="truncate text-small text-muted" x-text="editData.name"></p>
                     </div>
-                @endforeach
-            </div>
-            
-            @if(count($testimonials) === 0)
-                <div class="text-center py-20 glass rounded-[3rem] border-2 border-dashed">
-                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200 text-4xl">
-                        <i class="fa-solid fa-comment-slash"></i>
-                    </div>
-                    <p class="text-slate-400 font-bold">No feedback yet</p>
+                    <button type="button" class="btn-icon" @click="openEdit = false" aria-label="Tutup">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                    </button>
                 </div>
-            @endif
-        </div>
-    </div>
 
-    <!-- Edit Modal Overlay -->
-    <div x-show="openEdit" 
-        x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0"
-        class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md" x-cloak>
-        
-        <div class="bg-white rounded-[3.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] w-full max-w-2xl relative z-[70] overflow-hidden"
-            @click.outside="openEdit = false"
-            x-show="openEdit"
-            x-transition:enter="transition ease-out duration-500"
-            x-transition:enter-start="opacity-0 scale-90 translate-y-20"
-            x-transition:enter-end="opacity-100 scale-100 translate-y-0">
-            
-            <div class="p-10 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
-                        <i class="fa-solid fa-pen-nib"></i>
+                <form :action="editData.action" method="POST" enctype="multipart/form-data" class="space-y-6 p-5 md:p-6">
+                    @csrf @method('PATCH')
+
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <div>
+                            <label for="edit-name" class="label">Nama klien</label>
+                            <input id="edit-name" type="text" name="name" x-model="editData.name" required class="input">
+                        </div>
+                        <div>
+                            <label for="edit-rating" class="label">Rating</label>
+                            <select id="edit-rating" name="rating" x-model="editData.rating" class="select">
+                                <option value="5">5 - Sangat baik</option>
+                                <option value="4">4 - Baik</option>
+                                <option value="3">3 - Cukup</option>
+                                <option value="2">2 - Kurang</option>
+                                <option value="1">1 - Buruk</option>
+                            </select>
+                        </div>
                     </div>
+
                     <div>
-                        <h2 class="text-2xl font-black text-slate-900 leading-tight">Edit Feedback</h2>
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest" x-text="editData.name"></p>
+                        <label for="edit-avatar" class="label">Ganti foto (opsional)</label>
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-2 text-muted">
+                                <template x-if="newEditPreview"><img :src="newEditPreview" alt="" class="h-full w-full object-cover"></template>
+                                <template x-if="!newEditPreview && editData.avatar_url"><img :src="editData.avatar_url" alt="" class="h-full w-full object-cover"></template>
+                                <template x-if="!newEditPreview && !editData.avatar_url"><i class="fa-solid fa-user" aria-hidden="true"></i></template>
+                            </div>
+                            <input id="edit-avatar" type="file" name="avatar" accept="image/*" @change="handleFileChange($event, 'edit')"
+                                class="input min-w-0 flex-1 text-small file:mr-3 file:rounded-sm file:border-0 file:bg-brand-soft file:px-3 file:py-1 file:text-caption file:font-semibold file:text-brand-text">
+                        </div>
                     </div>
-                </div>
-                <button @click="openEdit = false" class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
-                    <i class="fa-solid fa-xmark text-2xl"></i>
-                </button>
+
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <div class="space-y-4 rounded-lg border border-line bg-surface-2 p-4">
+                            <span class="badge-brand"><i class="fa-solid fa-flag" aria-hidden="true"></i> Bahasa Indonesia (ID)</span>
+                            <div>
+                                <label for="edit-role-id" class="label">Jabatan / perusahaan (ID)</label>
+                                <input id="edit-role-id" type="text" name="role_id" x-model="editData.role_id" required class="input">
+                            </div>
+                            <div>
+                                <label for="edit-content-id" class="label">Isi testimoni (ID)</label>
+                                <textarea id="edit-content-id" name="content_id" x-model="editData.content_id" required rows="4" class="textarea"></textarea>
+                            </div>
+                        </div>
+                        <div class="space-y-4 rounded-lg border border-line bg-surface-2 p-4">
+                            <span class="badge-info"><i class="fa-solid fa-earth-americas" aria-hidden="true"></i> Bahasa Inggris (EN)</span>
+                            <div>
+                                <label for="edit-role-en" class="label">Jabatan / perusahaan (EN)</label>
+                                <input id="edit-role-en" type="text" name="role_en" x-model="editData.role_en" required class="input">
+                            </div>
+                            <div>
+                                <label for="edit-content-en" class="label">Isi testimoni (EN)</label>
+                                <textarea id="edit-content-en" name="content_en" x-model="editData.content_en" required rows="4" class="textarea"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col-reverse gap-3 border-t border-line pt-4 sm:flex-row sm:justify-end">
+                        <button type="button" class="btn-secondary" @click="openEdit = false">Batal</button>
+                        <button type="submit" class="btn-primary"><i class="fa-solid fa-check" aria-hidden="true"></i> Simpan perubahan</button>
+                    </div>
+                </form>
             </div>
-
-            <form :action="editData.action" method="POST" enctype="multipart/form-data" class="p-10 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                @csrf @method('PATCH')
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Client Name</label>
-                        <input type="text" name="name" x-model="editData.name" required
-                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-bold">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Satisfaction Level</label>
-                        <select name="rating" x-model="editData.rating"
-                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-bold appearance-none">
-                            <option value="5">⭐⭐⭐⭐⭐ 5 Stars</option>
-                            <option value="4">⭐⭐⭐⭐ 4 Stars</option>
-                            <option value="3">⭐⭐⭐ 3 Stars</option>
-                            <option value="2">⭐⭐ 2 Stars</option>
-                            <option value="1">⭐ 1 Star</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Change Avatar (Optional)</label>
-                    <div class="flex items-center space-x-4">
-                        <div class="w-16 h-16 bg-slate-50 rounded-2xl overflow-hidden shadow-sm flex items-center justify-center border border-slate-100">
-                            <template x-if="newEditPreview">
-                                <img :src="newEditPreview" class="w-full h-full object-cover">
-                            </template>
-                            <template x-if="!newEditPreview && editData.avatar_url">
-                                <img :src="editData.avatar_url" class="w-full h-full object-cover">
-                            </template>
-                            <template x-if="!newEditPreview && !editData.avatar_url">
-                                <i class="fa-solid fa-user text-slate-300"></i>
-                            </template>
-                        </div>
-                        <input type="file" name="avatar" @change="handleFileChange($event, 'edit')" class="flex-1 text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-600">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-                    <div class="space-y-4">
-                        <span class="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full italic">ID Version</span>
-                        <div class="space-y-4">
-                            <input type="text" name="role_id" x-model="editData.role_id" required placeholder="Role" class="block w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-blue-500 transition-all font-bold text-sm">
-                            <textarea name="content_id" x-model="editData.content_id" required rows="3" placeholder="Feedback" class="block w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-blue-500 transition-all font-medium text-sm leading-relaxed"></textarea>
-                        </div>
-                    </div>
-                    <div class="space-y-4">
-                        <span class="text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full italic">EN Version</span>
-                        <div class="space-y-4">
-                            <input type="text" name="role_en" x-model="editData.role_en" required placeholder="Role" class="block w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-sm">
-                            <textarea name="content_en" x-model="editData.content_en" required rows="3" placeholder="Feedback" class="block w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-sm leading-relaxed"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-end space-x-3 pt-8 border-t border-slate-50">
-                    <button type="button" @click="openEdit = false"
-                        class="px-8 py-4 rounded-2xl bg-slate-100 text-slate-600 font-black uppercase tracking-widest text-[10px] hover:bg-slate-200 transition-all">Discard</button>
-                    <button type="submit"
-                        class="px-10 py-4 bg-blue-600 text-white font-black rounded-2xl uppercase tracking-widest text-[10px] shadow-2xl shadow-blue-500/30 hover:bg-blue-700 hover:scale-105 transition-all">Update Feedback</button>
-                </div>
-            </form>
         </div>
     </div>
-
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
 </x-app-layout>

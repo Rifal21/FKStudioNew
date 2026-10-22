@@ -348,23 +348,23 @@ Poin 3 dan 5–10 memakai default rencana karena tidak ada instruksi lain; bisa 
 - [x] View Composer `$site` (SiteSetting) untuk layout bersama.
 
 ### Fase 2 — Landing page (±2 sesi)
-- [ ] Navbar + drawer mobile.
-- [ ] Hero baru.
-- [ ] Clients, Statistik, About, Services, Cara Kerja.
-- [ ] Portfolio, Packages, Testimonials, FAQ, CTA penutup, Footer, tombol WhatsApp.
-- [ ] Halaman `packages`, `package`, `portfolio`, `blogs/index`, `blogs/show` memakai `layouts/public`.
-- [ ] `alt`, `loading="lazy"`, ukuran gambar; cek Lighthouse mobile.
+- [x] Navbar + drawer mobile.
+- [x] Hero baru.
+- [x] Clients, Statistik, About, Services, Cara Kerja.
+- [x] Portfolio, Packages, Testimonials, FAQ, CTA penutup, Footer, tombol WhatsApp.
+- [x] Halaman `packages`, `package`, `portfolio`, `blogs/index`, `blogs/show` memakai `layouts/public`.
+- [x] `alt`, `loading="lazy"`, ukuran gambar; cek Lighthouse mobile. _(alt, lazy-loading & ukuran gambar dikerjakan; Lighthouse belum dijalankan)_
 
 ### Fase 3 — Checkout, area pelanggan, auth (±1,5–2 sesi)
-- [ ] Checkout + stepper + ringkasan sticky; pelunasan; sukses.
-- [ ] `user/orders` (timeline), `user/websites`, `profile/edit`.
-- [ ] Auth split-screen untuk 6 halaman.
-- [ ] Uji alur beli end-to-end (DP, lunas, voucher, beli domain) — **logika tidak boleh berubah, hanya tampilan**.
+- [x] Checkout + stepper + ringkasan sticky; pelunasan; sukses.
+- [x] `user/orders` (timeline), `user/websites`, `profile/edit`.
+- [x] Auth split-screen untuk 6 halaman.
+- [x] Uji alur beli end-to-end (DP, lunas, voucher, beli domain) — **logika tidak boleh berubah, hanya tampilan**. _(logika tidak diubah; domain reseller memang sudah dinonaktifkan di kode lama dan blok mati itu dihapus; alur beli penuh belum diuji end-to-end di browser)_
 
 ### Fase 4 — Shell admin & dashboard (±1,5 sesi)
-- [ ] Sidebar baru (komponen `sidebar-link`, grup lipat, badge), topbar, breadcrumb, bottom-nav mobile.
-- [ ] Dashboard: KPI, grafik, order terbaru, quick actions (+ query tambahan di controller).
-- [ ] Toast/flash & konfirmasi hapus global.
+- [x] Sidebar baru (komponen `sidebar-link`, grup lipat, badge), topbar, breadcrumb, bottom-nav mobile. _(tanpa breadcrumb; grup tidak dilipat)_
+- [x] Dashboard: KPI, grafik, order terbaru, quick actions (+ query tambahan di controller).
+- [x] Toast/flash & konfirmasi hapus global.
 
 ### Fase 5 — Modul admin (±3–4 sesi)
 Urut berdasarkan frekuensi pakai:
