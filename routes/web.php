@@ -10,6 +10,11 @@ use App\Http\Controllers\DuitkuController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index'])->name('home');
+
+if (app()->environment('local')) {
+    Route::view('/styleguide', 'styleguide')->name('styleguide');
+}
+
 Route::get('/products', [LandingController::class, 'packagesIndex'])->name('package.index');
 Route::get('/portfolio', [LandingController::class, 'projectsIndex'])->name('portfolio.index');
 Route::get('/blog', [LandingController::class, 'blogsIndex'])->name('blog.index');
