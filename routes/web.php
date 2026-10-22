@@ -134,11 +134,16 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     // WhatsApp (WAHA) connection
     Route::get('/whatsapp', [WhatsAppSettingsController::class, 'edit'])->name('whatsapp.edit');
     Route::post('/whatsapp', [WhatsAppSettingsController::class, 'update'])->name('whatsapp.update');
-    Route::get('/whatsapp/status', [WhatsAppSettingsController::class, 'status'])->name('whatsapp.status');
-    Route::get('/whatsapp/qr', [WhatsAppSettingsController::class, 'qr'])->name('whatsapp.qr');
-    Route::post('/whatsapp/start', [WhatsAppSettingsController::class, 'start'])->name('whatsapp.start');
-    Route::post('/whatsapp/stop', [WhatsAppSettingsController::class, 'stop'])->name('whatsapp.stop');
-    Route::post('/whatsapp/logout', [WhatsAppSettingsController::class, 'logout'])->name('whatsapp.logout');
+    Route::get('/whatsapp/sessions', [WhatsAppSettingsController::class, 'sessions'])->name('whatsapp.sessions');
+    Route::post('/whatsapp/sessions', [WhatsAppSettingsController::class, 'createSession'])->name('whatsapp.sessions.create');
+    Route::prefix('/whatsapp/sessions/{session}')->where(['session' => '[A-Za-z0-9_-]{1,60}'])->name('whatsapp.sessions.')->group(function () {
+        Route::get('/qr', [WhatsAppSettingsController::class, 'qr'])->name('qr');
+        Route::post('/start', [WhatsAppSettingsController::class, 'start'])->name('start');
+        Route::post('/stop', [WhatsAppSettingsController::class, 'stop'])->name('stop');
+        Route::post('/logout', [WhatsAppSettingsController::class, 'logout'])->name('logout');
+        Route::post('/activate', [WhatsAppSettingsController::class, 'activate'])->name('activate');
+        Route::delete('/', [WhatsAppSettingsController::class, 'destroySession'])->name('destroy');
+    });
     Route::post('/whatsapp/test', [WhatsAppSettingsController::class, 'test'])->name('whatsapp.test');
 
     // Vouchers

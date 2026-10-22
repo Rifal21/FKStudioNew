@@ -38,6 +38,12 @@ class WahaClient
         );
     }
 
+    /** Same server and key, different session: lets the admin manage any session by name. */
+    public function forSession(string $name): self
+    {
+        return new self($this->baseUrl, $this->apiKey, $name);
+    }
+
     public function session(): string
     {
         return $this->session;
@@ -72,6 +78,17 @@ class WahaClient
     }
 
     // ---- sessions -----------------------------------------------------------
+
+    /** Every session on the server, stopped ones included. */
+    public function listSessions(): array
+    {
+        return $this->json($this->send(fn (PendingRequest $r) => $r->get('/api/sessions', ['all' => 'true'])));
+    }
+
+    public function deleteSession(): array
+    {
+        return $this->json($this->send(fn (PendingRequest $r) => $r->delete("/api/sessions/{$this->session}")));
+    }
 
     /** Session info, or null when the session has not been created on the server yet. */
     public function sessionInfo(): ?array
