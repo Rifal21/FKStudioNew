@@ -14,7 +14,7 @@
         'Cancelled' => ['label' => 'Dibatalkan', 'class' => 'status-cancelled'],
     ];
     $st = $statusMap[$invoice->status] ?? ['label' => $invoice->status, 'class' => 'status-unpaid'];
-    $companyName = $settings->invoice_company_name ?: 'FKStudio Agency';
+    $companyName = $settings->invoice_company_name ?: 'FKStudio IT Solution';
 @endphp
 <!DOCTYPE html>
 <html lang="id">
@@ -36,19 +36,19 @@
         }
 
         /* Masthead */
-        .masthead { background-color: #FFCF0F; padding: 34px 40px 30px 40px; }
+        .masthead { background-color: #FFCF0F; padding: 44px 40px 38px 40px; }
         .masthead-rule { height: 5px; background-color: #0A1F3A; }
         .logo-text { font-size: 28px; font-weight: bold; color: #0A1F3A; }
         .logo-text span { color: #0B66A6; }
         .company-name { margin-top: 12px; font-size: 11px; font-weight: bold; color: #0A1F3A; }
         .company-address { font-size: 10px; color: #3F3500; max-width: 250px; }
-        .doc-title { font-size: 40px; font-weight: bold; color: #0A1F3A; line-height: 1; }
+        .doc-title { font-size: 46px; font-weight: bold; color: #0A1F3A; line-height: 1; }
         .doc-number { margin-top: 8px; font-size: 13px; font-weight: bold; color: #0A1F3A; }
 
-        .container { padding: 28px 40px 70px 40px; }
+        .container { padding: 34px 40px 70px 40px; }
 
         /* Client + facts */
-        .meta-table { width: 100%; margin-bottom: 26px; }
+        .meta-table { width: 100%; margin-bottom: 34px; }
         .client-panel {
             background-color: #EEF8FF;
             border-left: 5px solid #0A1F3A;
@@ -76,7 +76,7 @@
         .status-cancelled { background-color: #FFD6D6; }
 
         /* Items */
-        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 22px; }
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 26px; }
         .items-table th {
             padding: 0 8px 8px 8px;
             border-bottom: 2px solid #0A1F3A;
@@ -85,7 +85,7 @@
             text-align: left;
             font-weight: bold;
         }
-        .items-table td { padding: 11px 8px; border-bottom: 1px solid #CDE2F2; vertical-align: top; }
+        .items-table td { padding: 14px 8px; border-bottom: 1px solid #CDE2F2; vertical-align: top; }
         .item-no {
             width: 20px; height: 20px;
             border-radius: 10px;
@@ -109,8 +109,8 @@
         .bank-name { font-size: 10px; font-weight: bold; color: #0A1F3A; }
         .bank-number { font-size: 13px; font-weight: bold; color: #0B66A6; }
         .bank-holder { font-size: 9px; color: #465E78; }
-        .qris-img { width: 96px; height: 96px; padding: 4px; background: #ffffff; border: 1px solid #CDE2F2; }
-        .qris-caption { font-size: 8px; color: #465E78; margin-top: 4px; }
+        .qris-img { width: 150px; padding: 4px; background: #ffffff; border: 1px solid #CDE2F2; }
+        .qris-caption { font-size: 9px; color: #465E78; margin-top: 4px; }
         .notes-box {
             background-color: #FFF6CC;
             border-left: 4px solid #FFCF0F;
@@ -131,6 +131,9 @@
         .signature-line { height: 45px; border-bottom: 1px dashed #8DB5D6; width: 140px; margin: 0 auto 8px auto; }
         .signer-name { font-size: 11px; font-weight: bold; }
         .signer-title { font-size: 9px; color: #465E78; }
+
+        /* Short invoices: pin payment, totals and signature to the bottom so the sheet reads as one full A4 page. */
+        .anchored { position: absolute; left: 40px; width: 714px; bottom: 62px; }
 
         .page-foot {
             position: fixed; left: 0; right: 0; bottom: 0; height: 38px;
@@ -213,6 +216,12 @@
             </tbody>
         </table>
 
+        @php
+            $anchor = $invoice->items->count() <= 6
+                && count($settings->payment_methods ?? []) <= 3
+                && mb_strlen((string) $invoice->notes) <= 280;
+        @endphp
+        <div class="{{ $anchor ? 'anchored' : '' }}">
         <table class="footer-table">
             <tr>
                 <td style="width: 56%; vertical-align: top; padding-right: 22px;">
@@ -233,7 +242,7 @@
                                         @endif
                                     </td>
                                     @if($settings->invoice_qris)
-                                        <td style="vertical-align: top; text-align: center; width: 110px;">
+                                        <td style="vertical-align: top; text-align: center; width: 165px;">
                                             <img src="{{ $settings->invoice_qris_url }}" class="qris-img">
                                             <div class="qris-caption">Pindai untuk bayar</div>
                                         </td>
@@ -287,6 +296,7 @@
                 </td>
             </tr>
         </table>
+        </div>
     </div>
 
     <div class="page-foot">
