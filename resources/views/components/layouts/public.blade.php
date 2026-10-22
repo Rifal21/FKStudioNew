@@ -38,6 +38,9 @@
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     @endif
 
+    @if ($site->bing_verification)
+        <meta name="msvalidate.01" content="{{ $site->bing_verification }}">
+    @endif
     @if ($site->google_console_verification)
         <meta name="google-site-verification" content="{{ $site->google_console_verification }}">
     @endif

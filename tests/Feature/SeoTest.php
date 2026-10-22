@@ -140,4 +140,55 @@ class SeoTest extends TestCase
         $this->jsonLd($html);
         $this->assertStringNotContainsString('</script><script>alert(1)', $html);
     }
+
+    public function test_no_location_is_published_until_a_real_address_is_filled_in(): void
+    {
+        $org = Seo::organization(SiteSetting::first());
+
+        $this->assertSame('Organization', $org['@type']);
+        $this->assertArrayNotHasKey('address', $org);
+        $this->assertArrayNotHasKey('openingHours', $org);
+    }
+
+    public function test_a_filled_address_makes_the_business_a_local_professional_service(): void
+    {
+        SiteSetting::first()->update([
+            'biz_street' => 'Jl. Contoh No. 10', 'biz_city' => 'Bandung', 'biz_region' => 'Jawa Barat',
+            'biz_postal_code' => '40111', 'biz_opening_hours' => 'Mo-Fr 09:00-17:00', 'biz_price_range' => 'Rp 7.500.000 - Rp 18.500.000',
+        ]);
+
+        $org = Seo::organization(SiteSetting::first());
+
+        $this->assertSame(['Organization', 'ProfessionalService'], $org['@type']);
+        $this->assertSame('Bandung', $org['address']['addressLocality']);
+        $this->assertSame('ID', $org['address']['addressCountry']);
+        $this->assertSame('Mo-Fr 09:00-17:00', $org['openingHours']);
+        $this->assertSame('Rp 7.500.000 - Rp 18.500.000', $org['priceRange']);
+    }
+
+    public function test_a_street_without_a_city_is_not_published(): void
+    {
+        SiteSetting::first()->update(['biz_street' => 'Jl. Contoh No. 10']);
+
+        $this->assertArrayNotHasKey('address', Seo::organization(SiteSetting::first()));
+    }
+
+    public function test_bing_verification_is_added_to_the_head(): void
+    {
+        SiteSetting::first()->update(['bing_verification' => 'ABC123']);
+
+        $this->get('/products')->assertSee('<meta name="msvalidate.01" content="ABC123">', false);
+    }
+
+    public function test_services_become_an_item_list_of_service_entities(): void
+    {
+        $services = collect([new \App\Models\Service(['title_id' => 'Website Custom', 'title_en' => 'Custom Website', 'description_id' => '<p>Landing page.</p>'])]);
+
+        app()->setLocale('id');
+        $list = Seo::services($services);
+
+        $this->assertSame('Website Custom', $list['itemListElement'][0]['item']['name']);
+        $this->assertSame('Service', $list['itemListElement'][0]['item']['@type']);
+        $this->assertSame(Seo::orgId(), $list['itemListElement'][0]['item']['provider']['@id']);
+    }
 }

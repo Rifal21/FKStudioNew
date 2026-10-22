@@ -50,8 +50,12 @@ class Seo
     {
         $social = is_array($site->social_links) ? array_values(array_filter($site->social_links, 'is_string')) : [];
 
+        // With a real street address the business is also a local one (Google Maps, "near me").
+        // Without it we stay a plain Organization and publish no invented location.
+        $local = filled($site->biz_street) && filled($site->biz_city);
+
         return array_filter([
-            '@type' => 'Organization',
+            '@type' => $local ? ['Organization', 'ProfessionalService'] : 'Organization',
             '@id' => self::orgId(),
             'name' => $site->site_name ?: 'FKStudio',
             'url' => url('/'),
@@ -60,6 +64,16 @@ class Seo
             'email' => $site->contact_email,
             'telephone' => $site->contact_phone,
             'areaServed' => 'ID',
+            'address' => $local ? array_filter([
+                '@type' => 'PostalAddress',
+                'streetAddress' => $site->biz_street,
+                'addressLocality' => $site->biz_city,
+                'addressRegion' => $site->biz_region,
+                'postalCode' => $site->biz_postal_code,
+                'addressCountry' => 'ID',
+            ]) : null,
+            'openingHours' => $local && filled($site->biz_opening_hours) ? $site->biz_opening_hours : null,
+            'priceRange' => filled($site->biz_price_range) ? $site->biz_price_range : null,
             'sameAs' => $social ?: null,
             'contactPoint' => array_filter([
                 '@type' => 'ContactPoint',
@@ -69,6 +83,28 @@ class Seo
                 'availableLanguage' => ['id', 'en'],
             ]),
         ]);
+    }
+
+    /** @param  iterable<\App\Models\Service>  $services */
+    public static function services(iterable $services): array
+    {
+        $items = [];
+
+        foreach ($services as $i => $service) {
+            $items[] = [
+                '@type' => 'ListItem',
+                'position' => count($items) + 1,
+                'item' => array_filter([
+                    '@type' => 'Service',
+                    'name' => $service->getTranslation('title'),
+                    'description' => self::excerpt($service->getTranslation('description'), 250) ?: null,
+                    'provider' => ['@id' => self::orgId()],
+                    'areaServed' => 'ID',
+                ]),
+            ];
+        }
+
+        return ['@type' => 'ItemList', 'name' => 'Layanan FKStudio', 'itemListElement' => $items];
     }
 
     public static function website(SiteSetting $site): array
