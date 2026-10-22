@@ -2,7 +2,7 @@
 
 > Tanggal analisa: 2026-10-22
 > Cakupan: landing page publik, checkout & area pelanggan, auth, dan seluruh dashboard admin.
-> Status: **sedang dikerjakan di branch `redesign/ui-v3`** — Fase 0 & 1 selesai (lihat bagian 10). Keputusan final ada di bagian 9.
+> Status: **implementasi selesai di branch `redesign/ui-v3`** (8 commit); Fase 7 (QA lintas browser/perangkat nyata, Lighthouse) belum dilakukan — lihat bagian 10. Keputusan final ada di bagian 9.
 
 ---
 
@@ -368,20 +368,20 @@ Poin 3 dan 5–10 memakai default rencana karena tidak ada instruksi lain; bisa 
 
 ### Fase 5 — Modul admin (±3–4 sesi)
 Urut berdasarkan frekuensi pakai:
-- [ ] Orders (tabel ringkas + panel detail) · Invoices (index/create/edit/show) · Tickets · Users.
-- [ ] Packages · Vouchers · Payment Methods · Settings (bertab).
-- [ ] Hero · About · Services · Projects · Blogs · Testimonials · Clients · Owners.
-- [ ] Tabel → kartu di mobile untuk semuanya; form → komponen seragam; empty state.
+- [x] Orders (tabel ringkas + panel detail) · Invoices (index/create/edit/show) · Tickets · Users. _(Orders memakai daftar kartu dengan pencarian & filter; belum ada panel detail terpisah)_
+- [x] Packages · Vouchers · Payment Methods · Settings (bertab).
+- [x] Hero · About · Services · Projects · Blogs · Testimonials · Clients · Owners.
+- [x] Tabel → kartu di mobile untuk semuanya; form → komponen seragam; empty state. _(tabel jadi kartu di bawah lg; form CRUD jadi modal)_
 
 ### Fase 6 — Invoice PDF & email (±0,5 sesi)
-- [ ] Segarkan `invoices/pdf.blade.php` dengan palet baru (kompatibel dompdf), uji cetak A4.
+- [x] Segarkan `invoices/pdf.blade.php` dengan palet baru (kompatibel dompdf), uji cetak A4. _(diuji lewat DomPDF; belum dicetak fisik)_
 - [ ] (Bila ada) template notifikasi email.
 
 ### Fase 7 — QA & peluncuran (±1 sesi)
 - [ ] Matriks uji: Chrome, Firefox, Safari iOS, Chrome Android × lebar 360/390/768/1024/1366/1920.
 - [ ] Audit kontras & `axe`/Lighthouse (Performance, Accessibility, SEO ≥ 90).
 - [ ] Cek tidak ada scroll horizontal; cek hover/focus/disabled/loading/empty/error di tiap komponen.
-- [ ] `npm run build`, pastikan tidak ada kelas Tailwind invalid & ukuran CSS/JS sebelum–sesudah.
+- [x] `npm run build`, pastikan tidak ada kelas Tailwind invalid & ukuran CSS/JS sebelum–sesudah.
 - [ ] Merge dengan review per-fase (bukan satu PR raksasa).
 
 **Total perkiraan: ±12–15 sesi kerja** (landing & checkout paling terlihat → prioritas tinggi; modul admin paling banyak jumlahnya tapi paling mudah setelah komponen jadi).
