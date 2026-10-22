@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\SiteSetting;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\InvoiceNumbering;
+use App\Services\InvoicePdf;
+use App\Services\InvoiceWhatsApp;
+use App\Services\InvoiceTotals;
 use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
@@ -18,23 +21,7 @@ class InvoiceController extends Controller
 
     public function create()
     {
-        $year = date('Y');
-        $month = date('m');
-        $day = date('d');
-        
-        $lastInvoice = Invoice::where('invoice_number', 'LIKE', 'INV-%')
-            ->latest()
-            ->first();
-
-        if ($lastInvoice) {
-            $parts = explode('-', $lastInvoice->invoice_number);
-            $lastNumber = (int) end($parts);
-            $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
-        } else {
-            $nextNumber = '0001';
-        }
-
-        $invoiceNumber = "INV-$year$month$day-FKS-$nextNumber";
+        $invoiceNumber = InvoiceNumbering::next();
 
         return view('dashboard.invoices.create', compact('invoiceNumber'));
     }
@@ -44,6 +31,7 @@ class InvoiceController extends Controller
         $request->validate([
             'client_name' => 'required',
             'issue_date' => 'required|date',
+            'client_phone' => 'nullable|string|max:30',
             'items' => 'required|array|min:1',
         ]);
 
@@ -51,6 +39,7 @@ class InvoiceController extends Controller
             'invoice_number' => $request->invoice_number,
             'client_name' => $request->client_name,
             'client_email' => $request->client_email,
+            'client_phone' => $request->client_phone,
             'client_address' => $request->client_address,
             'issue_date' => $request->issue_date,
             'due_date' => $request->due_date,
@@ -64,28 +53,21 @@ class InvoiceController extends Controller
         ]);
 
         $subtotal = 0;
-        foreach ($request->items as $item) {
+        foreach (array_values($request->items) as $position => $item) {
             $itemSubtotal = $item['quantity'] * $item['unit_price'];
             $invoice->items()->create([
                 'description' => $item['description'],
                 'quantity' => $item['quantity'],
                 'unit_price' => $item['unit_price'],
                 'subtotal' => $itemSubtotal,
+                'position' => $position,
             ]);
             $subtotal += $itemSubtotal;
         }
 
-        $discountAmount = ($invoice->discount_type === 'percent')
-            ? ($subtotal * ($invoice->discount / 100))
-            : $invoice->discount;
-
-        $taxAmount = ($invoice->tax_type === 'percent')
-            ? (($subtotal - $discountAmount) * ($invoice->tax / 100))
-            : $invoice->tax;
-
-        $finalTotal = $subtotal - $discountAmount + $taxAmount;
-
-        $invoice->update(['total_amount' => $finalTotal]);
+        $invoice->update([
+            'total_amount' => InvoiceTotals::compute($subtotal, $invoice->discount, $invoice->discount_type, $invoice->tax, $invoice->tax_type)['total'],
+        ]);
 
         return redirect()->route('dashboard.invoices.index')->with('success', 'Invoice created successfully');
     }
@@ -102,12 +84,14 @@ class InvoiceController extends Controller
         $request->validate([
             'client_name' => 'required',
             'issue_date' => 'required|date',
+            'client_phone' => 'nullable|string|max:30',
             'items' => 'required|array|min:1',
         ]);
 
         $invoice->update([
             'client_name' => $request->client_name,
             'client_email' => $request->client_email,
+            'client_phone' => $request->client_phone,
             'client_address' => $request->client_address,
             'issue_date' => $request->issue_date,
             'due_date' => $request->due_date,
@@ -122,28 +106,21 @@ class InvoiceController extends Controller
         // Refresh items
         $invoice->items()->delete();
         $subtotal = 0;
-        foreach ($request->items as $item) {
+        foreach (array_values($request->items) as $position => $item) {
             $itemSubtotal = $item['quantity'] * $item['unit_price'];
             $invoice->items()->create([
                 'description' => $item['description'],
                 'quantity' => $item['quantity'],
                 'unit_price' => $item['unit_price'],
                 'subtotal' => $itemSubtotal,
+                'position' => $position,
             ]);
             $subtotal += $itemSubtotal;
         }
 
-        $discountAmount = ($invoice->discount_type === 'percent')
-            ? ($subtotal * ($invoice->discount / 100))
-            : $invoice->discount;
-
-        $taxAmount = ($invoice->tax_type === 'percent')
-            ? (($subtotal - $discountAmount) * ($invoice->tax / 100))
-            : $invoice->tax;
-
-        $finalTotal = $subtotal - $discountAmount + $taxAmount;
-
-        $invoice->update(['total_amount' => $finalTotal]);
+        $invoice->update([
+            'total_amount' => InvoiceTotals::compute($subtotal, $invoice->discount, $invoice->discount_type, $invoice->tax, $invoice->tax_type)['total'],
+        ]);
 
         return redirect()->route('dashboard.invoices.index')->with('success', 'Invoice updated successfully');
     }
@@ -173,17 +150,15 @@ class InvoiceController extends Controller
 
     public function download(Invoice $invoice)
     {
-        $settings = SiteSetting::first();
+        return InvoicePdf::make($invoice)->stream(InvoicePdf::filename($invoice));
+    }
+
+    public function sendWhatsApp(Invoice $invoice, InvoiceWhatsApp $whatsApp)
+    {
         $invoice->load('items');
 
-        $pdf = Pdf::loadView('dashboard.invoices.pdf', compact('invoice', 'settings'))
-            ->setPaper('a4', 'portrait')
-            ->setOptions([
-                'isHtml5ParserEnabled' => true,
-                'isRemoteEnabled' => true,
-                'defaultFont' => 'sans-serif',
-            ]);
-
-        return $pdf->stream($invoice->invoice_number.'-'.$invoice->client_name.'.pdf');
+        return $whatsApp->send($invoice)
+            ? back()->with('success', 'Invoice dikirim lewat WhatsApp ke '.$invoice->client_phone.'.')
+            : back()->with('error', $invoice->fresh()->wa_error);
     }
 }

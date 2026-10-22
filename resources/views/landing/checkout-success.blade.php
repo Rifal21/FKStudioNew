@@ -1,15 +1,13 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 @php
     $bankName = '';
     $bankNumber = '';
     $bankOwner = '';
-    
-    if ($order->payment_method !== 'QRIS' && !str_starts_with($order->payment_method ?? '', 'Duitku')) {
+
+    if ($order->payment_method !== 'QRIS' && ! str_starts_with($order->payment_method ?? '', 'Duitku')) {
         $parts = explode(' - ', $order->payment_method);
         $bankName = $parts[0] ?? $order->payment_method;
         $bankNumber = $parts[1] ?? '';
-        
+
         foreach ($settings->payment_methods ?? [] as $method) {
             if (strcasecmp($method['bank'], $bankName) === 0 && $method['number'] == $bankNumber) {
                 $bankOwner = $method['name'];
@@ -17,240 +15,137 @@
             }
         }
     }
-    
+
     $isPelunasanPayment = ($order->status === 'paid' && $order->payment_scheme === 'dp' && $order->final_invoice_id && $order->finalInvoice && $order->finalInvoice->status === 'Unpaid');
     $upfrontAmount = $isPelunasanPayment ? $order->remaining_balance : ($order->payment_scheme === 'dp' ? $order->dp_amount : $order->total_amount);
+    $isDuitku = str_starts_with($order->payment_method ?? '', 'Duitku');
 @endphp
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Order Berhasil - {{ $order->package_name }} | FKStudio</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .gradient-text { @apply bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-600; }
-    </style>
-</head>
-<body class="antialiased min-h-screen bg-slate-950 flex flex-col" x-data="{ mobileMenu: false, scrolled: false, activeSection: '' }" @scroll.window="scrolled = (window.pageYOffset > 50)">
-    <div class="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden -z-10">
-        <div class="absolute top-1/4 -left-20 w-96 h-96 bg-emerald-600/10 rounded-full blur-[120px]"></div>
-        <div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-blue-700/10 rounded-full blur-[120px]"></div>
-    </div>
+<x-layouts.public :title="'Pesanan Diterima - ' . $order->package_name" description="Instruksi pembayaran untuk pesanan Anda.">
+    <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
-    @include('landing.sections.navbar')
+    <div class="relative pb-16 pt-28 md:pb-24 md:pt-36">
+        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_30%_at_50%_0%,rgb(45_212_191/0.14),transparent)]" aria-hidden="true"></div>
 
-    <div class="flex-grow flex items-center justify-center px-6 pt-32 pb-20 w-full relative z-10">
-        <div class="max-w-4xl w-full">
-        @if(session('success'))
-            <div class="mb-8 p-6 glass border-emerald-500/30 rounded-3xl flex items-center space-x-4 animate-bounce">
-                <div class="w-12 h-12 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <i class="fa-solid fa-check text-xl"></i>
-                </div>
-                <div class="text-white font-bold">{{ session('success') }}</div>
-            </div>
-        @endif
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <!-- Instructions -->
-            <div class="space-y-8">
-                <div>
-                    <h1 class="text-4xl md:text-5xl font-black text-white leading-tight mb-6">
-                        Pesanan <span class="gradient-text">Diterima!</span>
-                    </h1>
-                    <p class="text-slate-400 leading-relaxed">
-                        Terima kasih telah mempercayai FKStudio. Pesanan Anda telah tercatat dengan ID: <span class="text-white font-mono">{{ substr($order->id, 0, 8) }}</span>.
-                    </p>
-                </div>
-
-                <div class="space-y-6">
-                    <h3 class="text-xs font-black uppercase tracking-[0.3em] text-slate-500">Langkah Selanjutnya</h3>
-                    
-                    <div class="flex space-x-4">
-                        <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center font-black text-white flex-shrink-0">1</div>
-                        <div>
-                            <p class="text-sm text-white font-bold mb-1">Lakukan Pembayaran</p>
-                            <p class="text-xs text-slate-500 leading-relaxed">Transfer sesuai nominal ke rekening yang telah Anda pilih.</p>
-                        </div>
-                    </div>
-
-                    <div class="flex space-x-4">
-                        <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center font-black text-white flex-shrink-0">2</div>
-                        <div>
-                            <p class="text-sm text-white font-bold mb-1">Unggah Bukti Transfer</p>
-                            <p class="text-xs text-slate-500 leading-relaxed">Gunakan form di samping untuk mengunggah bukti pembayaran Anda.</p>
-                        </div>
-                    </div>
-
-                    <div class="flex space-x-4">
-                        <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center font-black text-white flex-shrink-0">3</div>
-                        <div>
-                            <p class="text-sm text-white font-bold mb-1">Aktivasi Layanan</p>
-                            <p class="text-xs text-slate-500 leading-relaxed">Admin akan memverifikasi pembayaran Anda dalam waktu maksimal 1x24 jam.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="p-6 glass rounded-3xl border-blue-500/10 space-y-4">
-                    <h4 class="text-xs font-black text-white uppercase tracking-widest border-b border-white/5 pb-3">Rincian Pembelian</h4>
-                    <div class="space-y-2 text-xs">
-                        <div class="flex justify-between text-slate-400">
-                            <span>Subtotal Paket:</span>
-                            <span class="font-bold text-white">{{ $order->package_price }}</span>
-                        </div>
-                        @if($order->buy_domain && $order->domain_price)
-                            <div class="flex justify-between text-slate-400">
-                                <span>Domain ({{ $order->domain_name }}):</span>
-                                <span class="font-bold text-white">Rp {{ number_format($order->domain_price, 0, ',', '.') }}</span>
-                            </div>
-                        @endif
-                        @if($order->discount_amount > 0)
-                            <div class="flex justify-between text-emerald-400">
-                                <span>Potongan Voucher ({{ $order->voucher_code }}):</span>
-                                <span class="font-bold">- Rp {{ number_format($order->discount_amount, 0, ',', '.') }}</span>
-                            </div>
-                        @endif
-                        <div class="flex justify-between text-slate-400">
-                            <span>PPN ({{ $settings->tax_rate ?? 11 }}%):</span>
-                            <span class="font-bold text-white">Rp {{ number_format($order->tax_amount, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="border-t border-white/5 pt-2 flex justify-between text-sm font-black text-white">
-                            <span>Grand Total:</span>
-                            <span>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="container-page relative max-w-5xl">
+            <div class="text-center">
+                <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-mint-400 text-2xl text-navy shadow-glow"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                <h1 class="mt-5 text-3xl font-extrabold md:text-5xl">Pesanan <span class="gradient-text">diterima!</span></h1>
+                <p class="mx-auto mt-3 max-w-xl text-muted">Terima kasih telah mempercayai {{ $settings->site_name ?: 'FKStudio' }}. Pesanan Anda tercatat dengan ID <span class="font-mono font-semibold text-ink">{{ substr($order->id, 0, 8) }}</span>.</p>
             </div>
 
-            <!-- Confirmation Form (Ticket) -->
-            <!-- Confirmation Form (Ticket) / Duitku Status -->
-            @if(str_starts_with($order->payment_method, 'Duitku'))
-                <div class="glass p-8 md:p-10 rounded-[3rem] border-white/5 shadow-2xl flex flex-col items-center justify-center text-center">
-                    <div class="w-20 h-20 bg-blue-500/20 text-blue-500 rounded-full flex items-center justify-center mb-6 animate-pulse">
-                        <i class="fa-solid fa-spinner fa-spin text-3xl"></i>
-                    </div>
-                    <h3 class="text-xl font-black text-white mb-4">Menunggu Konfirmasi</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-8">
-                        Kami sedang menunggu konfirmasi pembayaran otomatis dari sistem Duitku. Halaman ini akan otomatis dialihkan jika pembayaran berhasil.
-                    </p>
-                    <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div class="h-full bg-blue-500 animate-[loading_2s_ease-in-out_infinite]" style="width: 30%"></div>
-                    </div>
-                    <script>
-                        // Auto refresh or check status
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 5000);
-                    </script>
-                </div>
-            @else
-                <div class="glass p-8 md:p-10 rounded-[3rem] border-white/5 shadow-2xl relative space-y-6">
-                     <!-- Transfer Amount Card -->
-                     <div class="p-6 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-3xl select-none">
-                         <p class="text-[9px] font-black uppercase tracking-wider text-emerald-500 mb-1">
-                             {{ $isPelunasanPayment ? 'Jumlah Pembayaran Pelunasan (50%)' : ($order->payment_scheme === 'dp' ? 'Jumlah Down Payment (DP 50%)' : 'Jumlah Transfer Lunas (100%)') }}
-                         </p>
-                         <div class="flex items-center justify-between">
-                             <div class="flex items-center space-x-2">
-                                 <span class="text-2xl font-black text-white tracking-tighter">
-                                     Rp {{ number_format($upfrontAmount, 0, ',', '.') }}
-                                 </span>
-                                 <button type="button" onclick="navigator.clipboard.writeText('{{ (int) $upfrontAmount }}'); alert('Jumlah transfer berhasil disalin!');" class="p-1.5 text-emerald-400 hover:text-white hover:bg-white/10 rounded-lg transition-all" title="Salin Nominal">
-                                     <i class="fa-regular fa-copy text-sm"></i>
-                                 </button>
-                             </div>
-                         </div>
-                         @if($order->payment_scheme === 'dp' && !$isPelunasanPayment)
-                             <p class="text-[9px] text-slate-500 mt-2">
-                                 Sisa pelunasan sebesar <span class="font-bold text-indigo-400">Rp {{ number_format($order->remaining_balance, 0, ',', '.') }}</span> akan ditagihkan setelah website selesai dikerjakan.
-                             </p>
-                         @endif
-                     </div>
+            <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2">
+                {{-- Left: steps + breakdown --}}
+                <div class="min-w-0 space-y-6">
+                    <x-ui.card>
+                        <h2 class="text-xl">Langkah selanjutnya</h2>
+                        <ol class="mt-5 space-y-5">
+                            @foreach ([
+                                ['Lakukan pembayaran', 'Transfer sesuai nominal ke rekening yang telah Anda pilih.'],
+                                ['Unggah bukti transfer', 'Gunakan form pada halaman ini untuk mengunggah bukti pembayaran.'],
+                                ['Aktivasi layanan', 'Admin akan memverifikasi pembayaran Anda dalam waktu maksimal 1x24 jam.'],
+                            ] as $i => [$t, $d])
+                                <li class="flex gap-4">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-600 text-small font-bold text-white">{{ $i + 1 }}</span>
+                                    <div><p class="font-semibold">{{ $t }}</p><p class="text-small text-muted">{{ $d }}</p></div>
+                                </li>
+                            @endforeach
+                        </ol>
+                    </x-ui.card>
 
-                    <!-- Destination Card (QRIS or Bank) -->
-                    @if($order->payment_method === 'QRIS' && $settings->invoice_qris)
-                        <div class="p-6 bg-white rounded-3xl flex flex-col items-center select-none">
-                            <h4 class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Scan QRIS untuk Pembayaran</h4>
-                            <img src="{{ $settings->invoice_qris_url }}" alt="QRIS Payment" class="w-full max-w-[200px] aspect-square object-contain">
-                            <div class="mt-4 text-center">
-                                <p class="text-xs font-black text-slate-800 uppercase tracking-tighter">FK STUDIO PAYMENT</p>
-                                <p class="text-[9px] text-slate-500">Scan QRIS di atas untuk menyelesaikan pembayaran</p>
-                            </div>
-                        </div>
-                    @elseif($bankNumber)
-                        <div class="p-6 bg-white/5 border border-white/10 rounded-3xl relative overflow-hidden group select-none">
-                            <div class="absolute -right-6 -bottom-6 text-white/5 text-8xl font-black">
-                                <i class="fa-solid fa-building-columns"></i>
-                            </div>
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="px-3 py-1 bg-blue-500/15 text-blue-400 font-black uppercase text-[8px] tracking-wider rounded-full">
-                                    Transfer Bank
+                    <x-ui.card>
+                        <h2 class="text-xl">Rincian pembelian</h2>
+                        <dl class="mt-4 space-y-2 text-small">
+                            <div class="flex justify-between gap-4"><dt class="text-muted">Subtotal paket</dt><dd class="font-semibold">{{ $order->package_price }}</dd></div>
+                            @if ($order->buy_domain && $order->domain_price)
+                                <div class="flex justify-between gap-4"><dt class="text-muted">Domain ({{ $order->domain_name }})</dt><dd class="font-semibold">Rp {{ number_format($order->domain_price, 0, ',', '.') }}</dd></div>
+                            @endif
+                            @if ($order->discount_amount > 0)
+                                <div class="flex justify-between gap-4 text-mint-800 dark:text-mint-300"><dt>Voucher ({{ $order->voucher_code }})</dt><dd class="font-semibold">- Rp {{ number_format($order->discount_amount, 0, ',', '.') }}</dd></div>
+                            @endif
+                            <div class="flex justify-between gap-4"><dt class="text-muted">PPN ({{ $settings->tax_rate ?? 11 }}%)</dt><dd class="font-semibold">Rp {{ number_format($order->tax_amount, 0, ',', '.') }}</dd></div>
+                            <div class="flex justify-between gap-4 border-t border-line pt-3 text-base"><dt class="font-bold">Grand total</dt><dd class="font-extrabold">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</dd></div>
+                        </dl>
+                    </x-ui.card>
+                </div>
+
+                {{-- Right: payment --}}
+                <div class="min-w-0">
+                    @if ($isDuitku)
+                        <x-ui.card class="flex flex-col items-center py-12 text-center">
+                            <span class="flex h-20 w-20 items-center justify-center rounded-full bg-brand-soft text-3xl text-brand-text"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i></span>
+                            <h2 class="mt-6 text-xl">Menunggu konfirmasi</h2>
+                            <p class="mt-2 text-small text-muted">Kami sedang menunggu konfirmasi pembayaran otomatis dari Duitku. Halaman ini akan diperbarui otomatis.</p>
+                        </x-ui.card>
+                        <script>setTimeout(() => window.location.reload(), 5000);</script>
+                    @else
+                        <x-ui.card class="space-y-6">
+                            <div class="rounded-lg border border-mint-400/40 bg-mint-50 p-5 dark:bg-mint-400/10">
+                                <p class="text-caption font-bold text-mint-800 dark:text-mint-300">
+                                    {{ $isPelunasanPayment ? 'Jumlah pembayaran pelunasan (50%)' : ($order->payment_scheme === 'dp' ? 'Jumlah down payment (DP 50%)' : 'Jumlah transfer lunas (100%)') }}
+                                </p>
+                                <div class="mt-1 flex items-center gap-2">
+                                    <span class="text-3xl font-extrabold">Rp {{ number_format($upfrontAmount, 0, ',', '.') }}</span>
+                                    <button type="button" class="btn-icon" aria-label="Salin jumlah transfer" x-data
+                                        @click="navigator.clipboard.writeText('{{ (int) $upfrontAmount }}').then(() => toast('success', 'Jumlah transfer disalin.'))">
+                                        <i class="fa-regular fa-copy" aria-hidden="true"></i>
+                                    </button>
                                 </div>
-                                <div class="font-black text-white text-base tracking-wider uppercase">
-                                    {{ $bankName }}
-                                </div>
+                                @if ($order->payment_scheme === 'dp' && ! $isPelunasanPayment)
+                                    <p class="mt-2 text-caption text-muted">Sisa pelunasan <strong class="text-brand-text">Rp {{ number_format($order->remaining_balance, 0, ',', '.') }}</strong> akan ditagihkan setelah website selesai dikerjakan.</p>
+                                @endif
                             </div>
-                            <div class="space-y-4">
-                                <div>
-                                    <p class="text-[9px] font-black uppercase tracking-wider text-slate-500 mb-1">Nomor Rekening</p>
-                                    <div class="flex items-center space-x-2">
-                                        <span class="text-xl font-bold text-white tracking-wider font-mono">{{ $bankNumber }}</span>
-                                        <button type="button" onclick="navigator.clipboard.writeText('{{ $bankNumber }}'); alert('Nomor rekening berhasil disalin!');" class="p-1.5 text-slate-500 hover:text-white hover:bg-white/10 rounded-lg transition-all" title="Salin Rekening">
-                                            <i class="fa-regular fa-copy text-sm"></i>
+
+                            @if ($order->payment_method === 'QRIS' && $settings->invoice_qris)
+                                <div class="flex flex-col items-center rounded-lg bg-white p-6 text-center">
+                                    <p class="text-caption font-bold uppercase tracking-wider text-slate-500">Scan QRIS untuk membayar</p>
+                                    <img src="{{ $settings->invoice_qris_url }}" alt="Kode QRIS pembayaran" class="mt-4 aspect-square w-full max-w-[220px] object-contain">
+                                </div>
+                            @elseif ($bankNumber)
+                                <div class="rounded-lg border border-line bg-surface-2 p-5">
+                                    <div class="flex items-center justify-between">
+                                        <span class="badge-brand">Transfer bank</span>
+                                        <span class="text-lg font-extrabold uppercase">{{ $bankName }}</span>
+                                    </div>
+                                    <p class="mt-4 text-caption font-semibold text-muted">Nomor rekening</p>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-mono text-2xl font-bold tracking-wide">{{ $bankNumber }}</span>
+                                        <button type="button" class="btn-icon" aria-label="Salin nomor rekening" x-data
+                                            @click="navigator.clipboard.writeText('{{ $bankNumber }}').then(() => toast('success', 'Nomor rekening disalin.'))">
+                                            <i class="fa-regular fa-copy" aria-hidden="true"></i>
                                         </button>
                                     </div>
+                                    <p class="mt-3 text-caption font-semibold text-muted">Nama penerima</p>
+                                    <p class="font-bold uppercase">{{ $bankOwner ?: '-' }}</p>
                                 </div>
-                                <div>
-                                    <p class="text-[9px] font-black uppercase tracking-wider text-slate-500 mb-1">Nama Penerima</p>
-                                    <p class="text-xs font-bold text-white uppercase">{{ $bankOwner ?: '-' }}</p>
+                            @endif
+
+                            <form action="{{ route('checkout.confirm', $order->id) }}" method="POST" enctype="multipart/form-data" class="space-y-4 border-t border-line pt-6">
+                                @csrf
+                                <h2 class="text-lg">Konfirmasi pembayaran</h2>
+                                <x-ui.textarea name="message" label="Pesan (opsional)" :rows="3" placeholder="Contoh: Saya sudah transfer dari rekening atas nama…" />
+
+                                <div x-data="{ fileName: null }">
+                                    <label for="attachment" class="label">Bukti pembayaran <span class="text-danger-600" aria-hidden="true">*</span></label>
+                                    <label for="attachment" class="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-line bg-surface-2 px-4 py-8 text-center transition hover:border-brand-400 hover:bg-brand-soft">
+                                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-brand-500" aria-hidden="true"></i>
+                                        <span class="mt-2 text-small font-semibold" x-text="fileName || 'Klik untuk memilih bukti transfer'"></span>
+                                        <span class="text-caption text-muted">Format gambar, maks. 2 MB</span>
+                                    </label>
+                                    <input id="attachment" type="file" name="attachment" accept="image/*" required class="sr-only"
+                                        @change="fileName = $event.target.files[0]?.name">
+                                    @error('attachment')<p class="field-error">{{ $message }}</p>@enderror
                                 </div>
-                            </div>
-                        </div>
+
+                                <button type="submit" class="btn-primary btn-lg w-full">Kirim konfirmasi</button>
+                            </form>
+                        </x-ui.card>
                     @endif
-
-                    <h3 class="text-lg font-black text-white flex items-center pt-4 border-t border-white/5">
-                        <span class="w-8 h-8 bg-blue-600/20 text-blue-500 rounded-lg flex items-center justify-center mr-3 text-sm">
-                            <i class="fa-solid fa-receipt"></i>
-                        </span>
-                        Konfirmasi Pembayaran
-                    </h3>
-
-                    <form action="{{ route('checkout.confirm', $order->id) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                        @csrf
-                        <div class="space-y-2">
-                            <label class="text-[9px] font-black uppercase tracking-widest text-slate-500 ml-1">Pesan (Opsional)</label>
-                            <textarea name="message" rows="3" placeholder="Contoh: Saya sudah transfer dari rekening atas nama..."
-                                class="block w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium text-white text-xs placeholder-slate-600 resize-none"></textarea>
-                        </div>
-
-                        <div class="space-y-2" x-data="{ fileName: null }">
-                            <label class="text-[9px] font-black uppercase tracking-widest text-slate-500 ml-1">Bukti Pembayaran <span class="text-red-500">*</span></label>
-                            <div class="relative group">
-                                <input type="file" name="attachment" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" @change="fileName = $event.target.files[0].name">
-                                <div class="px-6 py-6 bg-white/5 border border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center group-hover:border-blue-500/50 transition-all">
-                                    <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-600 mb-2 group-hover:text-blue-500 transition-colors"></i>
-                                    <span class="text-xs font-bold text-slate-400 group-hover:text-white transition-colors text-center" x-text="fileName || 'Klik atau seret bukti transfer ke sini'"></span>
-                                    <span class="text-[8px] text-slate-600 mt-1 uppercase">PNG, JPG up to 2MB</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all">
-                            Kirim Konfirmasi
-                        </button>
-                    </form>
                 </div>
-            @endif
-        </div>
+            </div>
 
-        <div class="text-center mt-12">
-            <a href="{{ route('home') }}" class="text-xs font-black text-slate-500 hover:text-white uppercase tracking-widest transition-colors">
-                Kembali ke Beranda
-            </a>
+            <p class="mt-10 text-center"><a href="{{ route('user.orders') }}" class="text-small font-semibold text-brand-text hover:underline">Lihat pesanan saya</a> &middot; <a href="{{ route('home') }}" class="text-small font-semibold text-muted hover:text-ink">Kembali ke beranda</a></p>
         </div>
     </div>
-    </div>
-</body>
-</html>
+
+    <x-slot:footer><x-site.footer /></x-slot:footer>
+</x-layouts.public>

@@ -7,9 +7,16 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DuitkuController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\WhatsAppSettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index'])->name('home');
+
+if (app()->environment('local')) {
+    Route::view('/styleguide', 'styleguide')->name('styleguide');
+}
+
 Route::get('/products', [LandingController::class, 'packagesIndex'])->name('package.index');
 Route::get('/portfolio', [LandingController::class, 'projectsIndex'])->name('portfolio.index');
 Route::get('/blog', [LandingController::class, 'blogsIndex'])->name('blog.index');
@@ -116,6 +123,30 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     Route::get('/invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
     Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
 
+    Route::post('/invoices/{invoice}/whatsapp', [InvoiceController::class, 'sendWhatsApp'])->name('invoices.whatsapp');
+
+    // Subscriptions (recurring invoices)
+    Route::resource('subscriptions', SubscriptionController::class);
+    Route::post('/subscriptions/{subscription}/pause', [SubscriptionController::class, 'pause'])->name('subscriptions.pause');
+    Route::post('/subscriptions/{subscription}/resume', [SubscriptionController::class, 'resume'])->name('subscriptions.resume');
+    Route::post('/subscriptions/{subscription}/generate', [SubscriptionController::class, 'generateNow'])->name('subscriptions.generate');
+
+    // WhatsApp (WAHA) connection
+    Route::get('/whatsapp', [WhatsAppSettingsController::class, 'edit'])->name('whatsapp.edit');
+    Route::post('/whatsapp', [WhatsAppSettingsController::class, 'update'])->name('whatsapp.update');
+    Route::get('/whatsapp/sessions', [WhatsAppSettingsController::class, 'sessions'])->name('whatsapp.sessions');
+    Route::post('/whatsapp/sessions', [WhatsAppSettingsController::class, 'createSession'])->name('whatsapp.sessions.create');
+    Route::prefix('/whatsapp/sessions/{session}')->where(['session' => '[A-Za-z0-9_-]{1,60}'])->name('whatsapp.sessions.')->group(function () {
+        Route::get('/qr', [WhatsAppSettingsController::class, 'qr'])->name('qr');
+        Route::post('/start', [WhatsAppSettingsController::class, 'start'])->name('start');
+        Route::post('/restart', [WhatsAppSettingsController::class, 'restart'])->name('restart');
+        Route::post('/stop', [WhatsAppSettingsController::class, 'stop'])->name('stop');
+        Route::post('/logout', [WhatsAppSettingsController::class, 'logout'])->name('logout');
+        Route::post('/activate', [WhatsAppSettingsController::class, 'activate'])->name('activate');
+        Route::delete('/', [WhatsAppSettingsController::class, 'destroySession'])->name('destroy');
+    });
+    Route::post('/whatsapp/test', [WhatsAppSettingsController::class, 'test'])->name('whatsapp.test');
+
     // Vouchers
     Route::get('/vouchers', [CmsController::class, 'vouchersIndex'])->name('vouchers.index');
     Route::post('/vouchers', [CmsController::class, 'storeVoucher'])->name('vouchers.store');
@@ -136,9 +167,6 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     // Tickets
     Route::get('/tickets', [CmsController::class, 'ticketsIndex'])->name('tickets.index');
     Route::patch('/tickets/{ticket}', [CmsController::class, 'updateTicketStatus'])->name('tickets.update');
-
-    // Tenants (removed - booking system replaced tenancy)
-    // Route::get('/tenants', ...) - deprecated
 
     // Users
     Route::get('/users', [CmsController::class, 'usersIndex'])->name('users.index');

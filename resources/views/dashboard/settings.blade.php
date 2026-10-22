@@ -1,351 +1,260 @@
 <x-app-layout>
-    <x-slot name="header">
-        {{ __('Site Settings') }}
-    </x-slot>
+    <x-slot name="header">Pengaturan Situs</x-slot>
 
-    <div class="max-w-5xl mx-auto">
-        <form action="{{ route('dashboard.settings.update') }}" method="POST" enctype="multipart/form-data" class="space-y-8 pb-20">
-            @csrf
-            
-            <!-- General Branding -->
-            <div class="glass p-8 rounded-[3rem] shadow-xl relative overflow-hidden" data-aos="fade-up">
-                <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
-                <h3 class="text-xl font-black text-slate-900 mb-8 flex items-center">
-                    <span class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mr-4">
-                        <i class="fa-solid fa-brand"></i>
-                    </span>
-                    Branding & SEO
-                </h3>
+    @php
+        $socials = $settings->social_links ?? [];
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Site Name</label>
-                        <input type="text" name="site_name" value="{{ $settings->site_name }}"
-                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">SEO Meta Title</label>
-                        <input type="text" name="seo_title" value="{{ $settings->seo_title }}"
-                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">
-                    </div>
-                    <div class="md:col-span-2 space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">SEO Description</label>
-                        <textarea name="seo_description" rows="2" 
-                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">{{ $settings->seo_description }}</textarea>
-                    </div>
+        // Tab yang memuat error validasi dibuka lebih dulu.
+        $initialTab = 'umum';
+        if ($errors->has('tax_rate')) {
+            $initialTab = 'invoice';
+        }
+        if ($errors->has('site_name')) {
+            $initialTab = 'umum';
+        }
 
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">SEO Keywords</label>
-                        <input type="text" name="seo_keywords" value="{{ $settings->seo_keywords }}" placeholder="creative, agency, portfolio, modern"
-                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Google Console Verification</label>
-                        <input type="text" name="google_console_verification" value="{{ $settings->google_console_verification }}" placeholder="google-site-verification-code"
-                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">
-                    </div>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 md:col-span-2 pt-4" 
-                        x-data="{ 
-                            logoPreview: null,
-                            faviconPreview: null,
-                            ogPreview: null,
-                            handleLogo(e) {
-                                const file = e.target.files[0];
-                                if (file) this.logoPreview = URL.createObjectURL(file);
-                            },
-                            handleFavicon(e) {
-                                const file = e.target.files[0];
-                                if (file) this.faviconPreview = URL.createObjectURL(file);
-                            },
-                            handleOg(e) {
-                                const file = e.target.files[0];
-                                if (file) this.ogPreview = URL.createObjectURL(file);
-                            }
-                        }">
-                        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center space-x-4">
-                            <div class="relative group">
-                                <div class="w-16 h-16 bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center border border-slate-200">
-                                    <template x-if="logoPreview">
-                                        <img :src="logoPreview" class="w-full h-full object-contain p-1">
-                                    </template>
-                                    <template x-if="!logoPreview">
-                                        @if ($settings->site_logo)
-                                            <img src="{{ $settings->logo_url }}" class="w-full h-full object-contain p-1">
-                                        @else
-                                            <i class="fa-solid fa-image text-slate-300 text-2xl"></i>
-                                        @endif
-                                    </template>
-                                </div>
-                                <label class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-xl opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                                    <i class="fa-solid fa-camera"></i>
-                                    <input type="file" name="site_logo" class="hidden" @change="handleLogo">
-                                </label>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-900">Site Logo</h4>
-                                <p class="text-xs text-slate-500">PNG/SVG recommended</p>
-                            </div>
-                        </div>
+        $tabs = [
+            'umum' => ['Umum', 'fa-sliders'],
+            'seo' => ['SEO', 'fa-magnifying-glass-chart'],
+            'kontak' => ['Kontak & Sosial', 'fa-address-book'],
+            'invoice' => ['Invoice & Pajak', 'fa-file-invoice-dollar'],
+        ];
 
-                        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center space-x-4">
-                            <div class="relative group">
-                                <div class="w-16 h-16 bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center border border-slate-200">
-                                    <template x-if="faviconPreview">
-                                        <img :src="faviconPreview" class="w-full h-full object-contain p-3">
-                                    </template>
-                                    <template x-if="!faviconPreview">
-                                        @if ($settings->site_favicon)
-                                            <img src="{{ $settings->favicon_url }}" class="w-full h-full object-contain p-3">
-                                        @else
-                                            <i class="fa-solid fa-icons text-slate-300 text-2xl"></i>
-                                        @endif
-                                    </template>
-                                </div>
-                                <label class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-xl opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                                    <i class="fa-solid fa-camera"></i>
-                                    <input type="file" name="site_favicon" class="hidden" @change="handleFavicon">
-                                </label>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-900">Favicon</h4>
-                                <p class="text-xs text-slate-500">ICO/PNG (32x32)</p>
-                            </div>
-                        </div>
+        $uploads = [
+            'site_logo' => ['label' => 'Logo situs', 'hint' => 'PNG/SVG disarankan', 'icon' => 'fa-image', 'url' => $settings->site_logo ? $settings->logo_url : null, 'pad' => 'p-1'],
+            'site_favicon' => ['label' => 'Favicon', 'hint' => 'ICO/PNG (32x32)', 'icon' => 'fa-icons', 'url' => $settings->site_favicon ? $settings->favicon_url : null, 'pad' => 'p-3'],
+            'og_image' => ['label' => 'Gambar OG', 'hint' => 'Media sosial (1200x630)', 'icon' => 'fa-share-nodes', 'url' => $settings->og_image ? $settings->og_image_url : null, 'pad' => 'p-1'],
+            'invoice_logo' => ['label' => 'Logo invoice', 'hint' => 'Untuk kop surat', 'icon' => 'fa-file-image', 'url' => $settings->invoice_logo ? $settings->invoice_logo_url : null, 'pad' => 'p-1'],
+            'invoice_signature' => ['label' => 'Tanda tangan', 'hint' => 'Gambar tanda tangan', 'icon' => 'fa-signature', 'url' => $settings->invoice_signature ? $settings->invoice_signature_url : null, 'pad' => 'p-1'],
+        ];
+    @endphp
 
-                        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center space-x-4">
-                            <div class="relative group">
-                                <div class="w-16 h-16 bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center border border-slate-200">
-                                    <template x-if="ogPreview">
-                                        <img :src="ogPreview" class="w-full h-full object-contain p-1">
-                                    </template>
-                                    <template x-if="!ogPreview">
-                                        @if ($settings->og_image)
-                                            <img src="{{ $settings->og_image_url }}" class="w-full h-full object-contain p-1">
-                                        @else
-                                            <i class="fa-solid fa-share-nodes text-slate-300 text-2xl"></i>
-                                        @endif
-                                    </template>
-                                </div>
-                                <label class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-xl opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                                    <i class="fa-solid fa-camera"></i>
-                                    <input type="file" name="og_image" class="hidden" @change="handleOg">
-                                </label>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-900">OG Image</h4>
-                                <p class="text-xs text-slate-500">Social Media (1200x630)</p>
-                            </div>
-                        </div>
-                    </div>
+    <form action="{{ route('dashboard.settings.update') }}" method="POST" enctype="multipart/form-data"
+        x-data="{ tab: '{{ $initialTab }}' }">
+        @csrf
+
+        <div class="mx-auto max-w-5xl space-y-6">
+            <x-ui.page-header title="Pengaturan Situs" description="Atur identitas, SEO, kontak, dan invoice. Semua tab disimpan sekaligus." />
+
+            @if ($errors->any())
+                <div class="rounded-lg border border-danger-500 bg-danger-50 p-4 text-small text-danger-700 dark:bg-danger-500/15 dark:text-danger-100" role="alert">
+                    <p class="font-semibold"><i class="fa-solid fa-circle-exclamation mr-1" aria-hidden="true"></i> Periksa kembali isian berikut:</p>
+                    <ul class="mt-1 list-inside list-disc">
+                        @foreach ($errors->all() as $message)
+                            <li>{{ $message }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            {{-- Tabs --}}
+            <div class="custom-scrollbar -mx-4 overflow-x-auto px-4 lg:mx-0 lg:px-0">
+                <div role="tablist" aria-label="Kelompok pengaturan" class="flex w-max min-w-full gap-1 rounded-lg border border-line bg-surface p-1">
+                    @foreach ($tabs as $key => [$tabLabel, $tabIcon])
+                        <button type="button" role="tab" id="tab-{{ $key }}" aria-controls="panel-{{ $key }}"
+                            @click="tab = '{{ $key }}'" :aria-selected="tab === '{{ $key }}'"
+                            :class="tab === '{{ $key }}' ? 'bg-brand-soft text-brand-text' : 'text-muted hover:bg-surface-2'"
+                            class="inline-flex min-h-[44px] flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 text-small font-semibold transition">
+                            <i class="fa-solid {{ $tabIcon }}" aria-hidden="true"></i> {{ $tabLabel }}
+                        </button>
+                    @endforeach
                 </div>
             </div>
 
-            <!-- Localization -->
-            <div class="glass p-8 rounded-[3rem] shadow-xl" data-aos="fade-up">
-                <h3 class="text-xl font-black text-slate-900 mb-8 flex items-center">
-                    <span class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mr-4">
-                        <i class="fa-solid fa-language"></i>
-                    </span>
-                    Footer & Localization
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Footer Text (ID)</label>
-                        <textarea name="footer_text_id" rows="2" 
-                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">{{ $settings->footer_text_id }}</textarea>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Footer Text (EN)</label>
-                        <textarea name="footer_text_en" rows="2" 
-                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 transition-all font-medium">{{ $settings->footer_text_en }}</textarea>
-                    </div>
-                </div>
-            </div>
+            {{-- Tab: Umum --}}
+            <div id="panel-umum" role="tabpanel" aria-labelledby="tab-umum" x-show="tab === 'umum'" @if ($initialTab !== 'umum') x-cloak @endif class="space-y-6">
+                <x-ui.card>
+                    <h2 class="text-xl font-bold">Identitas situs</h2>
+                    <p class="mt-1 text-small text-muted">Nama dan logo yang tampil di situs publik.</p>
 
-            <!-- Invoice Branding -->
-            <div class="glass p-8 rounded-[3rem] shadow-xl relative overflow-hidden" data-aos="fade-up">
-                <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl"></div>
-                <h3 class="text-xl font-black text-slate-900 mb-8 flex items-center">
-                    <span class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mr-4">
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
-                    </span>
-                    Invoice Branding
-                </h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Company Name on Invoice</label>
-                        <input type="text" name="invoice_company_name" value="{{ $settings->invoice_company_name }}"
-                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-500 transition-all font-medium">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Signer Name (Penanda Tangan)</label>
-                        <input type="text" name="invoice_signer_name" value="{{ $settings->invoice_signer_name }}"
-                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-500 transition-all font-medium" placeholder="Contoh: Rifal Kurniawan">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Signer Title (Jabatan)</label>
-                        <input type="text" name="invoice_signer_title" value="{{ $settings->invoice_signer_title }}"
-                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-500 transition-all font-medium" placeholder="Contoh: Authorized Representative">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Tarif Pajak PPN (%)</label>
-                        <input type="number" name="tax_rate" step="0.01" min="0" max="100" value="{{ $settings->tax_rate ?? 11.00 }}"
-                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-500 transition-all font-medium" placeholder="Contoh: 11.00">
-                    </div>
-                    <div class="md:col-span-2 space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Company Address on Invoice</label>
-                        <textarea name="invoice_company_address" rows="2" 
-                            class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-500 transition-all font-medium">{{ $settings->invoice_company_address }}</textarea>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 md:col-span-2 pt-4" 
-                        x-data="{ 
-                            invoiceLogoPreview: null,
-                            invoiceSignaturePreview: null,
-                            invoiceQrisPreview: null,
-                            handleInvoiceLogo(e) {
-                                const file = e.target.files[0];
-                                if (file) this.invoiceLogoPreview = URL.createObjectURL(file);
-                            },
-                            handleInvoiceSignature(e) {
-                                const file = e.target.files[0];
-                                if (file) this.invoiceSignaturePreview = URL.createObjectURL(file);
-                            },
-                            handleInvoiceQris(e) {
-                                const file = e.target.files[0];
-                                if (file) this.invoiceQrisPreview = URL.createObjectURL(file);
-                            }
-                        }">
-                        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center space-x-4">
-                            <div class="relative group">
-                                <div class="w-16 h-16 bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center border border-slate-200">
-                                    <template x-if="invoiceLogoPreview">
-                                        <img :src="invoiceLogoPreview" class="w-full h-full object-contain p-1">
-                                    </template>
-                                    <template x-if="!invoiceLogoPreview">
-                                        @if ($settings->invoice_logo)
-                                            <img src="{{ $settings->invoice_logo_url }}" class="w-full h-full object-contain p-1">
+                    <div class="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <div class="md:col-span-2">
+                            <x-ui.input name="site_name" label="Nama situs" :value="$settings->site_name" required />
+                        </div>
+                        @foreach (collect($uploads)->only(['site_logo', 'site_favicon']) as $uName => $u)
+                            <div x-data="{ preview: null }" class="flex items-center gap-4 rounded-lg border border-line bg-surface-2 p-4">
+                                <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-surface">
+                                    <img x-show="preview" x-cloak :src="preview" alt="Pratinjau {{ $u['label'] }}" class="h-full w-full object-contain {{ $u['pad'] }}">
+                                    <div x-show="!preview" class="flex h-full w-full items-center justify-center">
+                                        @if ($u['url'])
+                                            <img src="{{ $u['url'] }}" alt="{{ $u['label'] }} saat ini" class="h-full w-full object-contain {{ $u['pad'] }}">
                                         @else
-                                            <i class="fa-solid fa-file-image text-slate-300 text-2xl"></i>
+                                            <i class="fa-solid {{ $u['icon'] }} text-2xl text-muted" aria-hidden="true"></i>
                                         @endif
-                                    </template>
+                                    </div>
                                 </div>
-                                <label class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-xl opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                                    <i class="fa-solid fa-camera"></i>
-                                    <input type="file" name="invoice_logo" class="hidden" @change="handleInvoiceLogo">
-                                </label>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-900">Logo</h4>
-                                <p class="text-[10px] text-slate-500 uppercase">Kop Surat</p>
-                            </div>
-                        </div>
-
-                        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center space-x-4">
-                            <div class="relative group">
-                                <div class="w-16 h-16 bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center border border-slate-200">
-                                    <template x-if="invoiceSignaturePreview">
-                                        <img :src="invoiceSignaturePreview" class="w-full h-full object-contain p-1">
-                                    </template>
-                                    <template x-if="!invoiceSignaturePreview">
-                                        @if ($settings->invoice_signature)
-                                            <img src="{{ $settings->invoice_signature_url }}" class="w-full h-full object-contain p-1">
-                                        @else
-                                            <i class="fa-solid fa-signature text-slate-300 text-2xl"></i>
-                                        @endif
-                                    </template>
+                                <div class="min-w-0">
+                                    <p class="text-small font-semibold">{{ $u['label'] }}</p>
+                                    <p class="text-caption text-muted">{{ $u['hint'] }}</p>
+                                    <label class="btn btn-secondary btn-sm mt-2 cursor-pointer focus-within:ring-2 focus-within:ring-brand-500/40">
+                                        <i class="fa-solid fa-camera" aria-hidden="true"></i> Ganti
+                                        <input type="file" name="{{ $uName }}" accept="image/*" class="sr-only"
+                                            @change="const f = $event.target.files[0]; if (f) preview = URL.createObjectURL(f)">
+                                    </label>
                                 </div>
-                                <label class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-xl opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                                    <i class="fa-solid fa-camera"></i>
-                                    <input type="file" name="invoice_signature" class="hidden" @change="handleInvoiceSignature">
-                                </label>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-900">Sign</h4>
-                                <p class="text-[10px] text-slate-500 uppercase">Signature</p>
-                            </div>
-                        </div>
-
-                        <!-- Dedicated Payment Methods Banner Reference -->
-                        <div class="p-6 bg-indigo-50/45 rounded-3xl border border-indigo-100/50 flex items-center justify-between col-span-2 mt-4">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-lg">
-                                    <i class="fa-solid fa-credit-card"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-black text-slate-900 text-sm">Manual Payment Methods</h4>
-                                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-0.5">Manage bank accounts & QRIS scan codes</p>
-                                </div>
-                            </div>
-                            <a href="{{ route('dashboard.payment_methods.edit') }}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-md">
-                                Manage Payments <i class="fa-solid fa-arrow-right ml-1"></i>
-                            </a>
-                        </div>
-            </div>
-
-            <!-- Contact & Social -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" data-aos="fade-up">
-                <!-- Social Media -->
-                <div class="glass p-8 rounded-[3rem] shadow-xl">
-                    <h3 class="text-xl font-black text-slate-900 mb-8 flex items-center">
-                        <span class="w-10 h-10 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mr-4">
-                            <i class="fa-solid fa-share-nodes"></i>
-                        </span>
-                        Social Media
-                    </h3>
-                    @php $socials = $settings->social_links ?? []; @endphp
-                    <div class="space-y-4">
-                        @foreach(['instagram' => 'fa-instagram', 'facebook' => 'fa-facebook-f', 'twitter' => 'fa-x-twitter', 'linkedin' => 'fa-linkedin-in'] as $key => $icon)
-                            <div class="flex items-center space-x-4 bg-slate-50 p-2 pr-4 rounded-2xl border border-slate-100 group transition-all hover:bg-white hover:shadow-lg">
-                                <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-white shadow-sm text-slate-400 group-hover:text-blue-500 transition-colors">
-                                    <i class="fa-brands {{ $icon }}"></i>
-                                </div>
-                                <input type="text" name="social[{{ $key }}]" value="{{ $socials[$key] ?? '' }}"
-                                    class="flex-1 bg-transparent border-none focus:ring-0 font-medium text-sm"
-                                    placeholder="https://{{ $key }}.com/...">
                             </div>
                         @endforeach
                     </div>
-                </div>
+                </x-ui.card>
 
-                <!-- Contact Info -->
-                <div class="glass p-8 rounded-[3rem] shadow-xl">
-                    <h3 class="text-xl font-black text-slate-900 mb-8 flex items-center">
-                        <span class="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mr-4">
-                            <i class="fa-solid fa-phone"></i>
+                <x-ui.card>
+                    <h2 class="text-xl font-bold">Teks footer</h2>
+                    <p class="mt-1 text-small text-muted">Ditampilkan di bagian bawah situs sesuai bahasa pengunjung.</p>
+                    <div class="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <x-ui.textarea name="footer_text_id" label="Teks footer (Indonesia)" rows="3" :value="$settings->footer_text_id" />
+                        <x-ui.textarea name="footer_text_en" label="Teks footer (English)" rows="3" :value="$settings->footer_text_en" />
+                    </div>
+                </x-ui.card>
+            </div>
+
+            {{-- Tab: SEO --}}
+            <div id="panel-seo" role="tabpanel" aria-labelledby="tab-seo" x-show="tab === 'seo'" x-cloak class="space-y-6">
+                <x-ui.card>
+                    <h2 class="text-xl font-bold">Mesin pencari</h2>
+                    <p class="mt-1 text-small text-muted">Informasi yang dibaca Google dan media sosial saat situs dibagikan.</p>
+
+                    <div class="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <x-ui.input name="seo_title" label="Judul meta SEO" :value="$settings->seo_title" />
+                        <x-ui.input name="seo_keywords" label="Kata kunci SEO" :value="$settings->seo_keywords" placeholder="creative, agency, portfolio, modern" hint="Pisahkan dengan koma." />
+                        <div class="md:col-span-2">
+                            <x-ui.textarea name="seo_description" label="Deskripsi SEO" rows="3" :value="$settings->seo_description" />
+                        </div>
+                        <div class="md:col-span-2">
+                            <x-ui.input name="google_console_verification" label="Verifikasi Google Search Console" :value="$settings->google_console_verification" placeholder="google-site-verification-code" />
+                        </div>
+                        @foreach (collect($uploads)->only(['og_image']) as $uName => $u)
+                            <div x-data="{ preview: null }" class="flex items-center gap-4 rounded-lg border border-line bg-surface-2 p-4 md:col-span-2">
+                                <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-surface">
+                                    <img x-show="preview" x-cloak :src="preview" alt="Pratinjau {{ $u['label'] }}" class="h-full w-full object-contain {{ $u['pad'] }}">
+                                    <div x-show="!preview" class="flex h-full w-full items-center justify-center">
+                                        @if ($u['url'])
+                                            <img src="{{ $u['url'] }}" alt="{{ $u['label'] }} saat ini" class="h-full w-full object-contain {{ $u['pad'] }}">
+                                        @else
+                                            <i class="fa-solid {{ $u['icon'] }} text-2xl text-muted" aria-hidden="true"></i>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-small font-semibold">{{ $u['label'] }}</p>
+                                    <p class="text-caption text-muted">{{ $u['hint'] }}</p>
+                                    <label class="btn btn-secondary btn-sm mt-2 cursor-pointer focus-within:ring-2 focus-within:ring-brand-500/40">
+                                        <i class="fa-solid fa-camera" aria-hidden="true"></i> Ganti
+                                        <input type="file" name="{{ $uName }}" accept="image/*" class="sr-only"
+                                            @change="const f = $event.target.files[0]; if (f) preview = URL.createObjectURL(f)">
+                                    </label>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </x-ui.card>
+            </div>
+
+            {{-- Tab: Kontak & Sosial --}}
+            <div id="panel-kontak" role="tabpanel" aria-labelledby="tab-kontak" x-show="tab === 'kontak'" x-cloak class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <x-ui.card>
+                    <h2 class="text-xl font-bold">Kontak bisnis</h2>
+                    <p class="mt-1 text-small text-muted">Dipakai di footer dan halaman kontak.</p>
+                    <div class="mt-6 space-y-5">
+                        <x-ui.input name="contact_email" type="email" label="Email bisnis" :value="$settings->contact_email" />
+                        <x-ui.input name="contact_phone" label="Nomor telepon" :value="$settings->contact_phone" />
+                        <x-ui.input name="contact_address" label="Alamat kantor" :value="$settings->contact_address" />
+                    </div>
+                </x-ui.card>
+
+                <x-ui.card>
+                    <h2 class="text-xl font-bold">Media sosial</h2>
+                    <p class="mt-1 text-small text-muted">Tempel tautan profil lengkap. Kosongkan untuk menyembunyikan.</p>
+                    <div class="mt-6 space-y-5">
+                        @foreach (['instagram' => ['fa-instagram', 'Instagram'], 'facebook' => ['fa-facebook-f', 'Facebook'], 'twitter' => ['fa-x-twitter', 'X (Twitter)'], 'linkedin' => ['fa-linkedin-in', 'LinkedIn']] as $key => [$icon, $socialLabel])
+                            <div>
+                                <label for="social_{{ $key }}" class="label">{{ $socialLabel }}</label>
+                                <div class="relative">
+                                    <span class="pointer-events-none absolute inset-y-0 left-0 flex w-11 items-center justify-center text-muted">
+                                        <i class="fa-brands {{ $icon }}" aria-hidden="true"></i>
+                                    </span>
+                                    <input type="text" id="social_{{ $key }}" name="social[{{ $key }}]" value="{{ old('social.' . $key, $socials[$key] ?? '') }}"
+                                        class="input pl-11" placeholder="https://{{ $key }}.com/...">
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </x-ui.card>
+            </div>
+
+            {{-- Tab: Invoice & Pajak --}}
+            <div id="panel-invoice" role="tabpanel" aria-labelledby="tab-invoice" x-show="tab === 'invoice'" @if ($initialTab !== 'invoice') x-cloak @endif class="space-y-6">
+                <x-ui.card>
+                    <h2 class="text-xl font-bold">Data perusahaan di invoice</h2>
+                    <p class="mt-1 text-small text-muted">Tampil pada kop dan tanda tangan invoice.</p>
+
+                    <div class="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <x-ui.input name="invoice_company_name" label="Nama perusahaan di invoice" :value="$settings->invoice_company_name" />
+                        <x-ui.input name="tax_rate" type="number" step="0.01" min="0" max="100" label="Tarif pajak PPN (%)" :value="$settings->tax_rate ?? 11.00" placeholder="Contoh: 11.00" required />
+                        <x-ui.input name="invoice_signer_name" label="Nama penanda tangan" :value="$settings->invoice_signer_name" placeholder="Contoh: Rifal Kurniawan" />
+                        <x-ui.input name="invoice_signer_title" label="Jabatan penanda tangan" :value="$settings->invoice_signer_title" placeholder="Contoh: Authorized Representative" />
+                        <div class="md:col-span-2">
+                            <x-ui.textarea name="invoice_company_address" label="Alamat perusahaan di invoice" rows="3" :value="$settings->invoice_company_address" />
+                        </div>
+                        @foreach (collect($uploads)->only(['invoice_logo', 'invoice_signature']) as $uName => $u)
+                            <div x-data="{ preview: null }" class="flex items-center gap-4 rounded-lg border border-line bg-surface-2 p-4">
+                                <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-surface">
+                                    <img x-show="preview" x-cloak :src="preview" alt="Pratinjau {{ $u['label'] }}" class="h-full w-full object-contain {{ $u['pad'] }}">
+                                    <div x-show="!preview" class="flex h-full w-full items-center justify-center">
+                                        @if ($u['url'])
+                                            <img src="{{ $u['url'] }}" alt="{{ $u['label'] }} saat ini" class="h-full w-full object-contain {{ $u['pad'] }}">
+                                        @else
+                                            <i class="fa-solid {{ $u['icon'] }} text-2xl text-muted" aria-hidden="true"></i>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-small font-semibold">{{ $u['label'] }}</p>
+                                    <p class="text-caption text-muted">{{ $u['hint'] }}</p>
+                                    <label class="btn btn-secondary btn-sm mt-2 cursor-pointer focus-within:ring-2 focus-within:ring-brand-500/40">
+                                        <i class="fa-solid fa-camera" aria-hidden="true"></i> Ganti
+                                        <input type="file" name="{{ $uName }}" accept="image/*" class="sr-only"
+                                            @change="const f = $event.target.files[0]; if (f) preview = URL.createObjectURL(f)">
+                                    </label>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </x-ui.card>
+
+                <x-ui.card class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex items-center gap-4">
+                        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-brand-soft text-brand-text">
+                            <i class="fa-solid fa-credit-card" aria-hidden="true"></i>
                         </span>
-                        Contact Info
-                    </h3>
-                    <div class="space-y-6">
-                        <div class="space-y-2">
-                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Business Email</label>
-                            <input type="email" name="contact_email" value="{{ $settings->contact_email }}"
-                                class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-bold">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Phone Number</label>
-                            <input type="text" name="contact_phone" value="{{ $settings->contact_phone }}"
-                                class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-bold">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Office Address</label>
-                            <input type="text" name="contact_address" value="{{ $settings->contact_address }}"
-                                class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-bold">
+                        <div>
+                            <h3 class="text-body font-bold">Metode pembayaran manual</h3>
+                            <p class="text-small text-muted">Kelola rekening bank dan kode QRIS untuk checkout.</p>
                         </div>
                     </div>
-                </div>
-            </div>
+                    <x-ui.button variant="secondary" :href="route('dashboard.payment_methods.edit')" icon="fa-arrow-right" :icon-right="true" class="shrink-0">Kelola pembayaran</x-ui.button>
+                </x-ui.card>
 
-            <!-- Submit -->
-            <div class="fixed bottom-8 left-1/2 -translate-x-1/2 lg:left-auto lg:right-12 lg:translate-x-0 z-50">
-                <button type="submit"
-                    class="px-12 py-5 bg-blue-600 text-white font-black rounded-[2.5rem] hover:bg-blue-700 hover:scale-105 shadow-2xl shadow-blue-600/40 transition-all flex items-center space-x-3 group">
-                    <i class="fa-solid fa-cloud-arrow-up group-hover:animate-bounce"></i>
-                    <span class="uppercase tracking-[0.2em] text-xs">Save All Changes</span>
-                </button>
+                <x-ui.card class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex items-center gap-4">
+                        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-brand-soft text-brand-text">
+                            <i class="fa-brands fa-whatsapp text-xl" aria-hidden="true"></i>
+                        </span>
+                        <div>
+                            <h3 class="text-body font-bold">WhatsApp untuk invoice</h3>
+                            <p class="text-small text-muted">Sambungkan sesi WAHA agar invoice langganan terkirim otomatis.</p>
+                        </div>
+                    </div>
+                    <x-ui.button variant="secondary" :href="route('dashboard.whatsapp.edit')" icon="fa-arrow-right" :icon-right="true" class="shrink-0">Atur WhatsApp</x-ui.button>
+                </x-ui.card>
             </div>
-        </form>
-    </div>
+        </div>
+
+        {{-- Sticky save bar --}}
+        <div class="sticky bottom-[calc(57px+env(safe-area-inset-bottom))] z-20 -mx-4 mt-6 border-t border-line bg-surface/90 px-4 py-3 backdrop-blur lg:bottom-0 lg:-mx-8 lg:px-8">
+            <div class="mx-auto flex max-w-5xl items-center justify-between gap-4">
+                <p class="hidden text-small text-muted sm:block">Perubahan di semua tab disimpan bersamaan.</p>
+                <x-ui.button type="submit" icon="fa-floppy-disk" class="w-full sm:w-auto">Simpan perubahan</x-ui.button>
+            </div>
+        </div>
+    </form>
 </x-app-layout>

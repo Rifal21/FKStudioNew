@@ -1,25 +1,10 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
-    </div>
+<x-layouts.auth title="Lupa Password" heading="Lupa password?" subheading="Masukkan email Anda dan kami kirimkan tautan untuk membuat password baru.">
+    <x-auth-session-status class="mb-6" :status="session('status')" />
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
-
-    <form method="POST" action="{{ route('password.email') }}">
+    <form method="POST" action="{{ route('password.email') }}" class="space-y-5">
         @csrf
-
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
-        </div>
+        <x-ui.input name="email" type="email" label="Email" placeholder="nama@email.com" autofocus :required="true" />
+        <x-ui.button type="submit" size="lg" class="w-full" icon="fa-paper-plane">Kirim tautan reset</x-ui.button>
+        <p class="text-center text-small text-muted"><a href="{{ route('login') }}" class="font-bold text-brand-text hover:underline"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Kembali ke halaman masuk</a></p>
     </form>
-</x-guest-layout>
+</x-layouts.auth>

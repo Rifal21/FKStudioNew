@@ -8,7 +8,6 @@ trait HasMediaUrl
 {
     public function getUrl($path)
     {
-        \Illuminate\Support\Facades\Log::info("getUrl Entry", ['path' => $path]);
         if (!$path) return null;
 
         // If it's already a full URL, return it
@@ -46,12 +45,6 @@ trait HasMediaUrl
 
             $finalUrl = $baseDomain . '/public.php/dav/files/' . $token . '/' . $encodedPath;
             
-            \Illuminate\Support\Facades\Log::info("HasMediaUrl Debug", [
-                'input_path' => $path,
-                'relative_path' => $relativePath,
-                'token' => $token,
-                'final_url' => $finalUrl
-            ]);
 
             return $finalUrl;
 

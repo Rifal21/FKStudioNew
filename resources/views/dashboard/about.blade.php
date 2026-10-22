@@ -1,225 +1,140 @@
 <x-app-layout>
-    <x-slot name="header">
-        {{ __('About Section') }}
-    </x-slot>
+    <x-slot name="header">Bagian Tentang</x-slot>
 
-    <div class="space-y-12 pb-32">
-        <form id="about-form" action="{{ route('dashboard.about.update') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-        </form>
-            
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            <!-- Left: Main Content (Story & Vision) -->
-            <div class="lg:col-span-2 space-y-8" data-aos="fade-right">
-                <div class="glass p-10 rounded-[3.5rem] shadow-2xl shadow-slate-200/50 relative overflow-hidden">
-                    <div class="absolute -right-20 -top-20 w-80 h-80 bg-blue-500/5 rounded-full blur-[100px]"></div>
-                    
-                    <div class="flex items-center justify-between mb-12">
-                        <h3 class="text-2xl font-black text-slate-900 flex items-center">
-                            <span class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center mr-4 shadow-lg shadow-blue-500/30">
-                                <i class="fa-solid fa-feather-pointed text-lg"></i>
-                            </span>
-                            Brand Story & Philosophy
-                        </h3>
-                    </div>
+    <div class="mx-auto max-w-7xl space-y-6">
+        <x-ui.page-header title="Bagian Tentang" description="Kisah brand, visi misi, galeri slider, dan anggota tim yang tampil di halaman depan." />
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-16">
-                        <!-- Indonesian Section -->
-                        <div class="space-y-8">
-                            <div class="flex items-center space-x-3 mb-2">
-                                <span class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center font-bold text-xs">ID</span>
-                                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">Konten Indonesia</span>
-                            </div>
-                            
-                            <div class="space-y-6">
-                                <div class="group">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block ml-1 group-focus-within:text-blue-600 transition-colors">Judul Utama</label>
-                                    <input type="text" name="title_id" value="{{ $about->title_id }}" form="about-form"
-                                        class="block w-full bg-slate-50 border-2 border-transparent rounded-[1.5rem] p-4 focus:bg-white focus:border-blue-500 focus:ring-0 transition-all font-bold text-slate-900">
-                                </div>
-                                
-                                <div class="group">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block ml-1 group-focus-within:text-blue-600 transition-colors">Deskripsi Singkat</label>
-                                    <textarea name="description_id" rows="5" form="about-form"
-                                        class="block w-full bg-slate-50 border-2 border-transparent rounded-[1.5rem] p-4 focus:bg-white focus:border-blue-500 focus:ring-0 transition-all font-medium text-slate-700 leading-relaxed">{{ $about->description_id }}</textarea>
-                                </div>
-
-                                <div class="grid grid-cols-1 gap-6 pt-4 border-t border-slate-100">
-                                    <div class="group">
-                                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block ml-1 group-focus-within:text-blue-600 transition-colors">Visi Perusahaan</label>
-                                        <textarea name="vision_id" rows="3" form="about-form"
-                                            class="block w-full bg-slate-50 border-2 border-transparent rounded-[1.5rem] p-4 focus:bg-white focus:border-blue-500 focus:ring-0 transition-all font-medium text-slate-700 leading-relaxed">{{ $about->vision_id }}</textarea>
-                                    </div>
-                                    <div class="group">
-                                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block ml-1 group-focus-within:text-blue-600 transition-colors">Misi Perusahaan</label>
-                                        <textarea name="mission_id" rows="4" form="about-form"
-                                            class="block w-full bg-slate-50 border-2 border-transparent rounded-[1.5rem] p-4 focus:bg-white focus:border-blue-500 focus:ring-0 transition-all font-medium text-slate-700 leading-relaxed">{{ $about->mission_id }}</textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- English Section -->
-                        <div class="space-y-8">
-                            <div class="flex items-center space-x-3 mb-2">
-                                <span class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center font-bold text-xs">EN</span>
-                                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">English Content</span>
-                            </div>
-                            
-                            <div class="space-y-6">
-                                <div class="group">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block ml-1 group-focus-within:text-indigo-600 transition-colors">Main Title</label>
-                                    <input type="text" name="title_en" value="{{ $about->title_en }}" form="about-form"
-                                        class="block w-full bg-slate-50 border-2 border-transparent rounded-[1.5rem] p-4 focus:bg-white focus:border-indigo-500 focus:ring-0 transition-all font-bold text-slate-900">
-                                </div>
-                                
-                                <div class="group">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block ml-1 group-focus-within:text-indigo-600 transition-colors">Short Description</label>
-                                    <textarea name="description_en" rows="5" form="about-form"
-                                        class="block w-full bg-slate-50 border-2 border-transparent rounded-[1.5rem] p-4 focus:bg-white focus:border-indigo-500 focus:ring-0 transition-all font-medium text-slate-700 leading-relaxed">{{ $about->description_en }}</textarea>
-                                </div>
-
-                                <div class="grid grid-cols-1 gap-6 pt-4 border-t border-slate-100">
-                                    <div class="group">
-                                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block ml-1 group-focus-within:text-indigo-600 transition-colors">Company Vision</label>
-                                        <textarea name="vision_en" rows="3" form="about-form"
-                                            class="block w-full bg-slate-50 border-2 border-transparent rounded-[1.5rem] p-4 focus:bg-white focus:border-indigo-500 focus:ring-0 transition-all font-medium text-slate-700 leading-relaxed">{{ $about->vision_en }}</textarea>
-                                    </div>
-                                    <div class="group">
-                                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block ml-1 group-focus-within:text-indigo-600 transition-colors">Company Mission</label>
-                                        <textarea name="mission_en" rows="4" form="about-form"
-                                            class="block w-full bg-slate-50 border-2 border-transparent rounded-[1.5rem] p-4 focus:bg-white focus:border-indigo-500 focus:ring-0 transition-all font-medium text-slate-700 leading-relaxed">{{ $about->mission_en }}</textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+        @if ($errors->any())
+            <div class="rounded-lg border border-danger-500 bg-danger-50 p-4 text-small text-danger-700 dark:bg-danger-500/15 dark:text-danger-100" role="alert">
+                <p class="font-semibold"><i class="fa-solid fa-circle-exclamation mr-1" aria-hidden="true"></i> Periksa kembali isian berikut:</p>
+                <ul class="mt-1 list-inside list-disc">
+                    @foreach ($errors->all() as $message)
+                        <li>{{ $message }}</li>
+                    @endforeach
+                </ul>
             </div>
+        @endif
 
-            <!-- Right: Gallery Management -->
-            <div class="space-y-8" data-aos="fade-left">
-                <div class="glass p-10 rounded-[3.5rem] shadow-2xl shadow-slate-200/50">
-                    <h3 class="text-xl font-black text-slate-900 mb-10 flex items-center">
-                        <span class="w-10 h-10 bg-purple-600 text-white rounded-xl flex items-center justify-center mr-4 shadow-lg shadow-purple-500/30">
-                            <i class="fa-solid fa-images"></i>
-                        </span>
-                        About Slider
-                    </h3>
+        <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
+            {{-- Kisah brand --}}
+            <x-ui.card class="lg:col-span-2">
+                <h2 class="flex items-center gap-2 text-xl font-bold">
+                    <i class="fa-solid fa-feather-pointed text-brand-text" aria-hidden="true"></i> Kisah brand & filosofi
+                </h2>
 
-                    <form action="{{ route('dashboard.about.slides.store') }}" method="POST"
-                        enctype="multipart/form-data"
-                        x-data="{ 
-                            preview: null,
-                            handleFileChange(e) {
-                                const file = e.target.files[0];
-                                if (file) {
-                                    this.preview = URL.createObjectURL(file);
-                                }
+                <form id="about-form" action="{{ route('dashboard.about.update') }}" method="POST" enctype="multipart/form-data" class="mt-6 space-y-6">
+                    @csrf
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        {{-- Indonesia --}}
+                        <div class="space-y-5">
+                            <span class="badge-brand"><i class="fa-solid fa-flag" aria-hidden="true"></i> Bahasa Indonesia</span>
+                            <x-ui.input name="title_id" label="Judul utama (Indonesia)" :value="$about->title_id" />
+                            <x-ui.textarea name="description_id" label="Deskripsi singkat (Indonesia)" rows="7" :value="$about->description_id" />
+                            <x-ui.textarea name="vision_id" label="Visi perusahaan (Indonesia)" rows="5" :value="$about->vision_id" />
+                            <x-ui.textarea name="mission_id" label="Misi perusahaan (Indonesia)" rows="6" :value="$about->mission_id" />
+                        </div>
+
+                        {{-- English --}}
+                        <div class="space-y-5">
+                            <span class="badge-info"><i class="fa-solid fa-earth-americas" aria-hidden="true"></i> English</span>
+                            <x-ui.input name="title_en" label="Judul utama (English)" :value="$about->title_en" />
+                            <x-ui.textarea name="description_en" label="Deskripsi singkat (English)" rows="7" :value="$about->description_en" />
+                            <x-ui.textarea name="vision_en" label="Visi perusahaan (English)" rows="5" :value="$about->vision_en" />
+                            <x-ui.textarea name="mission_en" label="Misi perusahaan (English)" rows="6" :value="$about->mission_en" />
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end border-t border-line pt-6">
+                        <x-ui.button type="submit" icon="fa-floppy-disk" class="w-full sm:w-auto">Simpan perubahan</x-ui.button>
+                    </div>
+                </form>
+            </x-ui.card>
+
+            {{-- Slider --}}
+            <x-ui.card>
+                <h2 class="flex items-center gap-2 text-xl font-bold">
+                    <i class="fa-solid fa-images text-brand-text" aria-hidden="true"></i> Slider tentang
+                </h2>
+
+                <form action="{{ route('dashboard.about.slides.store') }}" method="POST" enctype="multipart/form-data"
+                    x-data="{
+                        preview: null,
+                        handleFileChange(e) {
+                            const file = e.target.files[0];
+                            if (file) {
+                                this.preview = URL.createObjectURL(file);
                             }
-                        }"
-                        class="mb-10 p-8 bg-slate-50 rounded-[2.5rem] border-4 border-dashed border-slate-100 hover:border-purple-400 transition-all group text-center relative overflow-hidden">
-                        @csrf
-                        
-                        <div x-show="preview" class="absolute inset-0 z-10 bg-white">
-                            <img :src="preview" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center space-y-3">
-                                <button type="submit" class="px-8 py-3 bg-purple-600 text-white font-black rounded-xl hover:bg-purple-700 shadow-xl shadow-purple-500/20 transition-all uppercase tracking-widest text-[10px]">
-                                    Confirm Upload
-                                </button>
-                                <button type="button" @click="preview = null; $refs.fileInput.value = ''" class="px-8 py-3 bg-white text-slate-900 font-black rounded-xl hover:bg-slate-100 transition-all uppercase tracking-widest text-[10px]">
-                                    Cancel
-                                </button>
-                            </div>
-                        </div>
+                        }
+                    }"
+                    class="mt-5">
+                    @csrf
+                    <input type="file" name="image" required id="about-slide-upload" x-ref="fileInput" accept="image/*" class="sr-only" @change="handleFileChange">
 
-                        <div class="mb-4 w-20 h-20 bg-white rounded-3xl shadow-sm mx-auto flex items-center justify-center text-slate-300 group-hover:text-purple-500 transition-all group-hover:scale-110">
-                            <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
-                        </div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-8">Click button below to select image</p>
-                        <input type="file" name="image" required id="about-slide-upload" x-ref="fileInput" class="hidden" @change="handleFileChange">
-                        <label for="about-slide-upload" class="cursor-pointer inline-flex px-10 py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-black hover:scale-105 transition-all shadow-xl shadow-slate-900/20 uppercase tracking-widest text-[10px]">
-                            Choose Photo
+                    <div x-show="!preview" class="rounded-lg border border-dashed border-line bg-surface-2 p-6 text-center">
+                        <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft text-brand-text">
+                            <i class="fa-solid fa-cloud-arrow-up text-xl" aria-hidden="true"></i>
+                        </span>
+                        <p class="mt-3 text-small font-semibold">Tambah foto slider</p>
+                        <p class="text-caption text-muted">Pilih gambar, lalu konfirmasi unggahan.</p>
+                        <label for="about-slide-upload" class="btn btn-secondary mt-4 cursor-pointer focus-within:ring-2 focus-within:ring-brand-500/40">
+                            <i class="fa-solid fa-image" aria-hidden="true"></i> Pilih foto
                         </label>
-                    </form>
+                    </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        @foreach ($slides as $slide)
-                            <div class="group relative rounded-[1.5rem] overflow-hidden aspect-square bg-slate-100 border-4 border-white shadow-lg card-hover">
-                                <img src="{{ $slide->media_url }}" class="w-full h-full object-cover group-hover:scale-125 transition-transform duration-1000">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all flex items-end justify-center pb-6">
-                                    <form action="{{ route('dashboard.about.slides.destroy', $slide->id) }}" method="POST">
+                    <div x-show="preview" x-cloak class="space-y-3">
+                        <div class="aspect-square overflow-hidden rounded-lg border border-line bg-surface-2">
+                            <img :src="preview" alt="Pratinjau foto baru" class="h-full w-full object-cover">
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-1"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Unggah foto</button>
+                            <button type="button" class="btn btn-secondary" @click="preview = null; $refs.fileInput.value = ''">Batal</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="mt-6">
+                    <p class="label">Foto slider ({{ count($slides) }})</p>
+                    @if (count($slides))
+                        <div class="grid grid-cols-2 gap-3">
+                            @foreach ($slides as $slide)
+                                <div class="relative aspect-square overflow-hidden rounded-lg border border-line bg-surface-2">
+                                    <img src="{{ $slide->media_url }}" alt="Foto slider {{ $loop->iteration }}" class="h-full w-full object-cover">
+                                    <form action="{{ route('dashboard.about.slides.destroy', $slide->id) }}" method="POST"
+                                        data-confirm="Foto ini akan dihapus dari slider." data-confirm-title="Hapus foto slider?" data-confirm-ok="Ya, hapus"
+                                        class="absolute bottom-2 right-2">
                                         @csrf @method('DELETE')
-                                        <button type="submit"
-                                            onclick="return confirm('Silahkan konfirmasi penghapusan slide?')"
-                                            class="w-12 h-12 bg-red-600 text-white rounded-2xl flex items-center justify-center hover:scale-110 hover:bg-red-500 transition-all shadow-xl shadow-red-500/40">
-                                            <i class="fa-solid fa-trash-can"></i>
+                                        <button type="submit" class="btn btn-danger !px-0 w-11" aria-label="Hapus foto slider {{ $loop->iteration }}">
+                                            <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                 </div>
-                            </div>
-                        @endforeach
-                    </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <x-ui.empty-state icon="fa-images" title="Belum ada foto" text="Unggah foto pertama untuk slider." />
+                    @endif
                 </div>
-            </div>
+            </x-ui.card>
         </div>
 
-        <!-- Floating Action Button -->
-        <div class="fixed bottom-10 left-1/2 -translate-x-1/2 lg:left-auto lg:right-16 lg:translate-x-0 z-[60]">
-            <button type="submit" form="about-form"
-                class="px-14 py-7 bg-slate-900 text-white font-black rounded-[3.5rem] hover:bg-black hover:scale-105 shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all flex items-center space-x-6 group">
-                <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-lg shadow-blue-500/40">
-                    <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+        {{-- Tim --}}
+        <section class="space-y-6 pt-4" aria-labelledby="team-heading">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p class="eyebrow">Sumber daya manusia</p>
+                    <h2 id="team-heading" class="text-2xl font-extrabold">Tim & kepemimpinan</h2>
+                    <p class="mt-1 text-small text-muted">Tampilkan orang-orang di balik brand: jabatan, bio, dan tautan sosial.</p>
                 </div>
-                <div class="text-left">
-                    <p class="text-[10px] uppercase tracking-[0.3em] text-slate-500 font-bold leading-none mb-1.5">Master Update</p>
-                    <p class="text-base font-black leading-none">Publish Changes</p>
-                </div>
-            </button>
-        </div>
-
-        <!-- Team Section -->
-        <div class="mt-32 space-y-16">
-            <div class="bg-slate-900 rounded-[4rem] p-16 text-white relative overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.2)]" data-aos="fade-up">
-                <div class="absolute right-0 top-0 w-2/3 h-full bg-gradient-to-l from-blue-600/20 to-transparent blur-[120px] rounded-full"></div>
-                <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-12">
-                    <div class="space-y-4">
-                        <div class="inline-flex items-center px-5 py-2 bg-blue-600/20 border border-blue-500/30 rounded-full text-blue-400 text-xs font-black uppercase tracking-[0.2em] mb-4">
-                            Human Capital
-                        </div>
-                        <h2 class="text-5xl font-black tracking-tighter">Team & Leadership</h2>
-                        <p class="text-slate-400 text-lg font-medium max-w-2xl leading-relaxed">
-                            Empower your brand by showcasing the talented individuals driving your vision forward. Manage roles, bios, and social connections effortlessly.
-                        </p>
-                    </div>
-                    <div class="shrink-0">
-                        <div class="p-8 bg-white/5 rounded-[2.5rem] border border-white/10 backdrop-blur-xl flex items-center space-x-6">
-                            <div class="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-600/40">
-                                <span class="text-4xl font-black text-white">{{ count($owners) }}</span>
-                            </div>
-                            <div>
-                                <p class="text-[10px] uppercase tracking-[0.3em] text-slate-500 font-black mb-1">Active Members</p>
-                                <p class="text-xl font-bold text-white">Full Team Capacity</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <span class="badge-brand self-start sm:self-auto"><i class="fa-solid fa-users" aria-hidden="true"></i> {{ count($owners) }} anggota</span>
             </div>
 
-            <!-- Add Team Member Form -->
-            <div class="glass p-12 rounded-[4rem] shadow-2xl shadow-slate-200/50 relative overflow-hidden" data-aos="fade-up">
-                <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-blue-500/5 rounded-full blur-[100px]"></div>
-                
-                <h3 class="text-2xl font-black text-slate-900 mb-12 flex items-center">
-                    <span class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mr-5 shadow-sm">
-                        <i class="fa-solid fa-user-plus"></i>
-                    </span>
-                    Recruit New Member
+            <x-ui.card>
+                <h3 class="flex items-center gap-2 text-xl font-bold">
+                    <i class="fa-solid fa-user-plus text-brand-text" aria-hidden="true"></i> Tambah anggota tim
                 </h3>
 
-                <form action="{{ route('dashboard.owners.store') }}" method="POST" enctype="multipart/form-data" class="space-y-12"
-                    x-data="{ 
+                <form action="{{ route('dashboard.owners.store') }}" method="POST" enctype="multipart/form-data" class="mt-6 space-y-6"
+                    x-data="{
                         preview: null,
                         handleFileChange(e) {
                             const file = e.target.files[0];
@@ -229,161 +144,94 @@
                         }
                     }">
                     @csrf
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-                        <div class="lg:col-span-2 space-y-8">
-                            <div class="group">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 block ml-1 group-focus-within:text-blue-600">Full Name</label>
-                                <input type="text" name="name" required
-                                    class="block w-full bg-slate-50 border-2 border-transparent rounded-[1.5rem] p-5 focus:bg-white focus:border-blue-500 focus:ring-0 transition-all font-bold text-slate-900">
-                            </div>
-                            <div class="space-y-3">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 block ml-1">Profile Mastershot</label>
-                                <div class="flex items-center space-x-6 bg-slate-50 p-4 rounded-[2rem] border-2 border-dashed border-slate-200">
-                                    <div class="w-24 h-24 bg-white rounded-[1.5rem] overflow-hidden shadow-xl flex items-center justify-center shrink-0 border-2 border-white">
-                                        <template x-if="preview">
-                                            <img :src="preview" class="w-full h-full object-cover">
-                                        </template>
-                                        <template x-if="!preview">
-                                            <i class="fa-solid fa-user-tie text-slate-200 text-3xl"></i>
-                                        </template>
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <div class="space-y-5">
+                            <x-ui.input name="name" label="Nama lengkap" required />
+
+                            <div>
+                                <span class="label">Foto profil</span>
+                                <div class="flex items-center gap-4 rounded-lg border border-dashed border-line bg-surface-2 p-4">
+                                    <div class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-line bg-surface">
+                                        <img x-show="preview" x-cloak :src="preview" alt="Pratinjau foto profil" class="h-full w-full object-cover">
+                                        <i x-show="!preview" class="fa-solid fa-user-tie text-3xl text-muted" aria-hidden="true"></i>
                                     </div>
-                                    <div class="flex-1 space-y-2">
-                                        <input type="file" name="image" required @change="handleFileChange" id="member-photo" class="hidden">
-                                        <label for="member-photo" class="inline-flex px-6 py-3 bg-white text-slate-900 font-bold rounded-xl shadow-sm border border-slate-200 hover:bg-slate-900 hover:text-white transition-all cursor-pointer text-xs">
-                                            Upload Photo
+                                    <div>
+                                        <label for="member-photo" class="btn btn-secondary btn-sm cursor-pointer focus-within:ring-2 focus-within:ring-brand-500/40">
+                                            <i class="fa-solid fa-camera" aria-hidden="true"></i>
+                                            <span x-text="preview ? 'Ganti foto' : 'Unggah foto'">Unggah foto</span>
                                         </label>
-                                        <p class="text-[10px] text-slate-400 font-medium italic">Recommended: Square Aspect Ratio</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="lg:col-span-2 space-y-8">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div class="group">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 block ml-1 group-focus-within:text-blue-600">Position (ID)</label>
-                                    <input type="text" name="role_id" required placeholder="e.g. Founder & CEO"
-                                        class="block w-full bg-slate-50 border-2 border-transparent rounded-[1.5rem] p-5 focus:bg-white focus:border-blue-500 focus:ring-0 transition-all font-bold text-slate-900">
-                                </div>
-                                <div class="group">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 block ml-1 group-focus-within:text-indigo-600">Position (EN)</label>
-                                    <input type="text" name="role_en" required placeholder="e.g. Chief Director"
-                                        class="block w-full bg-slate-50 border-2 border-transparent rounded-[1.5rem] p-5 focus:bg-white focus:border-indigo-500 focus:ring-0 transition-all font-bold text-slate-900">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div class="group">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 block ml-1">Instagram URL</label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-5 flex items-center pointer-events-none text-pink-500">
-                                            <i class="fa-brands fa-instagram text-lg"></i>
-                                        </div>
-                                        <input type="url" name="instagram_url" placeholder="https://..."
-                                            class="block w-full bg-slate-50 border-2 border-transparent rounded-[1.5rem] p-5 pl-14 focus:bg-white focus:border-pink-500 focus:ring-0 transition-all font-medium text-sm">
-                                    </div>
-                                </div>
-                                <div class="group">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 block ml-1">LinkedIn URL</label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-5 flex items-center pointer-events-none text-blue-600">
-                                            <i class="fa-brands fa-linkedin text-lg"></i>
-                                        </div>
-                                        <input type="url" name="linkedin_url" placeholder="https://..."
-                                            class="block w-full bg-slate-50 border-2 border-transparent rounded-[1.5rem] p-5 pl-14 focus:bg-white focus:border-blue-600 focus:ring-0 transition-all font-medium text-sm">
+                                        <input type="file" name="image" required @change="handleFileChange" id="member-photo" accept="image/*" class="sr-only">
+                                        <p class="hint">Disarankan rasio persegi.</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="lg:col-span-2 group">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 block ml-1 group-focus-within:text-blue-600">Biography (ID)</label>
-                            <textarea name="bio_id" rows="3" 
-                                class="block w-full bg-slate-50 border-2 border-transparent rounded-[1.5rem] p-5 focus:bg-white focus:border-blue-500 focus:ring-0 transition-all font-medium text-slate-700 leading-relaxed"></textarea>
+                        <div class="space-y-5">
+                            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                <x-ui.input name="role_id" label="Jabatan (Indonesia)" placeholder="mis. Pendiri & CEO" required />
+                                <x-ui.input name="role_en" label="Jabatan (English)" placeholder="e.g. Chief Director" required />
+                            </div>
+                            <x-ui.input name="instagram_url" type="url" label="URL Instagram" placeholder="https://..." />
+                            <x-ui.input name="linkedin_url" type="url" label="URL LinkedIn" placeholder="https://..." />
                         </div>
-                        <div class="lg:col-span-2 group">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 block ml-1 group-focus-within:text-indigo-600">Biography (EN)</label>
-                            <textarea name="bio_en" rows="3" 
-                                class="block w-full bg-slate-50 border-2 border-transparent rounded-[1.5rem] p-5 focus:bg-white focus:border-indigo-500 focus:ring-0 transition-all font-medium text-slate-700 leading-relaxed"></textarea>
-                        </div>
+
+                        <x-ui.textarea name="bio_id" label="Biografi (Indonesia)" rows="3" />
+                        <x-ui.textarea name="bio_en" label="Biografi (English)" rows="3" />
                     </div>
 
-                    <div class="flex justify-end pt-6">
-                        <button type="submit"
-                            class="px-14 py-6 bg-blue-600 text-white font-black rounded-[2.5rem] hover:bg-blue-700 hover:scale-105 shadow-2xl shadow-blue-600/30 transition-all uppercase tracking-[0.2em] text-xs">
-                            Confirm Registration
-                        </button>
+                    <div class="flex justify-end border-t border-line pt-6">
+                        <x-ui.button type="submit" icon="fa-user-plus" class="w-full sm:w-auto">Tambah anggota</x-ui.button>
                     </div>
                 </form>
-            </div>
+            </x-ui.card>
 
-            <!-- Team Members Grid -->
-            <div class="space-y-12">
-                <div class="flex items-center space-x-6 px-6">
-                    <h3 class="text-2xl font-black text-slate-900 whitespace-nowrap">The Squad</h3>
-                    <div class="h-px w-full bg-gradient-to-r from-slate-200 to-transparent"></div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+            @if (count($owners))
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     @foreach ($owners as $owner)
-                        <div class="glass p-10 rounded-[4rem] group relative overflow-hidden flex flex-col items-center text-center border-2 border-transparent hover:border-blue-500/20 hover:shadow-2xl transition-all duration-500" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
-                            <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-500/5 rounded-full blur-[50px] group-hover:bg-blue-500/10 transition-colors"></div>
-                            
-                            <div class="relative mb-8">
-                                <div class="w-40 h-40 rounded-[3rem] overflow-hidden ring-8 ring-white shadow-2xl shadow-slate-200 group-hover:rotate-3 transition-transform duration-700">
-                                    <img src="{{ $owner->media_url }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
-                                </div>
-                                <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+                        <x-ui.card class="flex flex-col items-center text-center">
+                            <div class="h-28 w-28 overflow-hidden rounded-xl border border-line bg-surface-2">
+                                <img src="{{ $owner->media_url }}" alt="Foto {{ $owner->name }}" class="h-full w-full object-cover">
+                            </div>
+
+                            <h3 class="mt-4 text-lg font-bold">{{ $owner->name }}</h3>
+                            <span class="badge-brand mt-2">{{ $owner->getTranslation('role') }}</span>
+
+                            @if ($owner->getTranslation('bio'))
+                                <p class="mt-3 line-clamp-4 text-small text-muted">{{ $owner->getTranslation('bio') }}</p>
+                            @endif
+
+                            @if ($owner->instagram_url || $owner->linkedin_url)
+                                <div class="mt-3 flex gap-2">
                                     @if ($owner->instagram_url)
-                                        <a href="{{ $owner->instagram_url }}" target="_blank" 
-                                            class="w-11 h-11 bg-white text-pink-600 rounded-2xl shadow-xl flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all scale-90 hover:scale-100">
-                                            <i class="fa-brands fa-instagram text-lg"></i>
+                                        <a href="{{ $owner->instagram_url }}" target="_blank" rel="noopener" class="btn-icon border border-line" aria-label="Instagram {{ $owner->name }}">
+                                            <i class="fa-brands fa-instagram" aria-hidden="true"></i>
                                         </a>
                                     @endif
                                     @if ($owner->linkedin_url)
-                                        <a href="{{ $owner->linkedin_url }}" target="_blank" 
-                                            class="w-11 h-11 bg-white text-blue-600 rounded-2xl shadow-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all scale-90 hover:scale-100">
-                                            <i class="fa-brands fa-linkedin text-lg"></i>
+                                        <a href="{{ $owner->linkedin_url }}" target="_blank" rel="noopener" class="btn-icon border border-line" aria-label="LinkedIn {{ $owner->name }}">
+                                            <i class="fa-brands fa-linkedin" aria-hidden="true"></i>
                                         </a>
                                     @endif
                                 </div>
-                            </div>
-
-                            <div class="space-y-2 mb-8">
-                                <h4 class="text-2xl font-black text-slate-900 tracking-tighter">{{ $owner->name }}</h4>
-                                <div class="inline-flex px-4 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest">
-                                    {{ $owner->getTranslation('role') }}
-                                </div>
-                            </div>
-
-                            @if($owner->getTranslation('bio'))
-                                <p class="text-sm text-slate-500 leading-relaxed line-clamp-4 mb-10 px-4 italic font-medium">"{{ $owner->getTranslation('bio') }}"</p>
                             @endif
 
-                            <div class="w-full pt-8 border-t border-slate-50 mt-auto">
-                                <form action="{{ route('dashboard.owners.destroy', $owner->id) }}" method="POST">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" onclick="return confirm('Hapus anggota tim ini?')" 
-                                        class="w-full py-4 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-[1.5rem] transition-all font-black uppercase tracking-widest text-[10px] flex items-center justify-center space-x-3 group/btn">
-                                        <i class="fa-solid fa-trash-can group-hover/btn:animate-bounce"></i>
-                                        <span>Exile Member</span>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                            <form action="{{ route('dashboard.owners.destroy', $owner->id) }}" method="POST"
+                                data-confirm="{{ $owner->name }} akan dihapus dari daftar tim." data-confirm-title="Hapus anggota tim?" data-confirm-ok="Ya, hapus"
+                                class="mt-auto w-full pt-5">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-danger-soft w-full">
+                                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Hapus anggota
+                                </button>
+                            </form>
+                        </x-ui.card>
                     @endforeach
-                    
-                    @if(count($owners) === 0)
-                        <div class="col-span-full text-center py-32 glass rounded-[4rem] border-4 border-dashed border-slate-100">
-                            <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-8 text-slate-200 text-5xl">
-                                <i class="fa-solid fa-users-slash"></i>
-                            </div>
-                            <h3 class="text-2xl font-black text-slate-400 mb-2">No Active Personnel</h3>
-                            <p class="text-slate-300 font-bold">Start by recruiting your first team member above.</p>
-                        </div>
-                    @endif
                 </div>
-            </div>
-        </div>
+            @else
+                <x-ui.card>
+                    <x-ui.empty-state icon="fa-users-slash" title="Belum ada anggota tim" text="Mulai dengan menambahkan anggota tim pertama di formulir di atas." />
+                </x-ui.card>
+            @endif
+        </section>
     </div>
 </x-app-layout>

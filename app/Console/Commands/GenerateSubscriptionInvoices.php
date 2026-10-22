@@ -2,91 +2,94 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Client;
 use App\Models\Invoice;
-use App\Models\InvoiceItem;
-use Carbon\Carbon;
-use Illuminate\Support\Str;
+use App\Models\Subscription;
+use App\Services\InvoiceWhatsApp;
+use App\Services\SubscriptionInvoiceGenerator;
+use Illuminate\Console\Command;
 
 class GenerateSubscriptionInvoices extends Command
 {
-    protected $signature = 'invoices:generate-subscriptions';
-    protected $description = 'Generate automatic invoices for server subscriptions';
+    protected $signature = 'subscriptions:generate {--dry-run : Only list what would be generated}';
 
-    public function handle()
+    protected $description = 'Generate invoices for subscriptions that are due today and send them over WhatsApp when auto-send is on';
+
+    public function handle(SubscriptionInvoiceGenerator $generator, InvoiceWhatsApp $whatsApp): int
     {
-        $today = Carbon::today();
-        $dayOfMonth = $today->day;
+        $today = SubscriptionInvoiceGenerator::today();
+        $now = now();
 
-        $clients = Client::where('is_server_subscribed', true)
-            ->where('billing_date', $dayOfMonth)
-            ->get();
-
-        if ($clients->isEmpty()) {
-            $this->info('No subscriptions to process for today (Day ' . $dayOfMonth . ').');
-            return;
+        // Retries go first so an invoice that has just failed is not retried in the same run.
+        // Failed sends are retried once an hour, at most 5 attempts in total.
+        if (! $this->option('dry-run') && $now->setTimezone('Asia/Jakarta')->minute === 0) {
+            $this->retryFailedSends($whatsApp, $today);
         }
 
-        foreach ($clients as $client) {
-            // Check if invoice for this month already exists for this client subscription
-            $exists = Invoice::where('client_name', $client->name)
-                ->whereYear('issue_date', $today->year)
-                ->whereMonth('issue_date', $today->month)
-                ->where('notes', 'LIKE', '%Server Subscription%')
-                ->exists();
+        // Runs every minute: a subscription goes out once its date AND its own time have been reached.
+        $due = Subscription::with('items')
+            ->where('status', Subscription::ACTIVE)
+            ->whereNotNull('next_run_date')
+            ->whereDate('next_run_date', '<=', $today)
+            ->get()
+            ->filter(fn (Subscription $s) => $s->isDue($now));
 
-            if ($exists) {
-                $this->info("Invoice for {$client->name} already exists for this month. Skipping.");
+        if ($due->isNotEmpty() || $this->option('dry-run')) {
+            $this->info("Tanggal {$today->toDateString()}: {$due->count()} langganan jatuh tempo.");
+        }
+
+        foreach ($due as $subscription) {
+            if ($this->option('dry-run')) {
+                $this->line("  - {$subscription->client_name} / {$subscription->title} ({$subscription->runAt()->format('d M H:i')} WIB)");
+
                 continue;
             }
 
-            // Generate Invoice Number following the pattern: INV-YYYYMMDD-COUNT
-            $year = $today->format('Y');
-            $month = $today->format('m');
-            $day = $today->format('d');
-            
-            $lastInvoice = Invoice::where('invoice_number', 'LIKE', 'INV-%')
-                ->latest()
-                ->first();
+            try {
+                $invoice = $generator->generate($subscription, $today);
+            } catch (\Throwable $e) {
+                report($e);
+                $this->error("  x {$subscription->client_name}: {$e->getMessage()}");
 
-            if ($lastInvoice) {
-                $parts = explode('-', $lastInvoice->invoice_number);
-                $lastNumber = (int) end($parts);
-                $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
-            } else {
-                $nextNumber = '0001';
+                continue;
             }
 
-            $invoiceNumber = "INV-$year$month$day-FKS-$nextNumber";
-            
-            $invoice = Invoice::create([
-                'invoice_number' => $invoiceNumber,
-                'client_name'    => $client->name,
-                'client_email'   => '', // Can be updated manually if needed
-                'client_address' => '', 
-                'issue_date'     => $today,
-                'due_date'       => $today->copy()->addDays(7),
-                'total_amount'   => $client->subscription_price,
-                'discount'       => 0,
-                'tax'            => 0,
-                'discount_type'  => 'percent',
-                'tax_type'       => 'percent',
-                'status'         => 'Draft',
-                'notes'          => 'Server Subscription for ' . $today->format('F Y'),
-            ]);
+            if ($invoice === null) {
+                $this->warn("  = {$subscription->client_name}: invoice bulan ini sudah ada, dilewati.");
 
-            InvoiceItem::create([
-                'invoice_id'   => $invoice->id,
-                'description'  => 'Monthly Server Subscription - ' . $today->format('F Y'),
-                'quantity'     => 1,
-                'unit_price'   => $client->subscription_price,
-                'subtotal'     => $client->subscription_price,
-            ]);
+                continue;
+            }
 
-            $this->info("Generated invoice {$invoiceNumber} for {$client->name}.");
+            $this->info("  + {$invoice->invoice_number} untuk {$subscription->client_name}");
+
+            if ($subscription->auto_send) {
+                $this->reportSend($invoice, $whatsApp);
+            }
         }
 
-        $this->info('All subscriptions processed.');
+        return self::SUCCESS;
+    }
+
+    /** Auto-send invoices that failed in the last 3 days get another try (server down, session expired). */
+    private function retryFailedSends(InvoiceWhatsApp $whatsApp, $today): void
+    {
+        Invoice::whereNull('wa_sent_at')
+            ->whereNotNull('wa_error')
+            ->where('wa_attempts', '<', 5)
+            ->where('created_at', '>=', $today->copy()->subDays(3))
+            ->whereHas('subscription', fn ($q) => $q->where('auto_send', true))
+            ->get()
+            ->each(function (Invoice $invoice) use ($whatsApp) {
+                $this->line("  ~ mengirim ulang {$invoice->invoice_number}");
+                $this->reportSend($invoice, $whatsApp);
+            });
+    }
+
+    private function reportSend(Invoice $invoice, InvoiceWhatsApp $whatsApp): void
+    {
+        if ($whatsApp->send($invoice)) {
+            $this->info("    terkirim ke {$invoice->client_phone}");
+        } else {
+            $this->warn('    gagal kirim: '.$invoice->fresh()->wa_error);
+        }
     }
 }

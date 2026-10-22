@@ -1,114 +1,63 @@
 <x-app-layout>
-    <x-slot name="header">
-        {{ __('Hero Section') }}
-    </x-slot>
+    <x-slot name="header">Bagian Hero</x-slot>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <!-- Left Column: Settings Form -->
-        <div class="lg:col-span-2 space-y-8" data-aos="fade-right">
-            <div class="glass p-8 rounded-[3rem] shadow-xl relative overflow-hidden">
-                <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
-                
-                <h3 class="text-2xl font-black text-slate-900 mb-8 flex items-center">
-                    <span class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mr-4">
-                        <i class="fa-solid fa-i-cursor"></i>
-                    </span>
-                    Text Content
-                </h3>
+    <div class="mx-auto max-w-7xl space-y-6">
+        <x-ui.page-header title="Bagian Hero" description="Teks utama dan gambar latar slider di bagian atas halaman depan." />
 
-                <form action="{{ route('dashboard.hero.update') }}" method="POST" class="space-y-10">
+        <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
+            {{-- Teks hero --}}
+            <x-ui.card class="lg:col-span-2">
+                <h2 class="flex items-center gap-2 text-xl font-bold">
+                    <i class="fa-solid fa-i-cursor text-brand-text" aria-hidden="true"></i> Konten teks
+                </h2>
+
+                <form action="{{ route('dashboard.hero.update') }}" method="POST" class="mt-6 space-y-6">
                     @csrf
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <!-- Indonesian Section -->
-                        <div class="space-y-6 relative">
-                            <div class="absolute -left-4 top-0 bottom-0 w-1 bg-blue-500 rounded-full"></div>
-                            <span class="inline-flex items-center px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest leading-none">
-                                <i class="fa-solid fa-flag mr-2"></i> Indonesian
-                            </span>
-                            
-                            <div class="space-y-2">
-                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Main Title</label>
-                                <input type="text" name="title_id" value="{{ $hero->title_id }}"
-                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">
-                            </div>
-                            
-                            <div class="space-y-2">
-                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Subtitle Description</label>
-                                <textarea name="subtitle_id" rows="4" 
-                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium leading-relaxed">{{ $hero->subtitle_id }}</textarea>
-                            </div>
-                            
-                            <div class="space-y-2">
-                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Button Label</label>
-                                <input type="text" name="cta_text_id" value="{{ $hero->cta_text_id }}"
-                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium">
-                            </div>
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        {{-- Indonesia --}}
+                        <div class="space-y-5">
+                            <span class="badge-brand"><i class="fa-solid fa-flag" aria-hidden="true"></i> Bahasa Indonesia</span>
+                            <x-ui.input name="title_id" label="Judul utama (Indonesia)" :value="$hero->title_id" />
+                            <x-ui.textarea name="subtitle_id" label="Deskripsi subjudul (Indonesia)" rows="6" :value="$hero->subtitle_id" />
+                            <x-ui.input name="cta_text_id" label="Teks tombol (Indonesia)" :value="$hero->cta_text_id" />
                         </div>
 
-                        <!-- English Section -->
-                        <div class="space-y-6 relative">
-                            <div class="absolute -left-4 top-0 bottom-0 w-1 bg-indigo-500 rounded-full"></div>
-                            <span class="inline-flex items-center px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest leading-none">
-                                <i class="fa-solid fa-earth-americas mr-2"></i> English
-                            </span>
-                            
-                            <div class="space-y-2">
-                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Main Title</label>
-                                <input type="text" name="title_en" value="{{ $hero->title_en }}"
-                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 transition-all font-medium">
-                            </div>
-                            
-                            <div class="space-y-2">
-                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Subtitle Description</label>
-                                <textarea name="subtitle_en" rows="4" 
-                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 transition-all font-medium leading-relaxed">{{ $hero->subtitle_en }}</textarea>
-                            </div>
-                            
-                            <div class="space-y-2">
-                                <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Button Label</label>
-                                <input type="text" name="cta_text_en" value="{{ $hero->cta_text_en }}"
-                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 transition-all font-medium">
-                            </div>
+                        {{-- English --}}
+                        <div class="space-y-5">
+                            <span class="badge-info"><i class="fa-solid fa-earth-americas" aria-hidden="true"></i> English</span>
+                            <x-ui.input name="title_en" label="Judul utama (English)" :value="$hero->title_en" />
+                            <x-ui.textarea name="subtitle_en" label="Deskripsi subjudul (English)" rows="6" :value="$hero->subtitle_en" />
+                            <x-ui.input name="cta_text_en" label="Teks tombol (English)" :value="$hero->cta_text_en" />
                         </div>
                     </div>
 
-                    <div class="pt-6 border-t border-slate-100">
-                        <div class="space-y-2 max-w-md">
-                            <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Call to Action Link</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400">
-                                    <i class="fa-solid fa-link"></i>
-                                </div>
-                                <input type="text" name="cta_link" value="{{ $hero->cta_link }}"
-                                    class="block w-full bg-slate-50 border-none rounded-2xl p-4 pl-12 focus:ring-2 focus:ring-blue-500 transition-all font-bold text-blue-600"
-                                    placeholder="#contact">
-                            </div>
+                    <div class="divider"></div>
+
+                    <div class="max-w-md">
+                        <label for="cta_link" class="label">Tautan tombol (Call to Action)</label>
+                        <div class="relative">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex w-11 items-center justify-center text-muted">
+                                <i class="fa-solid fa-link" aria-hidden="true"></i>
+                            </span>
+                            <input type="text" id="cta_link" name="cta_link" value="{{ old('cta_link', $hero->cta_link) }}" class="input pl-11" placeholder="#contact">
                         </div>
+                        <p class="hint">Contoh: #contact atau https://...</p>
                     </div>
 
-                    <div class="flex justify-end pt-4">
-                        <button type="submit"
-                            class="px-10 py-5 bg-slate-900 text-white font-black rounded-[2rem] hover:bg-black hover:scale-105 shadow-2xl shadow-slate-900/20 transition-all uppercase tracking-[0.2em] text-xs">
-                            Save Changes
-                        </button>
+                    <div class="flex justify-end">
+                        <x-ui.button type="submit" icon="fa-floppy-disk" class="w-full sm:w-auto">Simpan perubahan</x-ui.button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </x-ui.card>
 
-        <!-- Right Column: Slider Management -->
-        <div class="space-y-8" data-aos="fade-left">
-            <div class="glass p-8 rounded-[3rem] shadow-xl">
-                <h3 class="text-xl font-black text-slate-900 mb-8 flex items-center">
-                    <span class="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mr-4">
-                        <i class="fa-solid fa-images"></i>
-                    </span>
-                    Background Slider
-                </h3>
+            {{-- Slider latar --}}
+            <x-ui.card>
+                <h2 class="flex items-center gap-2 text-xl font-bold">
+                    <i class="fa-solid fa-images text-brand-text" aria-hidden="true"></i> Slider latar
+                </h2>
 
-                <form action="{{ route('dashboard.hero.slides.store') }}" method="POST"
-                    enctype="multipart/form-data"
-                    x-data="{ 
+                <form action="{{ route('dashboard.hero.slides.store') }}" method="POST" enctype="multipart/form-data"
+                    x-data="{
                         preview: null,
                         handleFileChange(e) {
                             const file = e.target.files[0];
@@ -117,62 +66,54 @@
                             }
                         }
                     }"
-                    class="mb-10 p-8 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200 hover:border-blue-400 transition-colors group text-center relative overflow-hidden">
+                    class="mt-5">
                     @csrf
-                    
-                    <div x-show="preview" class="absolute inset-0 z-10 bg-white">
-                        <img :src="preview" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center space-y-3">
-                            <button type="submit" class="px-8 py-3 bg-blue-600 text-white font-black rounded-xl hover:bg-blue-700 shadow-xl shadow-blue-500/20 transition-all uppercase tracking-widest text-[10px]">
-                                Confirm Upload
-                            </button>
-                            <button type="button" @click="preview = null; $refs.fileInput.value = ''" class="px-8 py-3 bg-white text-slate-900 font-black rounded-xl hover:bg-slate-100 transition-all uppercase tracking-widest text-[10px]">
-                                Cancel
-                            </button>
+                    <input type="file" name="image" required id="slide-upload" x-ref="fileInput" accept="image/*" class="sr-only" @change="handleFileChange">
+
+                    <div x-show="!preview" class="rounded-lg border border-dashed border-line bg-surface-2 p-6 text-center">
+                        <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft text-brand-text">
+                            <i class="fa-solid fa-cloud-arrow-up text-xl" aria-hidden="true"></i>
+                        </span>
+                        <p class="mt-3 text-small font-semibold">Tambah slide baru</p>
+                        <p class="text-caption text-muted">Gambar lebar (16:9) untuk hasil terbaik.</p>
+                        <label for="slide-upload" class="btn btn-secondary mt-4 cursor-pointer focus-within:ring-2 focus-within:ring-brand-500/40">
+                            <i class="fa-solid fa-image" aria-hidden="true"></i> Pilih gambar
+                        </label>
+                    </div>
+
+                    <div x-show="preview" x-cloak class="space-y-3">
+                        <div class="aspect-video overflow-hidden rounded-lg border border-line bg-surface-2">
+                            <img :src="preview" alt="Pratinjau slide baru" class="h-full w-full object-cover">
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-1"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Unggah slide</button>
+                            <button type="button" class="btn btn-secondary" @click="preview = null; $refs.fileInput.value = ''">Batal</button>
                         </div>
                     </div>
-
-                    <div class="mb-4 w-16 h-16 bg-white rounded-2xl shadow-sm mx-auto flex items-center justify-center text-slate-400 group-hover:text-blue-500 transition-colors">
-                        <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
-                    </div>
-                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-6 group-hover:text-slate-600">Upload New Slide</label>
-                    <input type="file" name="image" required id="slide-upload" x-ref="fileInput" class="hidden" @change="handleFileChange">
-                    <label for="slide-upload" class="cursor-pointer inline-flex px-8 py-3 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-900 hover:text-white transition-all">
-                        Choose File
-                    </label>
                 </form>
 
-                <div class="space-y-6">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Active Slides ({{ count($slides) }})</p>
+                <div class="mt-6">
+                    <p class="label">Slide aktif ({{ count($slides) }})</p>
                     <div class="grid grid-cols-1 gap-4">
-                        @forelse($slides as $slide)
-                            <div class="group relative rounded-[2rem] overflow-hidden aspect-[16/9] bg-slate-100 border-4 border-white shadow-lg card-hover">
-                                <img src="{{ $slide->media_url }}"
-                                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center p-6">
-                                    <form action="{{ route('dashboard.hero.slides.destroy', $slide) }}"
-                                        method="POST" onsubmit="return confirm('Hapus slide ini?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit"
-                                            class="px-6 py-3 bg-red-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-colors flex items-center">
-                                            <i class="fa-solid fa-trash-can mr-2"></i> Delete Slide
-                                        </button>
-                                    </form>
-                                </div>
-                                <div class="absolute top-4 left-4">
-                                    <span class="px-3 py-1 bg-black/40 backdrop-blur-md text-white rounded-lg text-[10px] font-bold">#{{ $loop->iteration }}</span>
-                                </div>
+                        @forelse ($slides as $slide)
+                            <div class="relative aspect-video overflow-hidden rounded-lg border border-line bg-surface-2">
+                                <img src="{{ $slide->media_url }}" alt="Slide hero {{ $loop->iteration }}" class="h-full w-full object-cover">
+                                <span class="absolute left-3 top-3 rounded-full bg-surface px-2.5 py-1 text-caption font-semibold text-ink shadow-soft">#{{ $loop->iteration }}</span>
+                                <form action="{{ route('dashboard.hero.slides.destroy', $slide) }}" method="POST"
+                                    data-confirm="Slide ini akan dihapus dari slider hero." data-confirm-title="Hapus slide?" data-confirm-ok="Ya, hapus"
+                                    class="absolute bottom-3 right-3">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm" aria-label="Hapus slide {{ $loop->iteration }}">
+                                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Hapus
+                                    </button>
+                                </form>
                             </div>
                         @empty
-                            <div class="text-center py-12 glass rounded-[2rem] border-2 border-dashed">
-                                <i class="fa-solid fa-film text-4xl text-slate-200 mb-4 block"></i>
-                                <span class="text-slate-400 font-medium">No slider images yet</span>
-                            </div>
+                            <x-ui.empty-state icon="fa-film" title="Belum ada slide" text="Unggah gambar pertama untuk latar hero." />
                         @endforelse
                     </div>
                 </div>
-            </div>
+            </x-ui.card>
         </div>
     </div>
 </x-app-layout>

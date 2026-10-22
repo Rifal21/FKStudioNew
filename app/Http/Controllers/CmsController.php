@@ -35,8 +35,43 @@ class CmsController extends Controller
         $packagesCount = Package::count();
         $invoicesCount = Invoice::count();
         $blogsCount = BlogPost::count();
-        
-        return view('dashboard', compact('servicesCount', 'projectsCount', 'testimonialsCount', 'ownersCount', 'packagesCount', 'invoicesCount', 'blogsCount'));
+
+        // Money actually received per order: full amount once paid/completed,
+        // only the down payment while a DP order is still waiting for the balance.
+        $received = fn ($order) => match (true) {
+            $order->status === 'completed' => (float) $order->total_amount,
+            $order->status === 'paid' && $order->payment_scheme === 'dp' => (float) $order->dp_amount,
+            $order->status === 'paid' => (float) $order->total_amount,
+            default => 0.0,
+        };
+
+        $now = now();
+        $months = collect(range(5, 0))->map(fn ($i) => $now->copy()->startOfMonth()->subMonths($i));
+        $orders = \App\Models\PackageOrder::where('created_at', '>=', $months->first())->get(['status', 'payment_scheme', 'total_amount', 'dp_amount', 'created_at']);
+
+        $monthlyRevenue = $months->map(fn ($month) => [
+            'label' => $month->copy()->locale('id')->translatedFormat('M'),
+            'full' => $month->copy()->locale('id')->translatedFormat('F Y'),
+            'value' => $orders->filter(fn ($o) => $o->created_at->isSameMonth($month))->sum($received),
+        ])->values();
+
+        $revenueThisMonth = (float) $monthlyRevenue->last()['value'];
+        $revenueLastMonth = (float) $monthlyRevenue->slice(-2, 1)->first()['value'];
+        $revenueTrend = $revenueLastMonth > 0 ? round((($revenueThisMonth - $revenueLastMonth) / $revenueLastMonth) * 100) : null;
+
+        $orderCounts = \App\Models\PackageOrder::selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
+        $inProgressCount = \App\Models\PackageOrder::whereIn('status', ['paid'])->whereIn('work_status', ['in_progress', 'revision'])->count();
+        $openTickets = \App\Models\Ticket::whereIn('status', ['open', 'in_progress'])->count();
+        $unpaidInvoices = Invoice::whereIn('status', ['Sent', 'Overdue'])->count();
+
+        $recentOrders = \App\Models\PackageOrder::with('user')->latest()->limit(6)->get();
+        $recentTickets = \App\Models\Ticket::with('user')->latest()->limit(5)->get();
+
+        return view('dashboard', compact(
+            'servicesCount', 'projectsCount', 'testimonialsCount', 'ownersCount', 'packagesCount', 'invoicesCount', 'blogsCount',
+            'monthlyRevenue', 'revenueThisMonth', 'revenueTrend', 'orderCounts', 'inProgressCount', 'openTickets', 'unpaidInvoices',
+            'recentOrders', 'recentTickets'
+        ));
     }
 
     // Site Settings
