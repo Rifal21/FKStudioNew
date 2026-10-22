@@ -1,161 +1,61 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Profil Saya | FKStudio</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .gradient-text { @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-600; }
-    </style>
-</head>
-<body class="antialiased min-h-screen bg-slate-950" x-data="{ mobileMenu: false, scrolled: false, activeSection: '' }" @scroll.window="scrolled = (window.pageYOffset > 50)">
-    <!-- Background Decoration Blobs -->
-    <div class="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden -z-10">
-        <div class="absolute top-1/4 -left-20 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px]"></div>
-        <div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-indigo-700/10 rounded-full blur-[120px]"></div>
-    </div>
+<x-layouts.public title="Profil Saya" description="Kelola informasi profil dan kata sandi akun Anda.">
+    <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
-    @include('landing.sections.navbar')
+    <div class="relative pb-16 pt-28 md:pb-24 md:pt-36">
+        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_30%_at_50%_0%,rgb(124_58_237/0.12),transparent)]" aria-hidden="true"></div>
 
-    <div class="container mx-auto px-6 pt-32 pb-12 md:pb-24 max-w-4xl relative z-10">
-        <div class="mb-12">
-            <a href="{{ route('home') }}" class="inline-flex items-center text-slate-400 hover:text-white transition-colors mb-6 group">
-                <i class="fa-solid fa-arrow-left mr-3 group-hover:-translate-x-1 transition-transform"></i>
-                Kembali ke Beranda
-            </a>
-            <h1 class="text-3xl md:text-5xl font-black text-white tracking-tighter">
-                Pengaturan <span class="gradient-text">Profil Saya.</span>
-            </h1>
-        </div>
+        <div class="container-page relative max-w-3xl">
+            <x-ui.page-header title="Pengaturan profil" description="Perbarui informasi akun dan jaga keamanan kata sandi Anda." />
 
-        @if (session('status') === 'profile-updated')
-            <div class="mb-8 p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-start space-x-4">
-                <div class="w-10 h-10 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
-                <div>
-                    <h4 class="font-bold text-emerald-400">Profil Berhasil Diperbarui</h4>
-                    <p class="text-sm text-emerald-400/80 mt-1">Data profil baru Anda telah disimpan dengan sukses.</p>
-                </div>
-            </div>
-        @endif
-
-        @if (session('status') === 'password-updated')
-            <div class="mb-8 p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-start space-x-4">
-                <div class="w-10 h-10 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
-                <div>
-                    <h4 class="font-bold text-emerald-400">Password Berhasil Diubah</h4>
-                    <p class="text-sm text-emerald-400/80 mt-1">Sandi akun Anda telah berhasil diganti.</p>
-                </div>
-            </div>
-        @endif
-
-        <div class="space-y-12">
-            <!-- Profile Info Form -->
-            <div class="glass p-8 md:p-12 rounded-[2.5rem] border-white/5">
-                <div class="flex items-center space-x-4 mb-8">
-                    <div class="w-12 h-12 bg-blue-600/10 rounded-xl flex items-center justify-center text-xl text-blue-500 border border-blue-500/20">
-                        <i class="fa-solid fa-user-gear"></i>
+            @foreach (['profile-updated' => ['Profil berhasil diperbarui', 'Data profil baru Anda telah disimpan.'], 'password-updated' => ['Password berhasil diubah', 'Kata sandi akun Anda telah diganti.']] as $key => [$title, $text])
+                @if (session('status') === $key)
+                    <div class="mb-6 flex items-start gap-3 rounded-lg border border-mint-400/40 bg-mint-50 p-4 text-mint-800 dark:bg-mint-400/10 dark:text-mint-300" role="status">
+                        <i class="fa-solid fa-circle-check mt-0.5" aria-hidden="true"></i>
+                        <div><p class="font-bold">{{ $title }}</p><p class="text-small">{{ $text }}</p></div>
                     </div>
-                    <div>
-                        <h3 class="text-xl font-black text-white">Informasi Profil</h3>
-                        <p class="text-slate-400 text-xs mt-0.5">Perbarui nama pengguna dan alamat email Anda.</p>
+                @endif
+            @endforeach
+
+            <div class="space-y-6">
+                <x-ui.card>
+                    <div class="flex items-center gap-4">
+                        <span class="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-50 text-xl text-brand-700 dark:bg-brand-500/20 dark:text-brand-300"><i class="fa-solid fa-user-gear" aria-hidden="true"></i></span>
+                        <div><h2 class="text-xl">Informasi profil</h2><p class="text-small text-muted">Perbarui nama dan alamat email Anda.</p></div>
                     </div>
-                </div>
-
-                <form method="post" action="{{ route('profile.update') }}" class="space-y-6">
-                    @csrf
-                    @method('patch')
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label for="name" class="text-xs font-black uppercase tracking-wider text-slate-400">Nama Lengkap</label>
-                            <input id="name" name="name" type="text" value="{{ old('name', $user->name) }}" required autocomplete="name"
-                                class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
-                            @error('name')
-                                <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p>
-                            @enderror
+                    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-5">
+                        @csrf
+                        @method('patch')
+                        <div class="grid gap-5 md:grid-cols-2">
+                            <x-ui.input name="name" label="Nama lengkap" :value="$user->name" autocomplete="name" :required="true" />
+                            <x-ui.input name="email" type="email" label="Alamat email" :value="$user->email" autocomplete="email" :required="true" />
                         </div>
+                        <div class="flex justify-end"><x-ui.button type="submit">Simpan profil</x-ui.button></div>
+                    </form>
+                </x-ui.card>
 
-                        <div class="space-y-2">
-                            <label for="email" class="text-xs font-black uppercase tracking-wider text-slate-400">Alamat Email</label>
-                            <input id="email" name="email" type="email" value="{{ old('email', $user->email) }}" required autocomplete="email"
-                                class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
-                            @error('email')
-                                <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p>
-                            @enderror
+                <x-ui.card>
+                    <div class="flex items-center gap-4">
+                        <span class="flex h-12 w-12 items-center justify-center rounded-lg bg-pink-50 text-xl text-pink-700 dark:bg-pink-500/15 dark:text-pink-300"><i class="fa-solid fa-lock" aria-hidden="true"></i></span>
+                        <div><h2 class="text-xl">Ubah password</h2><p class="text-small text-muted">Gunakan kata sandi yang kuat dan unik.</p></div>
+                    </div>
+                    <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-5">
+                        @csrf
+                        @method('put')
+                        <div class="grid gap-5 md:grid-cols-3">
+                            @foreach ([['current_password', 'Password saat ini', 'current-password'], ['password', 'Password baru', 'new-password'], ['password_confirmation', 'Konfirmasi password', 'new-password']] as [$field, $label, $ac])
+                                <div>
+                                    <label for="update_password_{{ $field }}" class="label">{{ $label }}</label>
+                                    <input id="update_password_{{ $field }}" name="{{ $field }}" type="password" required autocomplete="{{ $ac }}" @class(['input', 'input-invalid' => $errors->updatePassword->has($field)])>
+                                    @if ($errors->updatePassword->has($field))<p class="field-error">{{ $errors->updatePassword->first($field) }}</p>@endif
+                                </div>
+                            @endforeach
                         </div>
-                    </div>
-
-                    <div class="pt-4 flex justify-end">
-                        <button type="submit" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-colors shadow-lg shadow-blue-600/10">
-                            Simpan Profil
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Password Form -->
-            <div class="glass p-8 md:p-12 rounded-[2.5rem] border-white/5">
-                <div class="flex items-center space-x-4 mb-8">
-                    <div class="w-12 h-12 bg-blue-600/10 rounded-xl flex items-center justify-center text-xl text-blue-500 border border-blue-500/20">
-                        <i class="fa-solid fa-lock text-blue-500"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-black text-white">Ubah Password</h3>
-                        <p class="text-slate-400 text-xs mt-0.5">Pastikan akun Anda menggunakan kata sandi yang kuat.</p>
-                    </div>
-                </div>
-
-                <form method="post" action="{{ route('password.update') }}" class="space-y-6">
-                    @csrf
-                    @method('put')
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="space-y-2">
-                            <label for="update_password_current_password" class="text-xs font-black uppercase tracking-wider text-slate-400">Password Saat Ini</label>
-                            <input id="update_password_current_password" name="current_password" type="password" required autocomplete="current-password"
-                                class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
-                            @error('current_password', 'updatePassword')
-                                <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div class="space-y-2">
-                            <label for="update_password_password" class="text-xs font-black uppercase tracking-wider text-slate-400">Password Baru</label>
-                            <input id="update_password_password" name="password" type="password" required autocomplete="new-password"
-                                class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
-                            @error('password', 'updatePassword')
-                                <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div class="space-y-2">
-                            <label for="update_password_password_confirmation" class="text-xs font-black uppercase tracking-wider text-slate-400">Konfirmasi Password</label>
-                            <input id="update_password_password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password"
-                                class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
-                            @error('password_confirmation', 'updatePassword')
-                                <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="pt-4 flex justify-end">
-                        <button type="submit" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-colors shadow-lg shadow-blue-600/10">
-                            Ubah Password
-                        </button>
-                    </div>
-                </form>
+                        <div class="flex justify-end"><x-ui.button type="submit">Ubah password</x-ui.button></div>
+                    </form>
+                </x-ui.card>
             </div>
         </div>
     </div>
-</body>
-</html>
+
+    <x-slot:footer><x-site.footer /></x-slot:footer>
+</x-layouts.public>
