@@ -6,7 +6,7 @@
         for ($i = 0; $i < $repeat; $i++) { $half = $half->concat($clients); }
     @endphp
 
-    <section class="relative z-10 -mt-6 py-10 md:py-14" aria-label="{{ $id ? 'Klien kami' : 'Our clients' }}">
+    <section class="relative z-10 -mt-6 overflow-x-clip py-10 md:py-14" aria-label="{{ $id ? 'Klien kami' : 'Our clients' }}">
         <div class="-mx-4 -rotate-1 overflow-hidden border-y-2 border-edge bg-sun-400 py-5 shadow-hard sm:-mx-6">
             <div class="flex w-max animate-marquee items-center gap-6 hover:[animation-play-state:paused]">
                 @foreach ([false, true] as $isCopy)
