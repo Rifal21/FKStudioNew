@@ -8,18 +8,14 @@
         $stats = collect([
             ['value' => $projects->count() . '+', 'label' => $id ? 'proyek selesai' : 'projects delivered'],
             ['value' => $clients->count() . '+', 'label' => $id ? 'klien dan mitra' : 'clients and partners'],
-            ['value' => $testimonials->count() . '+', 'label' => $id ? 'ulasan pelanggan' : 'customer reviews'],
         ])->filter(fn ($s) => (int) $s['value'] > 0);
     }
 @endphp
 
 @if ($stats->isNotEmpty())
-    <dl class="mt-10 flex flex-wrap gap-x-8 gap-y-5">
+    <p class="mt-5 max-w-xl text-base">
         @foreach ($stats as $stat)
-            <div class="border-l-4 border-sun-400 pl-4">
-                <dd class="font-display text-3xl font-extrabold leading-none md:text-4xl">{{ $stat['value'] }}</dd>
-                <dt class="mt-1 text-small text-muted">{{ $stat['label'] }}</dt>
-            </div>
+            <strong class="font-display text-xl font-extrabold">{{ $stat['value'] }}</strong> <span class="text-muted">{{ mb_strtolower($stat['label']) }}{{ $loop->last ? '.' : ',' }}</span>
         @endforeach
-    </dl>
+    </p>
 @endif

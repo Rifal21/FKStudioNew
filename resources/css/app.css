@@ -70,6 +70,7 @@
     @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {
             animation-duration: 0.01ms !important;
+            animation-delay: 0ms !important;
             animation-iteration-count: 1 !important;
             transition-duration: 0.01ms !important;
             scroll-behavior: auto !important;
@@ -382,17 +383,8 @@
     from { opacity: 0; transform: translateY(10px) scale(0.96); }
     to   { opacity: 1; transform: none; }
 }
-@keyframes type-line {
-    from { width: 0; }
-    to   { width: var(--w, 100%); }
-}
-@keyframes cursor-move {
-    0%, 20%   { transform: translate(0, 0); }
-    55%       { transform: translate(-64px, -46px); }
-    75%, 100% { transform: translate(-64px, -46px); }
-}
-
-/* Dark mode: the pale image placeholder gradient turns olive over navy, so use a plain blue wash. */
-.dark .bg-brand-gradient-soft {
-    background-image: linear-gradient(135deg, rgb(127 203 248 / 0.16) 0%, rgb(127 203 248 / 0.05) 100%);
+/* Staggered "the page builds itself" entrance; the delay comes from --d */
+.bi {
+    animation: build-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--d, 0s);
 }

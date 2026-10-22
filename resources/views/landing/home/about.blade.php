@@ -36,6 +36,7 @@
             <div class="min-w-0 lg:col-span-6">
                 <h2 class="section-title">{{ $about->getTranslation('title') }}</h2>
                 <p class="mt-5 max-w-xl text-base text-muted md:text-lg">{{ $about->getTranslation('description') }}</p>
+                @include('landing.home.stats')
 
                 @if ($about->getTranslation('vision'))
                     <figure class="relative mt-9 max-w-xl rotate-1 rounded-md border-2 border-edge bg-sun-200 p-6 shadow-hard text-navy">
