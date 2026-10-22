@@ -1,32 +1,40 @@
 @php
     $id = app()->getLocale() === 'id';
-    $tones = [
-        'bg-brand-50 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300',
-        'bg-pink-50 text-pink-700 dark:bg-pink-500/15 dark:text-pink-300',
-        'bg-sun-50 text-sun-700 dark:bg-sun-400/15 dark:text-sun-300',
-        'bg-mint-50 text-mint-800 dark:bg-mint-400/15 dark:text-mint-300',
-        'bg-sky-50 text-sky-800 dark:bg-sky-400/15 dark:text-sky-300',
-    ];
+    $tiles = ['bg-sun-300', 'bg-brand-200', 'bg-white', 'bg-brand-100', 'bg-sun-200'];
+    $digits = preg_replace('/[^0-9]/', '', $settings->contact_phone ?? '');
+    if ($digits && str_starts_with($digits, '0')) $digits = '62' . substr($digits, 1);
 @endphp
 
 @if ($services->isNotEmpty())
-    <section id="services" class="section scroll-mt-20 bg-surface-2/60">
+    <section id="services" class="section scroll-mt-20 border-y-2 border-edge bg-surface">
         <div class="container-page">
-            <x-ui.section-heading
-                :eyebrow="$id ? 'Layanan' : 'Services'"
-                :title="$id ? 'Solusi digital untuk setiap kebutuhan bisnis' : 'Digital solutions for every business need'"
-                :lead="$id ? 'Dari website company profile sampai platform e-commerce, kami bantu wujudkan dengan kualitas terbaik.' : 'From company websites to full e-commerce platforms, we build it with care.'" />
+            <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+                <div class="lg:col-span-4">
+                    <div class="lg:sticky lg:top-28">
+                        <h2 class="section-title">{{ $id ? 'Solusi digital untuk setiap kebutuhan bisnis' : 'Digital solutions for every business need' }}</h2>
+                        <p class="section-lead">{{ $id ? 'Dari website company profile sampai platform e-commerce, kami bantu wujudkan dengan kualitas terbaik.' : 'From company websites to full e-commerce platforms, we build it with care.' }}</p>
+                        @if ($digits)
+                            <a href="https://wa.me/{{ $digits }}" target="_blank" rel="noopener" class="btn-outline mt-8">
+                                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> {{ $id ? 'Tanya kebutuhan Anda' : 'Ask about your project' }}
+                            </a>
+                        @endif
+                    </div>
+                </div>
 
-            <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                @foreach ($services as $i => $service)
-                    <article class="card card-pad card-hover" data-aos="fade-up" data-aos-delay="{{ ($i % 3) * 80 }}">
-                        <span class="flex h-14 w-14 items-center justify-center rounded-lg text-2xl {{ $tones[$i % count($tones)] }}">
-                            <i class="{{ $service->icon ?? 'fa-solid fa-rocket' }}" aria-hidden="true"></i>
-                        </span>
-                        <h3 class="mt-5 text-xl">{{ $service->getTranslation('title') }}</h3>
-                        <p class="mt-2 text-muted">{{ $service->getTranslation('description') }}</p>
-                    </article>
-                @endforeach
+                <ul class="min-w-0 lg:col-span-8">
+                    @foreach ($services as $i => $service)
+                        <li class="group relative flex items-start gap-5 border-t-2 border-edge/25 py-7 transition-all duration-200 last:border-b-2 hover:bg-sun-100/70 sm:gap-7 md:px-4 md:hover:pl-7 dark:hover:bg-sun-400/10">
+                            <span class="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border-2 border-edge text-2xl text-navy shadow-hard-sm transition duration-200 group-hover:-rotate-6 {{ $tiles[$i % count($tiles)] }}">
+                                <i class="{{ $service->icon ?? 'fa-solid fa-rocket' }}" aria-hidden="true"></i>
+                            </span>
+                            <div class="min-w-0 flex-1">
+                                <h3 class="text-2xl leading-tight">{{ $service->getTranslation('title') }}</h3>
+                                <p class="mt-2 max-w-xl text-muted">{{ $service->getTranslation('description') }}</p>
+                            </div>
+                            <span class="mt-1 hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-edge transition group-hover:bg-sun-400 group-hover:text-navy sm:flex" aria-hidden="true"><i class="fa-solid fa-arrow-right -rotate-45 transition group-hover:rotate-0"></i></span>
+                        </li>
+                    @endforeach
+                </ul>
             </div>
         </div>
     </section>

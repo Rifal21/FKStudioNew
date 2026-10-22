@@ -4,66 +4,59 @@
         ? $heroSlides->map(fn ($s) => $s->media_url)->filter()->values()
         : ($hero->image ? collect([$hero->media_url]) : collect());
     $rating = $testimonials->count() ? round($testimonials->avg('rating') ?: 5, 1) : null;
-    $avatarTones = ['bg-brand-100 text-brand-700', 'bg-pink-100 text-pink-700', 'bg-sun-100 text-sun-700'];
 @endphp
 
-<section id="home" class="relative overflow-hidden pb-16 pt-28 md:pb-24 md:pt-36">
-    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_85%_0%,rgb(124_58_237/0.16),transparent),radial-gradient(40%_40%_at_0%_35%,rgb(255_92_138/0.10),transparent),radial-gradient(35%_35%_at_60%_100%,rgb(255_200_61/0.12),transparent)]" aria-hidden="true"></div>
+<section id="home" class="grid-paper relative overflow-hidden pb-20 pt-28 md:pb-28 md:pt-36">
+    <div class="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-bg to-transparent" aria-hidden="true"></div>
 
     <div class="container-page relative">
-        <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-8">
+        <div class="grid grid-cols-1 items-center gap-14 lg:grid-cols-12 lg:gap-10">
             {{-- Copy --}}
             <div class="min-w-0 lg:col-span-6">
-                <span class="eyebrow animate-fade-up">
-                    <span class="h-2 w-2 rounded-full bg-mint-400" aria-hidden="true"></span>
-                    {{ $id ? 'Mitra solusi digital Anda' : 'Your digital solution partner' }}
-                </span>
-
-                <h1 class="mt-5 text-4xl font-extrabold leading-[1.1] sm:text-5xl lg:text-6xl animate-fade-up">
-                    <span class="gradient-text">{{ $hero->getTranslation('title') }}</span>
+                <h1 class="font-display text-[2.6rem] font-extrabold leading-[1.02] tracking-tight sm:text-6xl lg:text-[4.25rem]">
+                    {{ $hero->getTranslation('title') }}
                 </h1>
 
-                <p class="mt-5 max-w-xl text-base text-muted sm:text-lg animate-fade-up">
+                <p class="mt-6 max-w-lg text-base text-muted sm:text-lg">
                     {{ $hero->getTranslation('subtitle') ?? ($id
                         ? 'Kami menghadirkan jasa pembuatan website custom, platform e-commerce, dan aplikasi mobile berkinerja tinggi yang dirancang khusus untuk mempercepat pertumbuhan bisnis Anda.'
                         : 'We deliver custom websites, e-commerce platforms, and high-performance mobile apps built to accelerate your business growth.') }}
                 </p>
 
-                <div class="mt-8 flex flex-col gap-3 sm:flex-row animate-fade-up">
+                <div class="mt-9 flex flex-col gap-4 sm:flex-row">
                     <a href="{{ $hero->cta_link ?? route('package.index') }}" class="btn-primary btn-lg">
-                        {{ $hero->getTranslation('cta_text') ?? ($id ? 'Mulai Konsultasi' : 'Start Consultation') }}
+                        {{ $hero->getTranslation('cta_text') ?? ($id ? 'Mulai konsultasi' : 'Start a consultation') }}
                         <i class="fa-solid fa-arrow-right text-small" aria-hidden="true"></i>
                     </a>
-                    <a href="#portfolio" class="btn-secondary btn-lg">
-                        {{ $id ? 'Lihat Portofolio' : 'View Portfolio' }}
-                    </a>
+                    <a href="#portfolio" class="btn-outline btn-lg">{{ $id ? 'Lihat portofolio' : 'See our work' }}</a>
                 </div>
 
-                @if ($clients->isNotEmpty())
-                    <div class="mt-10 flex items-center gap-4 border-t border-line pt-6">
-                        <div class="flex -space-x-3">
-                            @foreach ($clients->take(3) as $i => $client)
-                                <span class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-bg text-caption font-bold {{ $avatarTones[$i % 3] }}">{{ mb_strtoupper(mb_substr($client->name ?? 'C', 0, 1)) }}</span>
-                            @endforeach
-                            @if ($clients->count() > 3)
-                                <span class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-bg bg-brand-600 text-caption font-bold text-white">+{{ $clients->count() - 3 }}</span>
-                            @endif
-                        </div>
-                        <p class="text-small text-muted">
-                            <strong class="block text-ink">{{ $id ? 'Mitra bisnis terpercaya' : 'Trusted business partners' }}</strong>
-                            {{ $id ? 'Telah berkolaborasi dengan brand terbaik.' : 'Collaborated with great brands.' }}
-                        </p>
-                    </div>
-                @endif
+                @include('landing.home.stats')
             </div>
 
-            {{-- Visual --}}
-            <div class="relative min-w-0 lg:col-span-6 lg:pl-8">
-                <div class="absolute -inset-3 rotate-3 rounded-xl bg-brand-gradient opacity-25 blur-sm" aria-hidden="true"></div>
+            {{-- A browser window that builds a website --}}
+            <div class="relative min-w-0 lg:col-span-6">
+                @if ($rating)
+                    <span class="sticker absolute -right-1 -top-6 z-20 rotate-6 sm:-right-4">
+                        <i class="fa-solid fa-star" aria-hidden="true"></i>
+                        {{ number_format($rating, 1, $id ? ',' : '.', '') }}/5 {{ $id ? 'dari klien' : 'from clients' }}
+                    </span>
+                @endif
 
-                <div class="relative aspect-[4/3] overflow-hidden rounded-xl border border-line bg-surface shadow-pop">
+                <div class="pop relative overflow-hidden rounded-xl bg-surface shadow-hard-lg lg:rotate-[1.2deg]">
+                    <div class="flex items-center gap-3 border-b-2 border-edge bg-sun-300 px-4 py-2.5">
+                        <span class="flex gap-1.5" aria-hidden="true">
+                            <span class="h-3 w-3 rounded-full border-2 border-navy bg-white"></span>
+                            <span class="h-3 w-3 rounded-full border-2 border-navy bg-brand-300"></span>
+                            <span class="h-3 w-3 rounded-full border-2 border-navy bg-navy"></span>
+                        </span>
+                        <span class="min-w-0 flex-1 truncate rounded-full border-2 border-navy bg-white px-3 py-0.5 text-caption font-semibold text-navy">
+                            <i class="fa-solid fa-lock mr-1 text-[0.65rem]" aria-hidden="true"></i>tokokopi.fkstudio.id
+                        </span>
+                    </div>
+
                     @if ($slides->isNotEmpty())
-                        <div class="swiper js-hero h-full w-full">
+                        <div class="swiper js-hero aspect-[4/3] w-full">
                             <div class="swiper-wrapper">
                                 @foreach ($slides as $i => $src)
                                     <div class="swiper-slide bg-brand-gradient-soft">
@@ -75,37 +68,47 @@
                             </div>
                         </div>
                     @else
-                        <div class="flex h-full w-full items-center justify-center bg-brand-gradient-soft text-6xl text-brand-500">
-                            <i class="fa-solid fa-laptop-code" aria-hidden="true"></i>
+                        {{-- Skeleton site that assembles itself once on load --}}
+                        <div class="relative aspect-[4/3] overflow-hidden bg-bg" aria-hidden="true">
+                            <div class="flex items-center gap-3 border-b-2 border-edge/20 bg-surface px-5 py-3.5" style="animation: build-in .45s ease-out .1s both">
+                                <span class="h-6 w-6 rounded-md border-2 border-edge bg-sun-400"></span>
+                                <span class="h-2.5 w-20 rounded-full bg-ink/80"></span>
+                                <span class="ml-auto flex gap-2"><span class="h-2 w-9 rounded-full bg-ink/20"></span><span class="h-2 w-9 rounded-full bg-ink/20"></span><span class="h-2 w-9 rounded-full bg-ink/20"></span></span>
+                            </div>
+                            <div class="grid grid-cols-5 gap-5 px-5 pt-6">
+                                <div class="col-span-3 space-y-3">
+                                    <span class="block h-5 rounded-full bg-ink" style="--w:92%; width:var(--w); animation: type-line .7s steps(12) .5s both"></span>
+                                    <span class="block h-5 rounded-full bg-ink" style="--w:64%; width:var(--w); animation: type-line .6s steps(9) 1.1s both"></span>
+                                    <span class="block h-2.5 rounded-full bg-ink/25" style="--w:95%; width:var(--w); animation: type-line .5s linear 1.6s both"></span>
+                                    <span class="block h-2.5 rounded-full bg-ink/25" style="--w:78%; width:var(--w); animation: type-line .5s linear 1.8s both"></span>
+                                    <span class="mt-3 block h-10 w-32 rounded-md border-2 border-edge bg-sun-400 shadow-hard-sm" style="animation: build-in .4s ease-out 2.1s both"></span>
+                                </div>
+                                <div class="col-span-2 flex aspect-square items-center justify-center rounded-lg border-2 border-edge bg-brand-200 text-5xl text-brand-700" style="animation: build-in .5s ease-out .9s both">
+                                    <i class="fa-solid fa-mug-hot"></i>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4 px-5 pt-7">
+                                @foreach ([2.4, 2.6, 2.8] as $d)
+                                    <div class="rounded-lg border-2 border-edge/70 bg-surface p-3" style="animation: build-in .4s ease-out {{ $d }}s both">
+                                        <span class="block aspect-[5/3] rounded-md {{ $loop->index === 1 ? 'bg-sun-200' : 'bg-brand-100' }}"></span>
+                                        <span class="mt-2.5 block h-2 w-3/4 rounded-full bg-ink/70"></span>
+                                        <span class="mt-1.5 block h-2 w-1/2 rounded-full bg-ink/20"></span>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <span class="absolute bottom-10 right-8 flex items-start" style="animation: cursor-move 1.4s ease-in-out 3s both">
+                                <i class="fa-solid fa-arrow-pointer rotate-[-12deg] text-2xl text-ink drop-shadow-[2px_2px_0_rgb(255_255_255)]"></i>
+                                <span class="ml-1 mt-4 rounded-full border-2 border-navy bg-brand-300 px-2 py-0.5 text-caption font-bold text-navy">{{ $id ? 'Anda' : 'You' }}</span>
+                            </span>
                         </div>
                     @endif
                 </div>
 
-                @if ($projects->count())
-                    <div class="absolute -top-4 right-2 flex items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 shadow-card sm:-right-3 animate-float">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-md bg-sun-100 text-sun-700"><i class="fa-solid fa-trophy" aria-hidden="true"></i></span>
-                        <div>
-                            <p class="text-lg font-extrabold leading-none">{{ $projects->count() }}+</p>
-                            <p class="text-caption text-muted">{{ $id ? 'Proyek selesai' : 'Projects done' }}</p>
-                        </div>
-                    </div>
-                @endif
-
-                @if ($rating)
-                    <div class="absolute -bottom-5 left-2 flex items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 shadow-card sm:-left-3">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-md bg-pink-50 text-pink-600 dark:bg-pink-500/15 dark:text-pink-300"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
-                        <div>
-                            <p class="text-lg font-extrabold leading-none">{{ number_format($rating, 1) }}/5</p>
-                            <p class="text-caption text-muted">{{ $id ? 'Kepuasan klien' : 'Client rating' }}</p>
-                        </div>
-                    </div>
-                @endif
-
                 @if ($slides->count() > 1)
-                    <div class="mt-14 flex items-center justify-center gap-4 lg:justify-end">
-                        <button type="button" class="js-hero-prev btn-icon border border-line bg-surface" aria-label="{{ $id ? 'Slide sebelumnya' : 'Previous slide' }}"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+                    <div class="mt-8 flex items-center justify-end gap-4">
+                        <button type="button" class="js-hero-prev btn-outline h-11 min-h-0 w-11 px-0" aria-label="{{ $id ? 'Slide sebelumnya' : 'Previous slide' }}"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
                         <div class="js-hero-pagination swiper-pagination !static !w-auto"></div>
-                        <button type="button" class="js-hero-next btn-icon border border-line bg-surface" aria-label="{{ $id ? 'Slide berikutnya' : 'Next slide' }}"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+                        <button type="button" class="js-hero-next btn-outline h-11 min-h-0 w-11 px-0" aria-label="{{ $id ? 'Slide berikutnya' : 'Next slide' }}"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
                     </div>
                 @endif
             </div>

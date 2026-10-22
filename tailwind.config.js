@@ -2,7 +2,7 @@ import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
 
 /*
- * Design tokens — "Violet Sunrise"
+ * Design tokens — "Sunny Sky" (yellow + light blue)
  *
  * Semantic colors (bg, surface, ink, muted, line, ...) read CSS variables
  * defined in resources/css/app.css, so the same class works in light and dark
@@ -24,6 +24,7 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['"Plus Jakarta Sans Variable"', '"Plus Jakarta Sans"', ...defaultTheme.fontFamily.sans],
+                display: ['"Bricolage Grotesque Variable"', '"Bricolage Grotesque"', ...defaultTheme.fontFamily.sans],
             },
 
             colors: {
@@ -36,19 +37,21 @@ export default {
                 line: token('line'),
                 'brand-soft': token('brand-soft'),
                 'brand-text': token('brand-text'),
+                edge: token('edge'),
+                navy: '#0A1F3A',
 
-                // Brand: violet
+                // Brand: sky blue (600+ passes AA with white text)
                 brand: {
-                    50: '#F5F0FF',
-                    100: '#EBE0FF',
-                    200: '#D8C5FF',
-                    300: '#C4B5FD',
-                    400: '#A78BFA',
-                    500: '#8B5CF6',
-                    600: '#7C3AED',
-                    700: '#6D28D9',
-                    800: '#5B21B6',
-                    900: '#3B1480',
+                    50: '#EEF8FF',
+                    100: '#D8EFFE',
+                    200: '#B3E0FC',
+                    300: '#7FCBF8',
+                    400: '#4BB3F0',
+                    500: '#1E9BE5',
+                    600: '#0F7FCB',
+                    700: '#0B66A6',
+                    800: '#0A5084',
+                    900: '#0A3A61',
                 },
                 // Accents
                 pink: {
@@ -61,12 +64,14 @@ export default {
                     700: '#BE185D',
                 },
                 sun: {
-                    50: '#FFF8E1',
-                    100: '#FFEFB8',
-                    300: '#FFD966',
-                    400: '#FFC83D',
-                    500: '#F5B100',
-                    700: '#92400E',
+                    50: '#FFFBE0',
+                    100: '#FFF3B0',
+                    200: '#FFE97A',
+                    300: '#FFDD3D',
+                    400: '#FFCF0F',
+                    500: '#F2B800',
+                    600: '#D49A00',
+                    700: '#855600',
                 },
                 mint: {
                     50: '#E6FAF7',
@@ -108,17 +113,21 @@ export default {
             },
 
             boxShadow: {
-                soft: '0 1px 2px rgb(23 18 58 / 0.04), 0 4px 16px -4px rgb(23 18 58 / 0.08)',
-                card: '0 1px 2px rgb(23 18 58 / 0.04), 0 12px 32px -12px rgb(124 58 237 / 0.18)',
-                pop: '0 20px 48px -16px rgb(124 58 237 / 0.35)',
-                glow: '0 8px 24px -8px rgb(124 58 237 / 0.55)',
+                soft: '0 1px 2px rgb(10 31 58 / 0.05), 0 4px 16px -4px rgb(10 31 58 / 0.10)',
+                card: '0 1px 2px rgb(10 31 58 / 0.05), 0 12px 32px -12px rgb(15 127 203 / 0.25)',
+                pop: '0 20px 48px -16px rgb(10 31 58 / 0.35)',
+                glow: '0 8px 24px -8px rgb(255 207 15 / 0.65)',
+                // Hard, offset "sticker" shadows
+                hard: '4px 4px 0 0 rgb(var(--c-edge))',
+                'hard-sm': '2px 2px 0 0 rgb(var(--c-edge))',
+                'hard-lg': '8px 8px 0 0 rgb(var(--c-edge))',
             },
 
             backgroundImage: {
-                'brand-gradient': 'linear-gradient(135deg, #7C3AED 0%, #A855F7 50%, #FF5C8A 100%)',
+                'brand-gradient': 'linear-gradient(135deg, #FFE066 0%, #FFCF0F 100%)',
                 'brand-gradient-soft':
-                    'linear-gradient(135deg, rgb(124 58 237 / 0.10) 0%, rgb(255 92 138 / 0.10) 100%)',
-                'sunrise': 'linear-gradient(135deg, #FFC83D 0%, #FF5C8A 100%)',
+                    'linear-gradient(135deg, rgb(127 203 248 / 0.25) 0%, rgb(255 207 15 / 0.18) 100%)',
+                'sunrise': 'linear-gradient(135deg, #FFE066 0%, #FFCF0F 100%)',
             },
 
             keyframes: {

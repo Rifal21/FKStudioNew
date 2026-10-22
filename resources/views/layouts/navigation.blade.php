@@ -6,7 +6,7 @@
 
     <div class="flex h-16 shrink-0 items-center justify-between border-b border-line px-5">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
-            <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-gradient text-small font-extrabold text-white shadow-glow">FK</span>
+            <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-gradient text-small font-extrabold text-navy shadow-glow">FK</span>
             <span class="leading-tight">
                 <span class="block text-base font-extrabold">FKStudio</span>
                 <span class="block text-caption text-muted">Panel admin</span>
@@ -53,7 +53,7 @@
 
     <div class="shrink-0 border-t border-line p-3">
         <div class="flex items-center gap-3 rounded-lg bg-surface-2 p-2.5">
-            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-gradient font-bold uppercase text-white">{{ mb_substr(Auth::user()->name, 0, 1) }}</span>
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-gradient font-bold uppercase text-navy">{{ mb_substr(Auth::user()->name, 0, 1) }}</span>
             <div class="min-w-0 flex-1">
                 <p class="truncate text-small font-bold">{{ Auth::user()->name }}</p>
                 <p class="truncate text-caption text-muted">{{ Auth::user()->email }}</p>

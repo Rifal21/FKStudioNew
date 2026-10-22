@@ -2,7 +2,7 @@
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
     <div class="relative pb-16 pt-28 md:pb-24 md:pt-36">
-        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_30%_at_50%_0%,rgb(124_58_237/0.12),transparent)]" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_30%_at_50%_0%,rgb(30_155_229/0.12),transparent)]" aria-hidden="true"></div>
 
         <div class="container-page relative max-w-3xl">
             <x-ui.page-header title="Pengaturan profil" description="Perbarui informasi akun dan jaga keamanan kata sandi Anda." />

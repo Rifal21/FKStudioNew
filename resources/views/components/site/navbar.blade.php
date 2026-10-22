@@ -35,7 +35,7 @@
     <div
         class="mx-auto flex items-center justify-between gap-4 transition-all duration-300"
         :class="(scrolled || mobileMenu)
-            ? 'mt-3 max-w-6xl rounded-full border border-line bg-surface/85 px-4 py-2 shadow-soft backdrop-blur-xl sm:px-5'
+            ? 'mt-3 max-w-6xl rounded-full border-2 border-edge bg-surface/95 px-4 py-2 shadow-hard-sm backdrop-blur-xl sm:px-5'
             : 'mt-0 max-w-page px-1 py-4 sm:px-3'"
     >
         {{-- Logo --}}
@@ -43,7 +43,7 @@
             @if ($site->site_logo)
                 <img src="{{ $site->logo_url }}" alt="{{ $site->site_name }}" class="h-9 w-auto sm:h-10" width="120" height="40">
             @else
-                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-gradient text-small font-extrabold text-white shadow-glow">FK</span>
+                <span class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-edge bg-sun-400 text-small font-extrabold text-navy shadow-hard-sm">FK</span>
                 <span class="hidden text-lg font-extrabold sm:inline">{{ $site->site_name ?: 'FKStudio' }}</span>
             @endif
         </a>
@@ -55,8 +55,8 @@
                     href="{{ $link['href'] }}"
                     class="rounded-full px-3.5 py-2 text-small font-semibold transition"
                     :class="({{ $link['active'] ? 'true' : 'false' }} || ({{ $isHome ? 'true' : 'false' }} && section === '{{ $link['section'] }}'))
-                        ? 'bg-brand-soft text-brand-text'
-                        : 'text-muted hover:bg-surface-2 hover:text-ink'"
+                        ? 'bg-sun-300 text-navy'
+                        : 'text-muted hover:bg-brand-soft hover:text-ink'"
                 >{{ $link['label'] }}</a>
             @endforeach
         </nav>
@@ -66,7 +66,7 @@
             <div class="flex items-center rounded-full border border-line bg-surface-2 p-0.5 text-caption font-bold" role="group" aria-label="{{ $id ? 'Bahasa' : 'Language' }}">
                 @foreach (['id' => 'ID', 'en' => 'EN'] as $code => $label)
                     <a href="{{ url('switch-language/' . $code) }}"
-                        @class(['rounded-full px-2.5 py-1 transition', 'bg-brand-600 text-white' => app()->getLocale() === $code, 'text-muted hover:text-ink' => app()->getLocale() !== $code])
+                        @class(['rounded-full px-2.5 py-1 transition', 'bg-sun-400 text-navy' => app()->getLocale() === $code, 'text-muted hover:text-ink' => app()->getLocale() !== $code])
                         @if (app()->getLocale() === $code) aria-current="true" @endif>{{ $label }}</a>
                 @endforeach
             </div>
@@ -76,7 +76,7 @@
             @auth
                 <div class="relative" x-data="{ open: false }" @click.outside="open = false" @keydown.escape="open = false">
                     <button type="button" @click="open = !open" class="flex items-center gap-2 rounded-full p-1 pr-2.5 transition hover:bg-surface-2" aria-haspopup="menu" :aria-expanded="open">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-brand-gradient text-small font-bold uppercase text-white">{{ mb_substr(auth()->user()->name, 0, 1) }}</span>
+                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-brand-gradient text-small font-bold uppercase text-navy">{{ mb_substr(auth()->user()->name, 0, 1) }}</span>
                         <i class="fa-solid fa-chevron-down text-caption text-muted transition" :class="open && 'rotate-180'" aria-hidden="true"></i>
                     </button>
                     <div x-show="open" x-cloak x-transition.origin.top.right role="menu"
@@ -113,7 +113,7 @@
         <div class="flex items-center gap-2 lg:hidden">
             <x-ui.theme-toggle class="h-10 w-10 rounded-full" />
             <button type="button" @click="mobileMenu = !mobileMenu"
-                class="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink"
+                class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-edge bg-surface text-ink"
                 :aria-expanded="mobileMenu" aria-controls="mobile-menu" aria-label="{{ $id ? 'Buka menu' : 'Open menu' }}">
                 <i class="fa-solid" :class="mobileMenu ? 'fa-xmark' : 'fa-bars'" aria-hidden="true"></i>
             </button>
@@ -126,13 +126,13 @@
         x-show="mobileMenu" x-cloak
         x-transition:enter="transition duration-200 ease-out" x-transition:enter-start="-translate-y-2 opacity-0" x-transition:enter-end="translate-y-0 opacity-100"
         x-transition:leave="transition duration-150 ease-in" x-transition:leave-start="translate-y-0 opacity-100" x-transition:leave-end="-translate-y-2 opacity-0"
-        class="mx-auto mt-2 max-h-[calc(100svh-6rem)] max-w-6xl overflow-y-auto rounded-xl border border-line bg-surface p-4 shadow-pop lg:hidden"
+        class="mx-auto mt-2 max-h-[calc(100svh-6rem)] max-w-6xl overflow-y-auto rounded-xl border-2 border-edge bg-surface p-4 shadow-hard lg:hidden"
     >
         <nav class="flex flex-col gap-1" aria-label="{{ $id ? 'Menu seluler' : 'Mobile menu' }}">
             @foreach ($links as $link)
                 <a href="{{ $link['href'] }}" @click="mobileMenu = false"
                     class="flex min-h-[48px] items-center justify-between rounded-md px-4 text-body font-semibold transition"
-                    :class="({{ $link['active'] ? 'true' : 'false' }} || ({{ $isHome ? 'true' : 'false' }} && section === '{{ $link['section'] }}')) ? 'bg-brand-soft text-brand-text' : 'text-ink hover:bg-surface-2'">
+                    :class="({{ $link['active'] ? 'true' : 'false' }} || ({{ $isHome ? 'true' : 'false' }} && section === '{{ $link['section'] }}')) ? 'bg-sun-300 text-navy' : 'text-ink hover:bg-surface-2'">
                     {{ $link['label'] }}
                     <i class="fa-solid fa-chevron-right text-caption text-muted" aria-hidden="true"></i>
                 </a>
@@ -144,7 +144,7 @@
             <div class="flex items-center gap-1 text-small font-bold">
                 @foreach (['id' => 'ID', 'en' => 'EN'] as $code => $label)
                     <a href="{{ url('switch-language/' . $code) }}"
-                        @class(['rounded-full px-3 py-1.5', 'bg-brand-600 text-white' => app()->getLocale() === $code, 'text-muted' => app()->getLocale() !== $code])>{{ $label }}</a>
+                        @class(['rounded-full px-3 py-1.5', 'bg-sun-400 text-navy' => app()->getLocale() === $code, 'text-muted' => app()->getLocale() !== $code])>{{ $label }}</a>
                 @endforeach
             </div>
         </div>
@@ -152,7 +152,7 @@
         @auth
             <div class="space-y-1 rounded-md border border-line p-2">
                 <div class="flex items-center gap-3 px-2 py-2">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-gradient font-bold uppercase text-white">{{ mb_substr(auth()->user()->name, 0, 1) }}</span>
+                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-gradient font-bold uppercase text-navy">{{ mb_substr(auth()->user()->name, 0, 1) }}</span>
                     <div class="min-w-0">
                         <p class="text-caption text-muted">{{ $id ? 'Masuk sebagai' : 'Signed in as' }}</p>
                         <p class="truncate text-small font-bold">{{ auth()->user()->name }}</p>

@@ -3,7 +3,6 @@
 
     @include('landing.home.hero')
     @include('landing.home.clients')
-    @include('landing.home.stats')
     @include('landing.home.about')
     @include('landing.home.services')
     @include('landing.home.process')

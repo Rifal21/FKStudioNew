@@ -17,30 +17,43 @@
     ];
 @endphp
 
-<section id="faq" class="section scroll-mt-20">
-    <div class="container-page max-w-4xl">
-        <x-ui.section-heading
-            :eyebrow="$id ? 'Pertanyaan umum' : 'FAQ'"
-            :title="$id ? 'Pertanyaan yang sering diajukan' : 'Frequently asked questions'" />
+@php
+    $digits = preg_replace('/[^0-9]/', '', $settings->contact_phone ?? '');
+    if ($digits && str_starts_with($digits, '0')) $digits = '62' . substr($digits, 1);
+@endphp
 
-        <div class="mt-10 space-y-3" x-data="{ open: 0 }">
-            @foreach ($faqs as $i => [$q, $a])
-                <div class="card overflow-hidden">
-                    <h3>
-                        <button type="button" class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-base font-semibold md:px-6"
-                            @click="open = open === {{ $i }} ? null : {{ $i }}"
-                            :aria-expanded="open === {{ $i }}" aria-controls="faq-{{ $i }}">
-                            <span>{{ $q }}</span>
-                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-text transition" :class="open === {{ $i }} && 'rotate-45'">
-                                <i class="fa-solid fa-plus text-caption" aria-hidden="true"></i>
-                            </span>
-                        </button>
-                    </h3>
-                    <div id="faq-{{ $i }}" x-show="open === {{ $i }}" x-transition x-cloak>
-                        <p class="px-5 pb-5 text-muted md:px-6">{{ $a }}</p>
-                    </div>
+<section id="faq" class="section scroll-mt-20 border-t-2 border-edge bg-surface">
+    <div class="container-page">
+        <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+            <div class="lg:col-span-4">
+                <div class="lg:sticky lg:top-28">
+                    <h2 class="section-title">{{ $id ? 'Pertanyaan yang sering diajukan' : 'Frequently asked questions' }}</h2>
+                    <p class="section-lead">{{ $id ? 'Tidak menemukan jawabannya? Tanyakan langsung ke kami.' : 'Cannot find your answer? Ask us directly.' }}</p>
+                    @if ($digits)
+                        <a href="https://wa.me/{{ $digits }}" target="_blank" rel="noopener" class="btn-primary mt-8"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> {{ $id ? 'Chat WhatsApp' : 'Chat on WhatsApp' }}</a>
+                    @endif
                 </div>
-            @endforeach
+            </div>
+
+            <div class="min-w-0 lg:col-span-8" x-data="{ open: 0 }">
+                @foreach ($faqs as $i => [$q, $a])
+                    <div class="border-t-2 border-edge/25 last:border-b-2" :class="open === {{ $i }} && 'bg-sun-100/70 dark:bg-sun-400/10'">
+                        <h3>
+                            <button type="button" class="flex w-full items-center justify-between gap-5 px-2 py-5 text-left font-display text-lg font-bold md:px-4 md:text-xl"
+                                @click="open = open === {{ $i }} ? null : {{ $i }}"
+                                :aria-expanded="open === {{ $i }}" aria-controls="faq-{{ $i }}">
+                                <span>{{ $q }}</span>
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border-2 border-edge transition" :class="open === {{ $i }} ? 'rotate-45 bg-sun-400 text-navy' : 'bg-surface'">
+                                    <i class="fa-solid fa-plus text-caption" aria-hidden="true"></i>
+                                </span>
+                            </button>
+                        </h3>
+                        <div id="faq-{{ $i }}" x-show="open === {{ $i }}" x-transition x-cloak>
+                            <p class="max-w-2xl px-2 pb-6 text-muted md:px-4">{{ $a }}</p>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 </section>

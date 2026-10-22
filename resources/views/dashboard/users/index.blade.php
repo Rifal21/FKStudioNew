@@ -60,7 +60,7 @@
                             <tr x-show="!search || {{ \Illuminate\Support\Js::from(mb_strtolower($user->name . ' ' . $user->email)) }}.includes(search.toLowerCase().trim())">
                                 <td>
                                     <div class="flex items-center gap-3">
-                                        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-bold {{ $user->isSuperAdmin() ? 'bg-brand-gradient text-white' : 'bg-brand-soft text-brand-text' }}" aria-hidden="true">
+                                        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-bold {{ $user->isSuperAdmin() ? 'bg-brand-gradient text-navy' : 'bg-brand-soft text-brand-text' }}" aria-hidden="true">
                                             {{ strtoupper(substr($user->name, 0, 1)) }}
                                         </span>
                                         <div class="min-w-0">
@@ -111,7 +111,7 @@
                 @foreach ($users as $user)
                     <article class="card card-pad" x-show="!search || {{ \Illuminate\Support\Js::from(mb_strtolower($user->name . ' ' . $user->email)) }}.includes(search.toLowerCase().trim())">
                         <div class="flex items-start gap-3">
-                            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-bold {{ $user->isSuperAdmin() ? 'bg-brand-gradient text-white' : 'bg-brand-soft text-brand-text' }}" aria-hidden="true">
+                            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-bold {{ $user->isSuperAdmin() ? 'bg-brand-gradient text-navy' : 'bg-brand-soft text-brand-text' }}" aria-hidden="true">
                                 {{ strtoupper(substr($user->name, 0, 1)) }}
                             </span>
                             <div class="min-w-0 flex-1">

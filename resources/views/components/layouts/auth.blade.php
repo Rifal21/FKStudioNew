@@ -9,7 +9,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#7C3AED">
+    <meta name="theme-color" content="#FFCF0F">
     <title>{{ $title ? "{$title} | {$siteName}" : $siteName }}</title>
     @if ($site->site_favicon)
         <link rel="icon" type="image/png" href="{{ $site->favicon_url }}">
@@ -19,38 +19,38 @@
 <body class="min-h-screen">
     <div class="grid min-h-screen lg:grid-cols-2">
         {{-- Brand panel --}}
-        <aside class="relative hidden overflow-hidden bg-brand-gradient p-12 text-white lg:flex lg:flex-col lg:justify-between">
-            <div class="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/10"></div>
-            <div class="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-sun-400/20"></div>
+        <aside class="relative hidden overflow-hidden bg-sun-400 p-12 text-navy lg:flex lg:flex-col lg:justify-between">
+            <div class="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full border-2 border-navy bg-brand-300"></div>
+            <div class="pointer-events-none absolute -bottom-52 -left-24 h-96 w-96 rounded-full border-2 border-navy bg-brand-200"></div>
 
             <a href="{{ route('home') }}" class="relative inline-flex items-center gap-3">
                 @if ($site->site_logo)
-                    <img src="{{ $site->logo_url }}" alt="{{ $siteName }}" class="h-12 w-auto rounded-md bg-white/90 p-1.5">
+                    <img src="{{ $site->logo_url }}" alt="{{ $siteName }}" class="h-12 w-auto rounded-md bg-white p-1.5">
                 @else
-                    <span class="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 text-xl font-extrabold">FK</span>
+                    <span class="flex h-12 w-12 items-center justify-center rounded-lg bg-white/55 text-xl font-extrabold">FK</span>
                 @endif
                 <span class="text-xl font-extrabold">{{ $siteName }}</span>
             </a>
 
             <div class="relative max-w-md">
-                <h2 class="text-4xl font-extrabold leading-tight text-white">
+                <h2 class="text-4xl font-extrabold leading-tight text-navy">
                     {{ app()->getLocale() === 'id' ? 'Wujudkan website impian bisnis Anda.' : 'Build the website your business deserves.' }}
                 </h2>
-                <ul class="mt-8 space-y-4 text-white/90">
+                <ul class="mt-8 space-y-4 text-navy/85">
                     @foreach ([
                         ['fa-bolt', app()->getLocale() === 'id' ? 'Proses cepat dan transparan' : 'Fast and transparent process'],
                         ['fa-shield-heart', app()->getLocale() === 'id' ? 'Pembayaran aman, bisa DP' : 'Secure payments, deposit available'],
                         ['fa-headset', app()->getLocale() === 'id' ? 'Dukungan responsif setiap hari' : 'Responsive support every day'],
                     ] as [$icon, $text])
                         <li class="flex items-center gap-3">
-                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white/15"><i class="fa-solid {{ $icon }}"></i></span>
+                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white/55"><i class="fa-solid {{ $icon }}"></i></span>
                             <span>{{ $text }}</span>
                         </li>
                     @endforeach
                 </ul>
             </div>
 
-            <p class="relative text-small text-white/80">&copy; {{ date('Y') }} {{ $siteName }}</p>
+            <p class="relative text-small text-navy/75">&copy; {{ date('Y') }} {{ $siteName }}</p>
         </aside>
 
         {{-- Form panel --}}
@@ -60,7 +60,7 @@
                     @if ($site->site_logo)
                         <img src="{{ $site->logo_url }}" alt="{{ $siteName }}" class="h-9 w-auto">
                     @else
-                        <span class="flex h-9 w-9 items-center justify-center rounded-md bg-brand-gradient text-small font-extrabold text-white">FK</span>
+                        <span class="flex h-9 w-9 items-center justify-center rounded-md bg-brand-gradient text-small font-extrabold text-navy">FK</span>
                     @endif
                     <span class="font-bold">{{ $siteName }}</span>
                 </a>

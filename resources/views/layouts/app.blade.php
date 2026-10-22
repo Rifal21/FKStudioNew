@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="theme-color" content="#7C3AED">
+    <meta name="theme-color" content="#FFCF0F">
     <title>{{ $pageTitle }} | Admin FKStudio</title>
     @include('partials.head-assets')
     @stack('head')
@@ -30,7 +30,7 @@
 
                     <div class="relative" x-data="{ open: false }" @click.outside="open = false" @keydown.escape="open = false">
                         <button type="button" @click="open = !open" class="flex items-center gap-2 rounded-full p-1 transition hover:bg-surface-2" aria-haspopup="menu" :aria-expanded="open" aria-label="Menu akun">
-                            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-brand-gradient text-small font-bold uppercase text-white">{{ mb_substr(Auth::user()->name, 0, 1) }}</span>
+                            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-brand-gradient text-small font-bold uppercase text-navy">{{ mb_substr(Auth::user()->name, 0, 1) }}</span>
                         </button>
                         <div x-show="open" x-cloak x-transition.origin.top.right role="menu" class="absolute right-0 mt-3 w-60 rounded-lg border border-line bg-surface p-2 shadow-pop">
                             <div class="border-b border-line px-3 pb-3 pt-2"><p class="truncate text-small font-bold">{{ Auth::user()->name }}</p><p class="truncate text-caption text-muted">{{ Auth::user()->email }}</p></div>

@@ -6,26 +6,28 @@
    Theme tokens (RGB triplets so Tailwind can apply opacity: bg-surface/80)
    ========================================================================== */
 :root {
-    --c-bg: 251 249 255;
+    --c-bg: 245 251 255;
     --c-surface: 255 255 255;
-    --c-surface-2: 245 242 252;
-    --c-ink: 23 18 58;
-    --c-muted: 98 92 128;
-    --c-line: 232 226 246;
-    --c-brand-soft: 245 240 255;
-    --c-brand-text: 109 40 217;
+    --c-surface-2: 232 244 252;
+    --c-ink: 10 31 58;
+    --c-muted: 70 94 120;
+    --c-line: 205 226 242;
+    --c-brand-soft: 224 242 254;
+    --c-brand-text: 7 89 150;
+    --c-edge: 10 31 58;
     color-scheme: light;
 }
 
 .dark {
-    --c-bg: 15 11 36;
-    --c-surface: 26 21 56;
-    --c-surface-2: 35 29 74;
-    --c-ink: 243 240 255;
-    --c-muted: 169 163 200;
-    --c-line: 52 45 99;
-    --c-brand-soft: 40 30 90;
-    --c-brand-text: 196 181 253;
+    --c-bg: 7 22 40;
+    --c-surface: 13 37 64;
+    --c-surface-2: 19 50 84;
+    --c-ink: 238 248 255;
+    --c-muted: 150 180 207;
+    --c-line: 33 70 107;
+    --c-brand-soft: 16 52 88;
+    --c-brand-text: 125 205 250;
+    --c-edge: 96 165 212;
     color-scheme: dark;
 }
 
@@ -44,11 +46,11 @@
     }
 
     h1, h2, h3, h4 {
-        @apply font-bold tracking-tight text-ink;
+        @apply font-display font-bold tracking-tight text-ink;
     }
 
     ::selection {
-        @apply bg-brand-600 text-white;
+        @apply bg-sun-400 text-navy;
     }
 
     :focus-visible {
@@ -87,19 +89,26 @@
     }
 
     .eyebrow {
-        @apply inline-flex items-center gap-2 rounded-full bg-brand-soft px-3 py-1 text-caption font-semibold uppercase tracking-wider text-brand-text;
+        @apply inline-flex items-center gap-2 rounded-full bg-brand-soft px-3 py-1 text-caption font-semibold text-brand-text;
     }
 
     .section-title {
-        @apply text-3xl font-extrabold leading-tight md:text-4xl;
+        @apply text-4xl font-extrabold leading-[1.05] md:text-5xl;
     }
 
     .section-lead {
         @apply mt-3 max-w-2xl text-base text-muted md:text-lg;
     }
 
+    /* Marker highlight (replaces the old gradient text) */
     .gradient-text {
-        @apply bg-brand-gradient bg-clip-text text-transparent;
+        @apply text-ink;
+        background-image: linear-gradient(transparent 62%, rgb(255 207 15 / 0.85) 62%);
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+    }
+    .dark .gradient-text {
+        background-image: linear-gradient(transparent 62%, rgb(255 207 15 / 0.45) 62%);
     }
 
     /* ---- Buttons ---- */
@@ -110,11 +119,22 @@
     }
 
     .btn-primary {
-        @apply btn bg-brand-600 text-white shadow-glow hover:bg-brand-700 hover:shadow-pop;
+        @apply btn border-2 border-edge bg-sun-400 text-navy shadow-hard-sm hover:-translate-y-0.5 hover:bg-sun-300 hover:shadow-hard
+               active:translate-y-0 active:shadow-none;
     }
 
     .btn-secondary {
-        @apply btn border border-line bg-surface text-ink hover:border-brand-300 hover:bg-brand-soft hover:text-brand-text;
+        @apply btn border border-line bg-surface text-ink hover:border-brand-400 hover:bg-brand-soft hover:text-brand-text;
+    }
+
+    .btn-outline {
+        @apply btn border-2 border-edge bg-surface text-ink shadow-hard-sm hover:-translate-y-0.5 hover:bg-brand-100 hover:shadow-hard
+               active:translate-y-0 active:shadow-none dark:hover:bg-brand-soft;
+    }
+
+    .btn-navy {
+        @apply btn border-2 border-navy bg-navy text-white shadow-hard-sm hover:-translate-y-0.5 hover:bg-brand-900 hover:shadow-hard
+               active:translate-y-0 active:shadow-none;
     }
 
     .btn-ghost {
@@ -122,7 +142,7 @@
     }
 
     .btn-sun {
-        @apply btn bg-sun-400 text-[#17123A] hover:bg-sun-300;
+        @apply btn bg-sun-400 text-navy hover:bg-sun-300;
     }
 
     .btn-danger {
@@ -155,7 +175,7 @@
     }
 
     .card-hover {
-        @apply transition duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-card;
+        @apply transition duration-300 hover:-translate-y-1 hover:border-brand-300 hover:shadow-card;
     }
 
     /* ---- Badges (tint background + dark text, readable in both themes) ---- */
@@ -265,7 +285,10 @@
     color: rgb(var(--c-ink)) !important;
 }
 .swal2-confirm {
-    background: #7c3aed !important;
+    background: #FFCF0F !important;
+    color: #0A1F3A !important;
+    font-weight: 700 !important;
+    border: 2px solid #0A1F3A !important;
     border-radius: 12px !important;
 }
 .swal2-cancel {
@@ -280,7 +303,7 @@
 .swiper-pagination-bullet-active {
     width: 24px !important;
     border-radius: 4px !important;
-    background: #7c3aed !important;
+    background: #0F7FCB !important;
 }
 
 /* ==========================================================================
@@ -306,10 +329,63 @@
     .rich-text figcaption { @apply mt-2 text-center text-small text-muted; }
     .rich-text hr { @apply my-10 border-line; }
     .rich-text code { @apply rounded bg-surface-2 px-1.5 py-0.5 text-[0.9em] text-brand-text; }
-    .rich-text pre { @apply overflow-x-auto rounded-lg bg-[#17123A] p-4 text-small text-white; }
+    .rich-text pre { @apply overflow-x-auto rounded-lg bg-navy p-4 text-small text-white; }
     .rich-text pre code { @apply bg-transparent p-0 text-white; }
     .rich-text table { @apply block w-full overflow-x-auto text-small; }
     .rich-text th, .rich-text td { @apply border border-line px-3 py-2 text-left; }
     .rich-text th { @apply bg-surface-2 font-semibold; }
     .rich-text iframe { @apply aspect-video h-auto w-full rounded-lg; }
+}
+
+
+/* ==========================================================================
+   Landing "desk" language: grid paper, stickers, tape, outlined frames
+   ========================================================================== */
+@layer components {
+    .grid-paper {
+        background-color: rgb(var(--c-bg));
+        background-image:
+            linear-gradient(rgb(var(--c-line) / 0.55) 1px, transparent 1px),
+            linear-gradient(90deg, rgb(var(--c-line) / 0.55) 1px, transparent 1px);
+        background-size: 32px 32px;
+    }
+
+    .dots-paper {
+        background-image: radial-gradient(rgb(var(--c-edge) / 0.22) 1.2px, transparent 1.2px);
+        background-size: 18px 18px;
+    }
+
+    /* A thick outlined block with a hard offset shadow */
+    .edge {
+        @apply border-2 border-edge;
+    }
+    .pop {
+        @apply border-2 border-edge shadow-hard;
+    }
+    .pop-lift {
+        @apply transition duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard-lg;
+    }
+
+    .sticker {
+        @apply inline-flex items-center gap-2 rounded-full border-2 border-edge bg-sun-400 px-3.5 py-1.5 text-small font-bold text-navy shadow-hard-sm;
+    }
+
+    .tape {
+        @apply absolute h-6 w-20 bg-sun-300/80;
+        clip-path: polygon(4% 0, 100% 6%, 96% 100%, 0 92%);
+    }
+}
+
+@keyframes build-in {
+    from { opacity: 0; transform: translateY(10px) scale(0.96); }
+    to   { opacity: 1; transform: none; }
+}
+@keyframes type-line {
+    from { width: 0; }
+    to   { width: var(--w, 100%); }
+}
+@keyframes cursor-move {
+    0%, 20%   { transform: translate(0, 0); }
+    55%       { transform: translate(-64px, -46px); }
+    75%, 100% { transform: translate(-64px, -46px); }
 }

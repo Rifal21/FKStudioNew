@@ -8,7 +8,7 @@
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
     <div class="relative overflow-hidden pb-16 pt-28 md:pb-24 md:pt-36">
-        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_40%_at_80%_0%,rgb(124_58_237/0.14),transparent),radial-gradient(30%_30%_at_0%_20%,rgb(255_92_138/0.10),transparent)]" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_40%_at_80%_0%,rgb(30_155_229/0.14),transparent),radial-gradient(30%_30%_at_0%_20%,rgb(255_207_15/0.10),transparent)]" aria-hidden="true"></div>
 
         <div class="container-page relative">
             <a href="{{ route('package.index') }}" class="btn-secondary btn-sm rounded-full"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> {{ $id ? 'Kembali ke Paket' : 'Back to Packages' }}</a>
@@ -59,7 +59,7 @@
                                 <div><p class="text-small font-bold">Down Payment (DP 50%)</p><p class="text-caption text-muted">{{ $id ? 'Mulai dengan DP 50%, pelunasan setelah selesai.' : 'Start with a 50% deposit, settle the rest when done.' }}</p></div>
                             </li>
                             <li class="flex items-start gap-3 rounded-lg bg-mint-50 p-3 dark:bg-mint-400/10">
-                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-mint-400 text-[#17123A]"><i class="fa-solid fa-ticket" aria-hidden="true"></i></span>
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-mint-400 text-navy"><i class="fa-solid fa-ticket" aria-hidden="true"></i></span>
                                 <div><p class="text-small font-bold">{{ $id ? 'Dukungan voucher diskon' : 'Discount voucher support' }}</p><p class="text-caption text-muted">{{ $id ? 'Gunakan kode voucher di checkout untuk potongan ekstra.' : 'Use a voucher code at checkout for an extra discount.' }}</p></div>
                             </li>
                         </ul>

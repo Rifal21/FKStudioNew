@@ -12,7 +12,7 @@
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
     <article class="relative pb-16 pt-28 md:pb-24 md:pt-36">
-        <div class="pointer-events-none absolute inset-x-0 top-0 h-96 bg-[radial-gradient(50%_60%_at_50%_0%,rgb(124_58_237/0.12),transparent)]" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute inset-x-0 top-0 h-96 bg-[radial-gradient(50%_60%_at_50%_0%,rgb(30_155_229/0.12),transparent)]" aria-hidden="true"></div>
 
         <div class="container-page relative max-w-3xl">
             <a href="{{ route('blog.index') }}" class="btn-secondary btn-sm rounded-full"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> {{ $id ? 'Semua artikel' : 'All articles' }}</a>
@@ -22,7 +22,7 @@
                 <h1 class="mt-4 text-3xl font-extrabold leading-tight md:text-5xl">{{ $title }}</h1>
                 <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-small text-muted">
                     <span class="flex items-center gap-2">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-brand-gradient font-bold uppercase text-white">{{ mb_substr($author ?? 'F', 0, 1) }}</span>
+                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-brand-gradient font-bold uppercase text-navy">{{ mb_substr($author ?? 'F', 0, 1) }}</span>
                         <span class="font-semibold text-ink">{{ $author }}</span>
                     </span>
                     <time datetime="{{ $date->toDateString() }}"><i class="fa-regular fa-calendar mr-1" aria-hidden="true"></i>{{ $date->translatedFormat('d F Y') }}</time>

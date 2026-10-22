@@ -29,7 +29,7 @@
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
             font-size: 11px;
-            color: #17123A;
+            color: #0A1F3A;
             margin: 0;
             padding: 0;
             background-color: #ffffff;
@@ -37,7 +37,7 @@
         }
         .top-bar {
             height: 6px;
-            background-color: #7C3AED;
+            background-color: #0F7FCB;
         }
         .container {
             padding: 28px 32px;
@@ -51,10 +51,10 @@
         .logo-text {
             font-size: 26px;
             font-weight: bold;
-            color: #17123A;
+            color: #0A1F3A;
         }
         .logo-text span {
-            color: #7C3AED;
+            color: #0F7FCB;
         }
         .company-info {
             margin-top: 10px;
@@ -63,15 +63,15 @@
         .company-name {
             font-size: 11px;
             font-weight: bold;
-            color: #17123A;
+            color: #0A1F3A;
             margin-bottom: 2px;
         }
         .company-address {
             font-size: 10px;
-            color: #625C80;
+            color: #465E78;
         }
         .invoice-badge {
-            background-color: #7C3AED;
+            background-color: #0F7FCB;
             color: #ffffff;
             padding: 5px 16px;
             font-weight: bold;
@@ -83,23 +83,23 @@
         .invoice-number {
             font-size: 20px;
             font-weight: bold;
-            color: #17123A;
+            color: #0A1F3A;
             margin-bottom: 4px;
         }
         .invoice-date {
             font-size: 10px;
-            color: #625C80;
+            color: #465E78;
         }
         .invoice-date b {
-            color: #17123A;
+            color: #0A1F3A;
         }
 
         /* Details */
         .details-table {
             width: 100%;
             margin-bottom: 20px;
-            border-top: 1px solid #E8E2F6;
-            border-bottom: 1px solid #E8E2F6;
+            border-top: 1px solid #CDE2F2;
+            border-bottom: 1px solid #CDE2F2;
         }
         .details-table td {
             padding-top: 14px;
@@ -108,24 +108,24 @@
         .section-label {
             font-size: 9px;
             font-weight: bold;
-            color: #6D28D9;
+            color: #0B66A6;
             margin-bottom: 6px;
         }
         .client-name {
             font-size: 16px;
             font-weight: bold;
-            color: #17123A;
+            color: #0A1F3A;
             margin-bottom: 3px;
         }
         .client-email {
             font-size: 11px;
             font-weight: bold;
-            color: #6D28D9;
+            color: #0B66A6;
             margin-bottom: 3px;
         }
         .client-address {
             font-size: 11px;
-            color: #625C80;
+            color: #465E78;
         }
         .status-badge {
             padding: 5px 14px;
@@ -146,7 +146,7 @@
         }
         .status-unpaid {
             background-color: #FFF8E1;
-            color: #92400E;
+            color: #855600;
             border: 1px solid #FFEFB8;
         }
         .status-cancelled {
@@ -162,35 +162,35 @@
             margin-bottom: 18px;
         }
         .items-table th {
-            background-color: #F5F0FF;
-            border-bottom: 1px solid #E8E2F6;
+            background-color: #EEF8FF;
+            border-bottom: 1px solid #CDE2F2;
             padding: 8px 8px;
-            color: #6D28D9;
+            color: #0B66A6;
             font-size: 10px;
             text-align: left;
             font-weight: bold;
         }
         .items-table td {
             padding: 9px 8px;
-            border-bottom: 1px solid #E8E2F6;
+            border-bottom: 1px solid #CDE2F2;
         }
         .item-desc {
             font-size: 11px;
             font-weight: bold;
-            color: #17123A;
+            color: #0A1F3A;
         }
         .item-qty {
             text-align: center;
-            color: #17123A;
+            color: #0A1F3A;
         }
         .item-price {
             text-align: right;
-            color: #625C80;
+            color: #465E78;
         }
         .item-amount {
             text-align: right;
             font-weight: bold;
-            color: #17123A;
+            color: #0A1F3A;
         }
 
         /* Footer layout */
@@ -203,77 +203,77 @@
         .bank-name {
             font-size: 10px;
             font-weight: bold;
-            color: #17123A;
+            color: #0A1F3A;
         }
         .bank-number {
             font-size: 12px;
             font-weight: bold;
-            color: #6D28D9;
+            color: #0B66A6;
         }
         .bank-holder {
             font-size: 9px;
-            color: #625C80;
+            color: #465E78;
         }
         .qris-img {
             width: 100px;
             height: 100px;
             padding: 5px;
             background: #ffffff;
-            border: 1px solid #E8E2F6;
+            border: 1px solid #CDE2F2;
         }
         .qris-caption {
             font-size: 8px;
-            color: #625C80;
+            color: #465E78;
             margin-top: 4px;
         }
         .notes-box {
-            background-color: #F5F0FF;
+            background-color: #EEF8FF;
             padding: 10px 12px;
-            border: 1px solid #E8E2F6;
+            border: 1px solid #CDE2F2;
             border-radius: 8px;
             margin-top: 12px;
         }
         .notes-title {
             font-size: 9px;
             font-weight: bold;
-            color: #625C80;
+            color: #465E78;
             margin-bottom: 4px;
         }
         .notes-text {
             font-size: 9px;
-            color: #17123A;
+            color: #0A1F3A;
             line-height: 1.5;
         }
 
         .totals-card {
-            background-color: #F5F0FF;
+            background-color: #EEF8FF;
             padding: 12px 14px;
             border-radius: 8px;
         }
         .total-label {
             font-size: 10px;
-            color: #625C80;
+            color: #465E78;
         }
         .total-value {
             text-align: right;
             font-weight: bold;
-            color: #17123A;
+            color: #0A1F3A;
             font-size: 11px;
         }
         .grand-total-row td {
-            border-top: 1px solid #E8E2F6;
+            border-top: 1px solid #CDE2F2;
             padding-top: 10px;
         }
         .grand-total-label {
             font-size: 11px;
             font-weight: bold;
-            color: #17123A;
+            color: #0A1F3A;
         }
         .grand-total-value {
             text-align: right;
             font-size: 18px;
             font-weight: bold;
-            color: #6D28D9;
+            color: #0B66A6;
         }
 
         .signature-box {
@@ -286,29 +286,29 @@
         }
         .signature-line {
             height: 45px;
-            border-bottom: 1px dashed #E8E2F6;
+            border-bottom: 1px dashed #CDE2F2;
             width: 140px;
             margin: 0 auto 8px auto;
         }
         .signer-name {
             font-size: 11px;
             font-weight: bold;
-            color: #17123A;
+            color: #0A1F3A;
         }
         .signer-title {
             font-size: 9px;
-            color: #625C80;
+            color: #465E78;
         }
 
         .thanks-footer {
             text-align: center;
             margin-top: 28px;
             padding-top: 12px;
-            border-top: 1px solid #E8E2F6;
+            border-top: 1px solid #CDE2F2;
         }
         .thanks-text {
             font-size: 10px;
-            color: #625C80;
+            color: #465E78;
         }
     </style>
 </head>
@@ -350,7 +350,7 @@
                     <div class="client-address">{!! nl2br(e($invoice->client_address)) !!}</div>
                 </td>
                 <td style="text-align: right; vertical-align: bottom;">
-                    <div class="section-label" style="color: #625C80; margin-bottom: 6px;">Status invoice</div>
+                    <div class="section-label" style="color: #465E78; margin-bottom: 6px;">Status invoice</div>
                     <div class="status-badge {{ $st['class'] }}">{{ $st['label'] }}</div>
                 </td>
             </tr>
