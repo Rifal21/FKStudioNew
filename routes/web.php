@@ -137,9 +137,6 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     Route::get('/tickets', [CmsController::class, 'ticketsIndex'])->name('tickets.index');
     Route::patch('/tickets/{ticket}', [CmsController::class, 'updateTicketStatus'])->name('tickets.update');
 
-    // Tenants (removed - booking system replaced tenancy)
-    // Route::get('/tenants', ...) - deprecated
-
     // Users
     Route::get('/users', [CmsController::class, 'usersIndex'])->name('users.index');
     Route::patch('/users/{user}', [CmsController::class, 'updateUser'])->name('users.update');

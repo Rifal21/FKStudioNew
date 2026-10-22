@@ -23,18 +23,5 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') !== 'local') {
             URL::forceScheme('https');
         }
-
-        // Fix Vite assets for multi-tenancy
-        $centralDomains = config('tenancy.central_domains', ['localhost', 'fkstudio.id']);
-        $currentHost = request()->getHost();
-        
-        if (!in_array($currentHost, $centralDomains)) {
-            // Use the first central domain for assets
-            $assetDomain = $centralDomains[0];
-            $scheme = config('app.env') === 'local' ? 'http' : 'https';
-            $port = request()->getPort() == 8000 ? ':8000' : '';
-            // Set asset URL ke domain pusat secara dinamis
-            config(['app.asset_url' => $scheme . '://' . $assetDomain . $port]);
-        }
     }
 }
