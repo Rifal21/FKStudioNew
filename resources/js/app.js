@@ -8,10 +8,34 @@ import 'aos/dist/aos.css';
 import Alpine from 'alpinejs';
 import AOS from 'aos';
 import Swal from 'sweetalert2';
+import Sortable from 'sortablejs';
 
 window.Alpine = Alpine;
 window.AOS = AOS;
 window.Swal = Swal;
+
+/* ---------------------------------------------------------------------------
+ * x-sortable="(from, to) => ..." — drag-and-drop reordering for an x-for list.
+ * Sortable moves the DOM node itself; we put it back and let the handler
+ * reorder the underlying array so Alpine stays the single source of truth.
+ * Children with a [data-drag-handle] descendant can only be dragged by it.
+ * ------------------------------------------------------------------------- */
+Alpine.directive('sortable', (el, { expression }, { evaluate }) => {
+    Sortable.create(el, {
+        animation: 160,
+        handle: '[data-drag-handle]',
+        draggable: '[data-sortable-item]',
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        dragClass: 'sortable-drag',
+        onEnd({ item, from, oldDraggableIndex: a, newDraggableIndex: b }) {
+            if (a === b) return;
+            const rest = [...from.querySelectorAll(':scope > [data-sortable-item]')].filter((n) => n !== item);
+            from.insertBefore(item, rest[a] ?? null);
+            evaluate(expression, { params: [a, b] });
+        },
+    });
+});
 
 /* ---------------------------------------------------------------------------
  * Theme (light / dark). The initial class is applied by an inline script in

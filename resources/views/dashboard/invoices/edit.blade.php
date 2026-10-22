@@ -17,6 +17,10 @@
             addItem() {
                 this.items.push({ description: '', quantity: 1, unit_price: 0 });
             },
+            moveItem(from, to) {
+                const [moved] = this.items.splice(from, 1);
+                this.items.splice(to, 0, moved);
+            },
             removeItem(index) {
                 if (this.items.length > 1) this.items.splice(index, 1);
             },
@@ -98,11 +102,16 @@
 
                         @error('items')<p class="field-error mb-3">{{ $message }}</p>@enderror
 
-                        <div class="space-y-4">
+                        <p class="mb-3 text-small text-muted">Seret <i class="fa-solid fa-grip-vertical" aria-hidden="true"></i> untuk mengubah urutan item. Urutan ini dipakai di invoice dan PDF.</p>
+
+                        <div class="space-y-4" x-sortable="moveItem">
                             <template x-for="(item, index) in items" :key="index">
-                                <div class="rounded-lg border border-line bg-surface-2 p-4">
+                                <div class="rounded-lg border border-line bg-surface-2 p-4" data-sortable-item>
                                     <div class="mb-3 flex items-center justify-between gap-3">
-                                        <p class="text-small font-semibold">Item <span x-text="index + 1"></span> <span class="font-normal text-muted">&middot; <span x-text="money(item.quantity * item.unit_price)"></span></span></p>
+                                        <button type="button" data-drag-handle class="btn-icon -ml-1 cursor-grab touch-none active:cursor-grabbing" aria-label="Seret untuk mengubah urutan" title="Seret untuk mengubah urutan"
+                                            @keydown.up.prevent="index > 0 && (moveItem(index, index - 1), $nextTick(() => $el.closest('[data-sortable-item]').previousElementSibling?.querySelector('[data-drag-handle]')?.focus()))"
+                                            @keydown.down.prevent="index < items.length - 1 && (moveItem(index, index + 1), $nextTick(() => $el.closest('[data-sortable-item]').nextElementSibling?.querySelector('[data-drag-handle]')?.focus()))"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>
+                                        <p class="mr-auto text-small font-semibold">Item <span x-text="index + 1"></span> <span class="font-normal text-muted">&middot; <span x-text="money(item.quantity * item.unit_price)"></span></span></p>
                                         <button type="button" class="btn-icon disabled:cursor-not-allowed disabled:opacity-40" @click="removeItem(index)" :disabled="items.length === 1" aria-label="Hapus item"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                                     </div>
                                     <div class="grid grid-cols-12 gap-3">

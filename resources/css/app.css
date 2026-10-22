@@ -398,3 +398,7 @@
     animation: build-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
     animation-delay: var(--d, 0s);
 }
+
+/* Drag-and-drop reordering (x-sortable) */
+.sortable-ghost { opacity: 0.4; outline: 2px dashed rgb(var(--c-edge, 98 156 204)); outline-offset: -2px; }
+.sortable-chosen { box-shadow: 4px 4px 0 0 rgb(var(--c-shadow)); }
