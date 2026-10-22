@@ -60,6 +60,13 @@
                 <p class="truncate text-small font-bold">{{ $invoice->invoice_number }}</p>
             </div>
             @auth
+                <form action="{{ route('dashboard.invoices.whatsapp', $invoice->id) }}" method="POST"
+                    data-confirm="PDF dan tautan invoice dikirim ke {{ $invoice->client_phone ?: 'nomor klien (belum diisi)' }}." data-confirm-title="Kirim lewat WhatsApp?" data-confirm-ok="Ya, kirim">
+                    @csrf
+                    <button type="submit" class="btn-secondary" aria-label="Kirim lewat WhatsApp" @disabled(! $invoice->client_phone)>
+                        <i class="fa-brands fa-whatsapp" aria-hidden="true"></i><span class="hidden md:inline">{{ $invoice->wa_sent_at ? 'Kirim ulang' : 'WhatsApp' }}</span>
+                    </button>
+                </form>
                 <button type="button" class="btn-secondary" aria-label="Salin tautan publik"
                     @click="navigator.clipboard.writeText(@js(route('invoices.public.show', $invoice->id))).then(() => window.toast('success', 'Tautan invoice disalin'), () => window.toast('error', 'Gagal menyalin tautan'))">
                     <i class="fa-solid fa-share-nodes" aria-hidden="true"></i><span class="hidden md:inline">Bagikan</span>
@@ -250,7 +257,7 @@
 
             <footer class="flex flex-wrap items-center justify-between gap-2 bg-navy px-5 py-3 text-caption text-white sm:px-9">
                 <span>Terima kasih atas kepercayaan Anda.</span>
-                <span class="font-semibold">{{ $settings->invoice_company_name ?: 'FKStudio Agency' }}</span>
+                <span class="font-semibold">{{ $settings->invoice_company_name ?: 'FKStudio IT Solution' }}</span>
             </footer>
         </article>
     </main>

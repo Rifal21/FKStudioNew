@@ -233,6 +233,19 @@
                     </div>
                     <x-ui.button variant="secondary" :href="route('dashboard.payment_methods.edit')" icon="fa-arrow-right" :icon-right="true" class="shrink-0">Kelola pembayaran</x-ui.button>
                 </x-ui.card>
+
+                <x-ui.card class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex items-center gap-4">
+                        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-brand-soft text-brand-text">
+                            <i class="fa-brands fa-whatsapp text-xl" aria-hidden="true"></i>
+                        </span>
+                        <div>
+                            <h3 class="text-body font-bold">WhatsApp untuk invoice</h3>
+                            <p class="text-small text-muted">Sambungkan sesi WAHA agar invoice langganan terkirim otomatis.</p>
+                        </div>
+                    </div>
+                    <x-ui.button variant="secondary" :href="route('dashboard.whatsapp.edit')" icon="fa-arrow-right" :icon-right="true" class="shrink-0">Atur WhatsApp</x-ui.button>
+                </x-ui.card>
             </div>
         </div>
 

@@ -56,3 +56,15 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Invoice langganan (WhatsApp / WAHA)
+
+Invoice bulanan dibuat oleh `php artisan subscriptions:generate`, dijadwalkan harian pukul 06:00 WIB
+di `routes/console.php`. Server perlu satu cron entry agar penjadwal Laravel berjalan:
+
+```
+* * * * * cd /path/ke/proyek && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Atur server WAHA, API key, dan sesi di **Dashboard > WhatsApp**. Kirim otomatis diaktifkan per langganan.
+Uji manual: `php artisan subscriptions:generate --dry-run`.

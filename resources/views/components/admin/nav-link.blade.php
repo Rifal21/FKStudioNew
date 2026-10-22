@@ -12,7 +12,7 @@
     ])
     @click="sidebarOpen = false">
     @if ($active)<span class="absolute -left-3 top-2 h-[calc(100%-1rem)] w-1 rounded-r bg-brand-600" aria-hidden="true"></span>@endif
-    <i class="fa-solid {{ $icon }} w-5 text-center {{ $active ? 'text-brand-600 dark:text-brand-300' : 'text-muted group-hover:text-brand-500' }}" aria-hidden="true"></i>
+    <i class="{{ str_contains($icon, 'fa-brands') ? '' : 'fa-solid ' }}{{ $icon }} w-5 text-center {{ $active ? 'text-brand-600 dark:text-brand-300' : 'text-muted group-hover:text-brand-500' }}" aria-hidden="true"></i>
     <span class="flex-1 truncate">{{ $label }}</span>
     @if ($badge)
         <span class="rounded-full bg-pink-500 px-2 py-0.5 text-caption font-bold leading-none text-white">{{ $badge }}</span>

@@ -75,7 +75,7 @@
                                 @foreach ($invoiceGroups[$type] as $invoice)
                                     @php $st = $statusMap[$invoice->status] ?? ['label' => $invoice->status, 'variant' => 'neutral']; @endphp
                                     <tr>
-                                        <td class="whitespace-nowrap font-bold">{{ $invoice->invoice_number }}</td>
+                                        <td class="whitespace-nowrap font-bold">{{ $invoice->invoice_number }}@if ($invoice->subscription_id) <span class="badge-brand ml-1 align-middle" title="Dibuat dari langganan"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Langganan</span>@endif</td>
                                         <td>
                                             <p class="font-semibold">{{ $invoice->client_name }}</p>
                                             @if ($invoice->client_email)<p class="text-caption text-muted">{{ $invoice->client_email }}</p>@endif
@@ -113,7 +113,7 @@
                             <article class="card card-pad">
                                 <div class="flex items-start justify-between gap-3">
                                     <div class="min-w-0">
-                                        <p class="break-all text-small font-bold">{{ $invoice->invoice_number }}</p>
+                                        <p class="break-all text-small font-bold">{{ $invoice->invoice_number }}@if ($invoice->subscription_id) <span class="badge-brand ml-1 align-middle"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Langganan</span>@endif</p>
                                         <p class="mt-0.5 font-semibold">{{ $invoice->client_name }}</p>
                                         @if ($invoice->client_email)<p class="break-all text-caption text-muted">{{ $invoice->client_email }}</p>@endif
                                     </div>

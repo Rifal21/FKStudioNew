@@ -83,6 +83,7 @@
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <x-ui.input name="client_name" label="Nama klien" required placeholder="Pemilik proyek / perusahaan" />
                             <x-ui.input name="client_email" type="email" label="Email klien" placeholder="klien@contoh.com" />
+                            <x-ui.input name="client_phone" type="tel" label="Nomor WhatsApp (opsional)" placeholder="0812-3456-7890" hint="Untuk mengirim invoice lewat WhatsApp." />
                             <div class="md:col-span-2">
                                 <x-ui.textarea name="client_address" label="Alamat klien" rows="2" placeholder="Alamat penagihan lengkap" />
                             </div>

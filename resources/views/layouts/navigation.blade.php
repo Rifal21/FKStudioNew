@@ -25,6 +25,7 @@
                 <p class="px-3 pb-1 text-caption font-bold uppercase tracking-wider text-muted">Transaksi</p>
                 <x-admin.nav-link route="dashboard.orders.index" match="dashboard.orders.*" icon="fa-cart-shopping" label="Pesanan" :badge="$navCounts['orders'] ?: null" />
                 <x-admin.nav-link route="dashboard.invoices.index" match="dashboard.invoices.*" icon="fa-file-invoice-dollar" label="Invoice" />
+                <x-admin.nav-link route="dashboard.subscriptions.index" match="dashboard.subscriptions.*" icon="fa-rotate" label="Langganan" />
                 <x-admin.nav-link route="dashboard.vouchers.index" match="dashboard.vouchers.*" icon="fa-ticket" label="Voucher" />
                 <x-admin.nav-link route="dashboard.tickets.index" match="dashboard.tickets.*" icon="fa-headset" label="Tiket bantuan" :badge="$navCounts['tickets'] ?: null" />
             </div>
@@ -45,6 +46,7 @@
             <div class="space-y-1">
                 <p class="px-3 pb-1 text-caption font-bold uppercase tracking-wider text-muted">Sistem</p>
                 <x-admin.nav-link route="dashboard.settings.edit" match="dashboard.settings.*" icon="fa-gears" label="Pengaturan umum" />
+                <x-admin.nav-link route="dashboard.whatsapp.edit" match="dashboard.whatsapp.*" icon="fa-brands fa-whatsapp" label="WhatsApp" />
                 <x-admin.nav-link route="dashboard.payment_methods.edit" match="dashboard.payment_methods.*" icon="fa-credit-card" label="Metode pembayaran" />
                 <x-admin.nav-link route="dashboard.users.index" match="dashboard.users.*" icon="fa-users-gear" label="Pengguna" />
             </div>

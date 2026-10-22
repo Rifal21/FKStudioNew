@@ -7,6 +7,8 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DuitkuController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\WhatsAppSettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index'])->name('home');
@@ -120,6 +122,24 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     Route::patch('/invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
     Route::get('/invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
     Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
+
+    Route::post('/invoices/{invoice}/whatsapp', [InvoiceController::class, 'sendWhatsApp'])->name('invoices.whatsapp');
+
+    // Subscriptions (recurring invoices)
+    Route::resource('subscriptions', SubscriptionController::class);
+    Route::post('/subscriptions/{subscription}/pause', [SubscriptionController::class, 'pause'])->name('subscriptions.pause');
+    Route::post('/subscriptions/{subscription}/resume', [SubscriptionController::class, 'resume'])->name('subscriptions.resume');
+    Route::post('/subscriptions/{subscription}/generate', [SubscriptionController::class, 'generateNow'])->name('subscriptions.generate');
+
+    // WhatsApp (WAHA) connection
+    Route::get('/whatsapp', [WhatsAppSettingsController::class, 'edit'])->name('whatsapp.edit');
+    Route::post('/whatsapp', [WhatsAppSettingsController::class, 'update'])->name('whatsapp.update');
+    Route::get('/whatsapp/status', [WhatsAppSettingsController::class, 'status'])->name('whatsapp.status');
+    Route::get('/whatsapp/qr', [WhatsAppSettingsController::class, 'qr'])->name('whatsapp.qr');
+    Route::post('/whatsapp/start', [WhatsAppSettingsController::class, 'start'])->name('whatsapp.start');
+    Route::post('/whatsapp/stop', [WhatsAppSettingsController::class, 'stop'])->name('whatsapp.stop');
+    Route::post('/whatsapp/logout', [WhatsAppSettingsController::class, 'logout'])->name('whatsapp.logout');
+    Route::post('/whatsapp/test', [WhatsAppSettingsController::class, 'test'])->name('whatsapp.test');
 
     // Vouchers
     Route::get('/vouchers', [CmsController::class, 'vouchersIndex'])->name('vouchers.index');

@@ -46,20 +46,6 @@
                                     <span class="truncate">{{ preg_replace('#^https?://#', '', $client->url) }}</span>
                                 </a>
                             @endif
-
-                            <div class="mt-3 flex flex-wrap items-center gap-2">
-                                @if ($client->is_server_subscribed)
-                                    <span class="badge-success"><span class="h-1.5 w-1.5 rounded-full bg-mint-500" aria-hidden="true"></span> Langganan server</span>
-                                    @if ($client->billing_date)
-                                        <span class="badge-info">Tagih tgl {{ $client->billing_date }}</span>
-                                    @endif
-                                    @if ($client->subscription_price > 0)
-                                        <span class="badge-neutral">Rp {{ number_format((float) $client->subscription_price, 0, ',', '.') }}/bln</span>
-                                    @endif
-                                @else
-                                    <span class="badge-neutral">Tanpa langganan</span>
-                                @endif
-                            </div>
                         </div>
 
                         <div class="mt-4 flex items-center justify-end gap-2 border-t border-line pt-4">
@@ -116,25 +102,9 @@
                         </div>
                     </div>
 
-                    <div class="rounded-lg border border-line bg-surface-2 p-4">
-                        <div class="flex items-center justify-between gap-4">
-                            <div class="flex min-w-0 items-center gap-3">
-                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-soft text-brand-text"><i class="fa-solid fa-server" aria-hidden="true"></i></span>
-                                <div class="min-w-0">
-                                    <p class="text-small font-semibold">Langganan hosting server</p>
-                                    <p class="text-caption text-muted">Aktifkan penagihan bulanan otomatis untuk klien ini.</p>
-                                </div>
-                            </div>
-                            <label class="relative inline-flex shrink-0 cursor-pointer items-center">
-                                <input type="checkbox" name="is_server_subscribed" value="1" class="peer sr-only" x-model="isSubscribed" aria-label="Aktifkan langganan hosting server">
-                                <span class="block h-7 w-12 rounded-full bg-line transition peer-checked:bg-brand-600 peer-focus-visible:ring-2 peer-focus-visible:ring-brand-500/40 after:absolute after:left-0.5 after:top-0.5 after:h-6 after:w-6 after:rounded-full after:bg-surface after:shadow-soft after:transition-all peer-checked:after:translate-x-5"></span>
-                            </label>
-                        </div>
-
-                        <div class="mt-4 grid grid-cols-1 gap-4 border-t border-line pt-4 sm:grid-cols-2" x-show="isSubscribed" x-transition>
-                            <x-ui.input id="add-client-billing" name="billing_date" type="number" min="1" max="31" label="Tanggal penagihan (1-31)" placeholder="Contoh: 5" />
-                            <x-ui.input id="add-client-price" name="subscription_price" type="number" label="Biaya bulanan (Rp)" placeholder="500000" />
-                        </div>
+                    <div class="flex items-center gap-3 rounded-lg border border-line bg-surface-2 p-4">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-soft text-brand-text"><i class="fa-solid fa-rotate" aria-hidden="true"></i></span>
+                        <p class="text-small text-muted">Penagihan bulanan klien kini diatur di <a href="{{ route('dashboard.subscriptions.index') }}" class="font-semibold text-brand-text underline">menu Langganan</a>.</p>
                     </div>
 
                     <div class="flex flex-col-reverse gap-3 border-t border-line pt-4 sm:flex-row sm:justify-end">
@@ -190,31 +160,9 @@
                         </div>
                     </div>
 
-                    <div class="rounded-lg border border-line bg-surface-2 p-4">
-                        <div class="flex items-center justify-between gap-4">
-                            <div class="flex min-w-0 items-center gap-3">
-                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-soft text-brand-text"><i class="fa-solid fa-server" aria-hidden="true"></i></span>
-                                <div class="min-w-0">
-                                    <p class="text-small font-semibold">Langganan hosting server</p>
-                                    <p class="text-caption text-muted">Penagihan bulanan untuk klien ini.</p>
-                                </div>
-                            </div>
-                            <label class="relative inline-flex shrink-0 cursor-pointer items-center">
-                                <input type="checkbox" name="is_server_subscribed" value="1" class="peer sr-only" x-model="isSubscribed" aria-label="Aktifkan langganan hosting server">
-                                <span class="block h-7 w-12 rounded-full bg-line transition peer-checked:bg-brand-600 peer-focus-visible:ring-2 peer-focus-visible:ring-brand-500/40 after:absolute after:left-0.5 after:top-0.5 after:h-6 after:w-6 after:rounded-full after:bg-surface after:shadow-soft after:transition-all peer-checked:after:translate-x-5"></span>
-                            </label>
-                        </div>
-
-                        <div class="mt-4 grid grid-cols-1 gap-4 border-t border-line pt-4 sm:grid-cols-2" x-show="isSubscribed" x-transition>
-                            <div>
-                                <label for="edit-client-billing" class="label">Tanggal penagihan (1-31)</label>
-                                <input id="edit-client-billing" type="number" name="billing_date" :value="editingClient?.billing_date" min="1" max="31" class="input">
-                            </div>
-                            <div>
-                                <label for="edit-client-price" class="label">Biaya bulanan (Rp)</label>
-                                <input id="edit-client-price" type="number" name="subscription_price" :value="parseInt(editingClient?.subscription_price || 0)" class="input">
-                            </div>
-                        </div>
+                    <div class="flex items-center gap-3 rounded-lg border border-line bg-surface-2 p-4">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-soft text-brand-text"><i class="fa-solid fa-rotate" aria-hidden="true"></i></span>
+                        <p class="text-small text-muted">Penagihan bulanan klien kini diatur di <a href="{{ route('dashboard.subscriptions.index') }}" class="font-semibold text-brand-text underline">menu Langganan</a>.</p>
                     </div>
 
                     <div class="flex flex-col-reverse gap-3 border-t border-line pt-4 sm:flex-row sm:justify-end">

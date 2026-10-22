@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\InvoiceTotals;
 use App\Traits\HasUuid;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
@@ -55,9 +56,36 @@ class Subscription extends Model
             : $candidate;
     }
 
+    /**
+     * Next billing date from today (or the start date, if later), skipping months that already
+     * have an invoice. Used after create, edit and resume so the schedule never bills twice.
+     */
+    public function scheduleNext(CarbonInterface $today): void
+    {
+        $from = $this->start_date->gt($today) ? $this->start_date : $today;
+        $next = $this->firstRunOnOrAfter($from);
+
+        while ($this->invoices()->whereDate('billing_period', $next->copy()->startOfMonth())->exists()) {
+            $next = $this->billingDateIn($next->copy()->startOfMonth()->addMonth());
+        }
+
+        if ($this->end_date !== null && $next->gt($this->end_date)) {
+            $this->update(['next_run_date' => null, 'status' => self::ENDED]);
+
+            return;
+        }
+
+        $this->update(['next_run_date' => $next, 'status' => $this->status === self::ENDED ? self::ACTIVE : $this->status]);
+    }
+
     public function subtotal(): float
     {
         return (float) $this->items->sum(fn ($i) => $i->quantity * $i->unit_price);
+    }
+
+    public function monthlyTotal(): float
+    {
+        return InvoiceTotals::compute($this->subtotal(), (float) $this->discount, $this->discount_type, (float) $this->tax, $this->tax_type)['total'];
     }
 
     public function isDue(CarbonInterface $today): bool

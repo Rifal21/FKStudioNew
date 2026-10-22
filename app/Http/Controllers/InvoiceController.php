@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use App\Models\SiteSetting;
 use App\Services\InvoiceNumbering;
 use App\Services\InvoicePdf;
+use App\Services\InvoiceWhatsApp;
 use App\Services\InvoiceTotals;
 use Illuminate\Http\Request;
 
@@ -150,5 +151,14 @@ class InvoiceController extends Controller
     public function download(Invoice $invoice)
     {
         return InvoicePdf::make($invoice)->stream(InvoicePdf::filename($invoice));
+    }
+
+    public function sendWhatsApp(Invoice $invoice, InvoiceWhatsApp $whatsApp)
+    {
+        $invoice->load('items');
+
+        return $whatsApp->send($invoice)
+            ? back()->with('success', 'Invoice dikirim lewat WhatsApp ke '.$invoice->client_phone.'.')
+            : back()->with('error', $invoice->fresh()->wa_error);
     }
 }

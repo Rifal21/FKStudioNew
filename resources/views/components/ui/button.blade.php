@@ -26,7 +26,7 @@
     @if ($href) href="{{ $href }}" @else type="{{ $type }}" @endif
     {{ $attributes->merge(['class' => $classes]) }}
 >
-    @if ($icon && ! $iconRight)<i class="fa-solid {{ $icon }}" aria-hidden="true"></i>@endif
+    @if ($icon && ! $iconRight)<i class="{{ str_contains($icon, 'fa-brands') ? '' : 'fa-solid ' }}{{ $icon }}" aria-hidden="true"></i>@endif
     {{ $slot }}
-    @if ($icon && $iconRight)<i class="fa-solid {{ $icon }}" aria-hidden="true"></i>@endif
+    @if ($icon && $iconRight)<i class="{{ str_contains($icon, 'fa-brands') ? '' : 'fa-solid ' }}{{ $icon }}" aria-hidden="true"></i>@endif
 </{{ $tag }}>
