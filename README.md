@@ -59,8 +59,8 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 ## Invoice langganan (WhatsApp / WAHA)
 
-Invoice bulanan dibuat oleh `php artisan subscriptions:generate`, dijadwalkan harian pukul 06:00 WIB
-di `routes/console.php`. Server perlu satu cron entry agar penjadwal Laravel berjalan:
+Invoice bulanan dibuat oleh `php artisan subscriptions:generate`, dijadwalkan tiap menit di `routes/console.php`.
+Ia mengirim saat tanggal dan jam (WIB) milik masing-masing langganan tercapai. Server perlu satu cron entry agar penjadwal Laravel berjalan:
 
 ```
 * * * * * cd /path/ke/proyek && php artisan schedule:run >> /dev/null 2>&1

@@ -28,6 +28,7 @@ class SubscriptionAdminTest extends TestCase
             'client_name' => 'Toko Maju',
             'client_phone' => '081234567890',
             'billing_day' => 5,
+            'billing_time' => '09:30',
             'due_days' => 7,
             'start_date' => '2026-10-01',
             'discount' => 0,
@@ -56,6 +57,17 @@ class SubscriptionAdminTest extends TestCase
         $this->assertSame(['Hosting {bulan}', 'Domain'], $subscription->items->pluck('description')->all());
         $this->assertSame('2026-11-05', $subscription->next_run_date->toDateString());
         $this->assertSame('active', $subscription->status);
+    }
+
+    public function test_the_send_time_is_saved_and_must_be_a_valid_time(): void
+    {
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->post('/dashboard/subscriptions', $this->payload(['billing_time' => '25:99']))
+            ->assertSessionHasErrors('billing_time');
+
+        $this->actingAs($admin)->post('/dashboard/subscriptions', $this->payload(['billing_time' => '14:15']))->assertRedirect();
+        $this->assertSame('14:15', Subscription::first()->billing_time);
     }
 
     public function test_it_rejects_a_billing_day_outside_1_to_31(): void

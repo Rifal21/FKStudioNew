@@ -75,12 +75,12 @@ TXT;
                 'application/pdf',
             );
         } catch (WahaException $e) {
-            $invoice->update(['wa_error' => $e->getMessage()]);
+            $invoice->update(['wa_error' => $e->getMessage(), 'wa_attempts' => $invoice->wa_attempts + 1]);
 
             return false;
         } catch (\Throwable $e) {
             report($e);
-            $invoice->update(['wa_error' => 'Gagal mengirim: '.$e->getMessage()]);
+            $invoice->update(['wa_error' => 'Gagal mengirim: '.$e->getMessage(), 'wa_attempts' => $invoice->wa_attempts + 1]);
 
             return false;
         }

@@ -8,9 +8,9 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-// Subscription invoices go out at 06:00 WIB. The server needs: * * * * * php artisan schedule:run
+// Each subscription has its own send time (WIB), so the check runs every minute; it is a cheap query.
+// The server needs one cron entry: * * * * * php artisan schedule:run
 Schedule::command('subscriptions:generate')
-    ->dailyAt('06:00')
-    ->timezone('Asia/Jakarta')
+    ->everyMinute()
     ->withoutOverlapping()
     ->onOneServer();

@@ -79,7 +79,7 @@
                                 <td class="whitespace-nowrap">
                                     @if ($subscription->next_run_date)
                                         {{ $fmt($subscription->next_run_date) }}
-                                        <p class="text-caption text-muted">tiap tgl {{ $subscription->billing_day }}</p>
+                                        <p class="text-caption text-muted">tiap tgl {{ $subscription->billing_day }}, {{ substr($subscription->billing_time, 0, 5) }} WIB</p>
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif

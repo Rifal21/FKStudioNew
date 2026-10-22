@@ -17,19 +17,29 @@ class GenerateSubscriptionInvoices extends Command
     public function handle(SubscriptionInvoiceGenerator $generator, InvoiceWhatsApp $whatsApp): int
     {
         $today = SubscriptionInvoiceGenerator::today();
+        $now = now();
 
+        // Retries go first so an invoice that has just failed is not retried in the same run.
+        // Failed sends are retried once an hour, at most 5 attempts in total.
+        if (! $this->option('dry-run') && $now->setTimezone('Asia/Jakarta')->minute === 0) {
+            $this->retryFailedSends($whatsApp, $today);
+        }
+
+        // Runs every minute: a subscription goes out once its date AND its own time have been reached.
         $due = Subscription::with('items')
             ->where('status', Subscription::ACTIVE)
             ->whereNotNull('next_run_date')
             ->whereDate('next_run_date', '<=', $today)
             ->get()
-            ->filter(fn (Subscription $s) => $s->isDue($today));
+            ->filter(fn (Subscription $s) => $s->isDue($now));
 
-        $this->info("Tanggal {$today->toDateString()}: {$due->count()} langganan jatuh tempo.");
+        if ($due->isNotEmpty() || $this->option('dry-run')) {
+            $this->info("Tanggal {$today->toDateString()}: {$due->count()} langganan jatuh tempo.");
+        }
 
         foreach ($due as $subscription) {
             if ($this->option('dry-run')) {
-                $this->line("  - {$subscription->client_name} / {$subscription->title}");
+                $this->line("  - {$subscription->client_name} / {$subscription->title} ({$subscription->runAt()->format('d M H:i')} WIB)");
 
                 continue;
             }
@@ -56,10 +66,6 @@ class GenerateSubscriptionInvoices extends Command
             }
         }
 
-        if (! $this->option('dry-run')) {
-            $this->retryFailedSends($whatsApp, $today);
-        }
-
         return self::SUCCESS;
     }
 
@@ -68,6 +74,7 @@ class GenerateSubscriptionInvoices extends Command
     {
         Invoice::whereNull('wa_sent_at')
             ->whereNotNull('wa_error')
+            ->where('wa_attempts', '<', 5)
             ->where('created_at', '>=', $today->copy()->subDays(3))
             ->whereHas('subscription', fn ($q) => $q->where('auto_send', true))
             ->get()

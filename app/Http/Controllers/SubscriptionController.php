@@ -33,6 +33,7 @@ class SubscriptionController extends Controller
     {
         return view('dashboard.subscriptions.form', ['subscription' => new Subscription([
             'billing_day' => 5,
+            'billing_time' => '09:00',
             'due_days' => 7,
             'start_date' => SubscriptionInvoiceGenerator::today(),
             'discount_type' => 'percent',
@@ -150,6 +151,7 @@ class SubscriptionController extends Controller
             'client_email' => 'nullable|email|max:255',
             'client_address' => 'nullable|string|max:1000',
             'billing_day' => 'required|integer|min:1|max:31',
+            'billing_time' => 'required|date_format:H:i',
             'due_days' => 'required|integer|min:0|max:90',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
@@ -166,7 +168,7 @@ class SubscriptionController extends Controller
 
         return [
             'subscription' => [
-                ...$request->only(['title', 'client_name', 'client_phone', 'client_email', 'client_address', 'billing_day', 'due_days', 'start_date', 'end_date', 'notes']),
+                ...$request->only(['title', 'client_name', 'client_phone', 'client_email', 'client_address', 'billing_day', 'billing_time', 'due_days', 'start_date', 'end_date', 'notes']),
                 'discount' => $request->input('discount') ?? 0,
                 'discount_type' => $request->input('discount_type', 'percent'),
                 'tax' => $request->input('tax') ?? 0,

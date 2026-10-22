@@ -190,4 +190,57 @@ class SubscriptionGenerationTest extends TestCase
         $this->assertSame('2027-02-14', $invoice->due_date->toDateString());
         $this->assertSame('2027-02-28', $subscription->fresh()->next_run_date->toDateString());
     }
+
+    public function test_a_subscription_goes_out_at_its_own_time_not_before(): void
+    {
+        $this->subscription(['billing_time' => '09:30']);
+
+        $this->travelTo(Carbon::parse('2026-11-05 09:29', 'Asia/Jakarta'));
+        $this->artisan('subscriptions:generate')->assertSuccessful();
+        $this->assertSame(0, Invoice::count());
+
+        $this->travelTo(Carbon::parse('2026-11-05 09:30', 'Asia/Jakarta'));
+        $this->artisan('subscriptions:generate')->assertSuccessful();
+        $this->assertSame(1, Invoice::count());
+
+        // The minute-by-minute runs that follow must not bill the same month again.
+        $this->travelTo(Carbon::parse('2026-11-05 09:31', 'Asia/Jakarta'));
+        $this->artisan('subscriptions:generate')->assertSuccessful();
+        $this->assertSame(1, Invoice::count());
+    }
+
+    public function test_two_subscriptions_with_different_times_are_sent_separately(): void
+    {
+        $this->subscription(['client_name' => 'Pagi', 'billing_time' => '08:00']);
+        $this->subscription(['client_name' => 'Sore', 'billing_time' => '16:00']);
+
+        $this->travelTo(Carbon::parse('2026-11-05 10:00', 'Asia/Jakarta'));
+        $this->artisan('subscriptions:generate')->assertSuccessful();
+
+        $this->assertSame(['Pagi'], Invoice::pluck('client_name')->all());
+    }
+
+    public function test_failed_sends_are_retried_hourly_and_stop_after_five_attempts(): void
+    {
+        SiteSetting::create(['site_name' => 'FKStudio', 'waha_enabled' => true, 'waha_url' => 'https://waha.test', 'waha_api_key' => 'k']);
+        Http::fake(['waha.test/*' => Http::response(['message' => 'down'], 500)]);
+
+        $this->travelTo(Carbon::parse('2026-11-05 09:00', 'Asia/Jakarta'));
+        $this->subscription(['auto_send' => true, 'billing_time' => '09:00']);
+        $this->artisan('subscriptions:generate')->assertSuccessful();
+        $invoice = Invoice::first();
+        $this->assertSame(1, $invoice->wa_attempts);
+
+        // Not on the hour: no retry.
+        $this->travelTo(Carbon::parse('2026-11-05 09:30', 'Asia/Jakarta'));
+        $this->artisan('subscriptions:generate')->assertSuccessful();
+        $this->assertSame(1, $invoice->fresh()->wa_attempts);
+
+        foreach (['10:00', '11:00', '12:00', '13:00', '14:00', '15:00'] as $time) {
+            $this->travelTo(Carbon::parse("2026-11-05 $time", 'Asia/Jakarta'));
+            $this->artisan('subscriptions:generate')->assertSuccessful();
+        }
+
+        $this->assertSame(5, $invoice->fresh()->wa_attempts);
+    }
 }

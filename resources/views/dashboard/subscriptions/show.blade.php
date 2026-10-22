@@ -36,7 +36,7 @@
                     </div>
                     <dl class="mt-4 grid grid-cols-2 gap-x-4 gap-y-4 text-small sm:grid-cols-3">
                         <div><dt class="text-caption text-muted">Terbit berikutnya</dt><dd class="font-bold">{{ $upcoming ? $fmt($upcoming) : '-' }}</dd></div>
-                        <div><dt class="text-caption text-muted">Tiap tanggal</dt><dd class="font-bold">{{ $subscription->billing_day }}</dd></div>
+                        <div><dt class="text-caption text-muted">Tiap tanggal</dt><dd class="font-bold">{{ $subscription->billing_day }}, pukul {{ substr($subscription->billing_time, 0, 5) }} WIB</dd></div>
                         <div><dt class="text-caption text-muted">Jatuh tempo</dt><dd class="font-bold">{{ $subscription->due_days }} hari</dd></div>
                         <div><dt class="text-caption text-muted">Mulai</dt><dd class="font-bold">{{ $fmt($subscription->start_date) }}</dd></div>
                         <div><dt class="text-caption text-muted">Berakhir</dt><dd class="font-bold">{{ $subscription->end_date ? $fmt($subscription->end_date) : 'Tanpa batas' }}</dd></div>

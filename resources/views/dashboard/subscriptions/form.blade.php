@@ -21,6 +21,7 @@
             tax: @js((float) old('tax', $subscription->tax ?? 0)),
             tax_type: @js(old('tax_type', $subscription->tax_type ?? 'percent')),
             billing_day: @js((int) old('billing_day', $subscription->billing_day ?? 5)),
+            billing_time: @js(old('billing_time', substr($subscription->billing_time ?: '09:00', 0, 5))),
             start_date: @js(old('start_date', optional($subscription->start_date)->toDateString())),
             auto_send: @js((bool) old('auto_send', $subscription->auto_send)),
             addItem() { this.items.push({ description: '', quantity: 1, unit_price: 0 }); },
@@ -31,16 +32,27 @@
             get discountAmount() { return this.discount_type === 'percent' ? this.subtotal * (this.discount / 100) : this.discount; },
             get taxAmount() { return this.tax_type === 'percent' ? (this.subtotal - this.discountAmount) * (this.tax / 100) : this.tax; },
             get finalTotal() { return this.subtotal - this.discountAmount + this.taxAmount; },
-            get nextRun() {
+            // Today and the clock in WIB, whatever timezone the browser is in.
+            wib() {
+                const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date()).map(x => [x.type, x.value]));
+                return { date: p.year + '-' + p.month + '-' + p.day, time: p.hour + ':' + p.minute };
+            },
+            get nextRunDate() {
                 const day = Math.min(Math.max(parseInt(this.billing_day) || 1, 1), 31);
-                const now = new Date();
-                let from = this.start_date ? new Date(this.start_date + 'T00:00:00') : now;
-                if (from < now && !(from.toDateString() === now.toDateString())) from = now;
-                const pick = (y, m) => new Date(y, m, Math.min(day, new Date(y, m + 1, 0).getDate()));
-                let d = pick(from.getFullYear(), from.getMonth());
-                const floor = new Date(from.getFullYear(), from.getMonth(), from.getDate());
-                if (d < floor) d = pick(from.getFullYear(), from.getMonth() + 1);
-                return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                const today = this.wib().date;
+                const from = this.start_date && this.start_date > today ? this.start_date : today;
+                const [y, m, d] = from.split('-').map(Number);
+                const pick = (yy, mm) => new Date(Date.UTC(yy, mm - 1, Math.min(day, new Date(Date.UTC(yy, mm, 0)).getUTCDate())));
+                let run = pick(y, m);
+                if (run < new Date(Date.UTC(y, m - 1, d))) run = pick(y, m + 1);
+                return run;
+            },
+            get nextRun() {
+                return this.nextRunDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+            },
+            get startsNow() {
+                const w = this.wib();
+                return this.nextRunDate.toISOString().slice(0, 10) === w.date && (this.billing_time || '00:00') <= w.time;
             }
         }">
             @csrf
@@ -86,6 +98,11 @@
                                 <input id="billing_day" name="billing_day" type="number" min="1" max="31" required class="input" x-model.number="billing_day">
                                 <p class="hint">Tanggal 29–31 memakai hari terakhir di bulan yang lebih pendek.</p>
                             </div>
+                            <div>
+                                <label for="billing_time" class="label">Terbit pukul (WIB) <span class="text-danger-600" aria-hidden="true">*</span></label>
+                                <input id="billing_time" name="billing_time" type="time" required class="input" x-model="billing_time">
+                                <p class="hint">Invoice dibuat dan dikirim pada jam ini, dicek tiap menit.</p>
+                            </div>
                             <x-ui.input name="due_days" type="number" min="0" max="90" label="Jatuh tempo (hari setelah terbit)" :value="$subscription->due_days ?? 7" required />
                             <div>
                                 <label for="start_date" class="label">Mulai <span class="text-danger-600" aria-hidden="true">*</span></label>
@@ -95,7 +112,10 @@
                         </div>
                         <p class="mt-5 flex items-center gap-3 rounded-lg border-2 border-edge bg-brand-soft p-4 text-small">
                             <i class="fa-solid fa-paper-plane text-brand-text" aria-hidden="true"></i>
-                            <span>Invoice berikutnya terbit <strong x-text="nextRun"></strong>, lalu tiap tanggal <strong x-text="billing_day || '-'"></strong>.</span>
+                            <span>
+                                Invoice berikutnya terbit <strong x-text="nextRun"></strong> pukul <strong x-text="(billing_time || '--:--') + ' WIB'"></strong>, lalu tiap tanggal <strong x-text="billing_day || '-'"></strong>.
+                                <span x-show="startsNow" x-cloak class="mt-1 block text-caption text-muted">Jam itu hari ini sudah lewat, jadi invoice pertama terbit sesaat setelah disimpan.</span>
+                            </span>
                         </p>
                     </x-ui.card>
 

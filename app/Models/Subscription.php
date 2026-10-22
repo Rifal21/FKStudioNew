@@ -91,11 +91,23 @@ class Subscription extends Model
         return InvoiceTotals::compute($this->subtotal(), (float) $this->discount, $this->discount_type, (float) $this->tax, $this->tax_type)['total'];
     }
 
-    public function isDue(CarbonInterface $today): bool
+    /** The exact moment (WIB) the next invoice goes out: next_run_date at billing_time. */
+    public function runAt(): ?Carbon
     {
+        if ($this->next_run_date === null) {
+            return null;
+        }
+
+        return Carbon::parse($this->next_run_date->toDateString().' '.substr($this->billing_time ?: '06:00', 0, 5), 'Asia/Jakarta');
+    }
+
+    public function isDue(CarbonInterface $now): bool
+    {
+        $runAt = $this->runAt();
+
         return $this->status === self::ACTIVE
-            && $this->next_run_date !== null
-            && $this->next_run_date->lte($today)
+            && $runAt !== null
+            && $runAt->lte($now)
             && ($this->end_date === null || $this->next_run_date->lte($this->end_date));
     }
 }
