@@ -37,6 +37,12 @@
    Base
    ========================================================================== */
 @layer base {
+    /* Nothing may widen the page: on phones a few px of overflow stretches the layout viewport and the
+       fixed navbar with it. `clip` (unlike `hidden`) keeps position: sticky working. */
+    html, body {
+        overflow-x: clip;
+    }
+
     html {
         scroll-behavior: smooth;
         -webkit-text-size-adjust: 100%;
