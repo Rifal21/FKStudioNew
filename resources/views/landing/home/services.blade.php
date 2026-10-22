@@ -6,6 +6,8 @@
 @endphp
 
 @if ($services->isNotEmpty())
+    <x-seo.schema :data="\App\Support\Seo::services($services)" />
+
     <section id="services" class="scroll-mt-20 border-y-2 border-edge bg-surface py-16 md:py-24">
         <div class="container-page">
             <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">

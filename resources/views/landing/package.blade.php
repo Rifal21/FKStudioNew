@@ -7,6 +7,11 @@
 <x-layouts.public :title="$package->getTranslation('name')" :description="Str::limit(strip_tags($package->getTranslation('description')), 160)">
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
+    <x-seo.schema :data="['@graph' => [
+        \App\Support\Seo::product($package),
+        \App\Support\Seo::breadcrumbs([[$id ? 'Beranda' : 'Home', route('home')], [$id ? 'Paket Layanan' : 'Service Packages', route('package.index')], [$package->getTranslation('name'), route('package.show', $package->slug)]]),
+    ]]" />
+
     <div class="relative overflow-hidden pb-16 pt-28 md:pb-24 md:pt-36">
         <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_40%_at_80%_0%,rgb(30_155_229/0.14),transparent),radial-gradient(30%_30%_at_0%_20%,rgb(255_207_15/0.10),transparent)]" aria-hidden="true"></div>
 

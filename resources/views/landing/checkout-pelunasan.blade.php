@@ -1,4 +1,4 @@
-<x-layouts.public :title="'Pelunasan - ' . $order->package_name" description="Selesaikan pelunasan proyek website Anda.">
+<x-layouts.public :noindex="true" :title="'Pelunasan - ' . $order->package_name" description="Selesaikan pelunasan proyek website Anda.">
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
     <div class="relative pb-32 pt-28 md:pb-24 md:pt-36" x-data="{ agree: false }">

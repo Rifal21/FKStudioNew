@@ -1,4 +1,4 @@
-<x-layouts.public title="Profil Saya" description="Kelola informasi profil dan kata sandi akun Anda.">
+<x-layouts.public :noindex="true" title="Profil Saya" description="Kelola informasi profil dan kata sandi akun Anda.">
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
     <div class="relative pb-16 pt-28 md:pb-24 md:pt-36">

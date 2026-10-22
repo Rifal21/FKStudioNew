@@ -1,4 +1,4 @@
-<x-layouts.public title="Website Saya" description="Daftar website Anda yang sudah selesai dan aktif.">
+<x-layouts.public :noindex="true" title="Website Saya" description="Daftar website Anda yang sudah selesai dan aktif.">
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
     <div class="relative pb-16 pt-28 md:pb-24 md:pt-36">

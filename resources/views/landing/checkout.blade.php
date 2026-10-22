@@ -11,7 +11,7 @@
     $whatsapp = preg_replace('/[^0-9]/', '', $settings->contact_phone ?? '');
     if ($whatsapp && str_starts_with($whatsapp, '0')) $whatsapp = '62' . substr($whatsapp, 1);
 @endphp
-<x-layouts.public :title="'Checkout - ' . $package->getTranslation('name')" description="Selesaikan pesanan paket layanan FKStudio Anda.">
+<x-layouts.public :noindex="true" :title="'Checkout - ' . $package->getTranslation('name')" description="Selesaikan pesanan paket layanan FKStudio Anda.">
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
     <div class="relative pb-32 pt-28 md:pb-24 md:pt-36" x-data="checkoutForm(@js($checkoutConfig))">

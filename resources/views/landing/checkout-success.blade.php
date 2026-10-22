@@ -20,7 +20,7 @@
     $upfrontAmount = $isPelunasanPayment ? $order->remaining_balance : ($order->payment_scheme === 'dp' ? $order->dp_amount : $order->total_amount);
     $isDuitku = str_starts_with($order->payment_method ?? '', 'Duitku');
 @endphp
-<x-layouts.public :title="'Pesanan Diterima - ' . $order->package_name" description="Instruksi pembayaran untuk pesanan Anda.">
+<x-layouts.public :noindex="true" :title="'Pesanan Diterima - ' . $order->package_name" description="Instruksi pembayaran untuk pesanan Anda.">
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
     <div class="relative pb-16 pt-28 md:pb-24 md:pt-36">

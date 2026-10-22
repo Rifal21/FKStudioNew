@@ -1,4 +1,4 @@
-<x-layouts.public title="Styleguide" description="Komponen dan token desain FKStudio">
+<x-layouts.public :noindex="true" title="Styleguide" description="Komponen dan token desain FKStudio">
     <x-slot:navbar>
         <header class="sticky top-0 z-40 border-b border-line bg-bg/85 backdrop-blur">
             <div class="container-page flex h-16 items-center justify-between">

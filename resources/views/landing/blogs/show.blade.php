@@ -8,8 +8,16 @@
 <x-layouts.public
     :title="$title"
     :description="Str::limit(strip_tags($blog->getTranslation('content')), 155, '')"
-    :image="$blog->image ? $blog->media_url : null">
+    :image="$blog->image ? $blog->media_url : null"
+    type="article"
+    :published-at="$date?->toAtomString()"
+    :modified-at="$blog->updated_at?->toAtomString()">
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
+
+    <x-seo.schema :data="['@graph' => [
+        \App\Support\Seo::blogPosting($blog, $settings, $title, $blog->image ? $blog->media_url : null),
+        \App\Support\Seo::breadcrumbs([[$id ? 'Beranda' : 'Home', route('home')], ['Blog', route('blog.index')], [$title, route('blog.show', $blog->slug)]]),
+    ]]" />
 
     <article class="relative pb-16 pt-28 md:pb-24 md:pt-36">
         <div class="pointer-events-none absolute inset-x-0 top-0 h-96 bg-[radial-gradient(50%_60%_at_50%_0%,rgb(30_155_229/0.12),transparent)]" aria-hidden="true"></div>

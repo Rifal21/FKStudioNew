@@ -122,6 +122,9 @@
                         <div class="md:col-span-2">
                             <x-ui.input name="google_console_verification" label="Verifikasi Google Search Console" :value="$settings->google_console_verification" placeholder="google-site-verification-code" />
                         </div>
+                        <div class="md:col-span-2">
+                            <x-ui.input name="bing_verification" label="Verifikasi Bing Webmaster Tools" :value="$settings->bing_verification" placeholder="kode msvalidate.01" hint="Bing juga dipakai ChatGPT dan beberapa asisten AI untuk mencari." />
+                        </div>
                         @foreach (collect($uploads)->only(['og_image']) as $uName => $u)
                             <div x-data="{ preview: null }" class="flex items-center gap-4 rounded-lg border border-line bg-surface-2 p-4 md:col-span-2">
                                 <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-surface">
@@ -145,6 +148,23 @@
                                 </div>
                             </div>
                         @endforeach
+                    </div>
+                </x-ui.card>
+                <x-ui.card>
+                    <h2 class="text-xl font-bold">Alamat bisnis untuk Google dan AI</h2>
+                    <p class="mt-1 text-small text-muted">Isi hanya data yang benar. Kalau alamat jalan dan kota kosong, tidak ada data lokasi yang dipublikasikan.</p>
+
+                    <div class="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <div class="md:col-span-2">
+                            <x-ui.input name="biz_street" label="Alamat jalan" :value="$settings->biz_street" placeholder="Jl. Contoh No. 10" />
+                        </div>
+                        <x-ui.input name="biz_city" label="Kota" :value="$settings->biz_city" placeholder="Bandung" />
+                        <x-ui.input name="biz_region" label="Provinsi" :value="$settings->biz_region" placeholder="Jawa Barat" />
+                        <x-ui.input name="biz_postal_code" label="Kode pos" :value="$settings->biz_postal_code" maxlength="10" />
+                        <x-ui.input name="biz_opening_hours" label="Jam buka" :value="$settings->biz_opening_hours" placeholder="Mo-Fr 09:00-17:00" hint="Format Google: Mo-Fr 09:00-17:00 (Mo Tu We Th Fr Sa Su)." />
+                        <div class="md:col-span-2">
+                            <x-ui.input name="biz_price_range" label="Kisaran harga" :value="$settings->biz_price_range" placeholder="Rp 7.500.000 - Rp 18.500.000" />
+                        </div>
                     </div>
                 </x-ui.card>
             </div>
