@@ -40,6 +40,16 @@
     html {
         scroll-behavior: smooth;
         -webkit-text-size-adjust: 100%;
+        scrollbar-width: thin;
+        scrollbar-color: rgb(var(--c-edge) / 0.55) rgb(var(--c-bg));
+    }
+
+    input, textarea {
+        caret-color: rgb(var(--c-brand-text));
+    }
+
+    input[type='checkbox'], input[type='radio'], input[type='range'] {
+        accent-color: #F2B800;
     }
 
     body {

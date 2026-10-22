@@ -23,7 +23,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['"Plus Jakarta Sans Variable"', '"Plus Jakarta Sans"', ...defaultTheme.fontFamily.sans],
+                sans: ['"Hanken Grotesk Variable"', '"Hanken Grotesk"', ...defaultTheme.fontFamily.sans],
                 display: ['"Bricolage Grotesque Variable"', '"Bricolage Grotesque"', ...defaultTheme.fontFamily.sans],
             },
 

@@ -4,7 +4,7 @@
         ->map(fn ($m) => trim($m))->filter()->values();
 @endphp
 
-<section id="about" class="section scroll-mt-20">
+<section id="about" class="scroll-mt-20 pb-20 pt-24 md:pb-28 md:pt-32">
     <div class="container-page">
         <div class="grid grid-cols-1 items-center gap-16 lg:grid-cols-12 lg:gap-12">
             {{-- Photo, taped to the page --}}

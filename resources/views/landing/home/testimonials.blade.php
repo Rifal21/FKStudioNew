@@ -5,13 +5,15 @@
 @endphp
 
 @if ($testimonials->isNotEmpty())
-    <section id="testimonials" class="section scroll-mt-20">
-        <div class="container-page">
-            <h2 class="section-title max-w-2xl">{{ $id ? 'Apa kata klien kami' : 'What our clients say' }}</h2>
+    <section id="testimonials" class="scroll-mt-20 pb-24 pt-8 md:pb-32 md:pt-12">
+        <div class="container-page grid gap-12 lg:grid-cols-12 lg:gap-10">
+            <div class="lg:col-span-4">
+                <h2 class="section-title lg:sticky lg:top-28">{{ $id ? 'Kata mereka yang sudah memakai jasa kami' : 'What clients say after working with us' }}</h2>
+            </div>
 
-            <div class="mt-16 columns-1 gap-8 md:columns-2 lg:columns-3">
+            <div class="grid items-start gap-x-8 gap-y-10 pt-4 md:grid-cols-2 lg:col-span-8">
                 @foreach ($testimonials as $i => $tm)
-                    <figure class="relative mb-10 break-inside-avoid rounded-md border-2 border-edge p-6 text-navy shadow-hard {{ $paper[$i % 4] }} {{ $tilt[$i % 4] }}">
+                    <figure class="relative rounded-md border-2 border-edge p-6 text-navy shadow-hard {{ $paper[$i % 4] }} {{ $tilt[$i % 4] }} {{ $i % 2 ? 'md:mt-12' : '' }}">
                         <span class="tape -top-3 left-1/2 -translate-x-1/2 {{ $i % 2 ? 'rotate-3' : '-rotate-2' }}" aria-hidden="true"></span>
                         <div class="flex gap-0.5 text-navy" role="img" aria-label="{{ $tm->rating ?? 5 }} / 5">
                             @for ($s = 0; $s < ($tm->rating ?? 5); $s++)<i class="fa-solid fa-star text-small" aria-hidden="true"></i>@endfor

@@ -1,26 +1,30 @@
 @php
     $id = app()->getLocale() === 'id';
+    $digits = preg_replace('/[^0-9]/', '', $settings->contact_phone ?? '');
+    if ($digits && str_starts_with($digits, '0')) $digits = '62' . substr($digits, 1);
     $steps = [
-        ['fa-comments', $id ? 'Konsultasi' : 'Consult', $id ? 'Ceritakan kebutuhan bisnis Anda, kami bantu pilih solusi dan paket yang tepat.' : 'Tell us about your business and we will help pick the right solution and package.'],
-        ['fa-pen-ruler', $id ? 'Desain' : 'Design', $id ? 'Kami merancang tampilan yang sesuai identitas brand dan nyaman di semua perangkat.' : 'We craft a design that fits your brand and works on every device.'],
-        ['fa-code', $id ? 'Pengembangan' : 'Build', $id ? 'Website dibangun dan Anda bisa memantau progres langsung dari akun Anda.' : 'We build your website and you can follow progress from your account.'],
-        ['fa-rocket', $id ? 'Peluncuran' : 'Launch', $id ? 'Website siap tayang. Kami tetap mendampingi bila ada kendala atau pertanyaan.' : 'Your site goes live and we stay around for questions and support.'],
+        [$id ? 'Konsultasi' : 'Consult', $id ? 'Ceritakan kebutuhan bisnis Anda, kami bantu pilih solusi dan paket yang tepat.' : 'Tell us about your business and we will help pick the right solution and package.'],
+        [$id ? 'Desain' : 'Design', $id ? 'Kami merancang tampilan yang sesuai identitas brand dan nyaman di semua perangkat.' : 'We craft a design that fits your brand and works on every device.'],
+        [$id ? 'Pengembangan' : 'Build', $id ? 'Website dibangun dan Anda bisa memantau progres langsung dari akun Anda.' : 'We build your website and you can follow progress from your account.'],
+        [$id ? 'Peluncuran' : 'Launch', $id ? 'Website siap tayang. Kami tetap mendampingi bila ada kendala atau pertanyaan.' : 'Your site goes live and we stay around for questions and support.'],
     ];
 @endphp
 
-<section id="process" class="section scroll-mt-20 bg-brand-100/60 dark:bg-surface-2/50">
+<section id="process" class="scroll-mt-20 overflow-hidden border-b-2 border-edge bg-bg py-16 md:py-24">
     <div class="container-page">
-        <h2 class="section-title max-w-2xl">{{ $id ? 'Empat langkah menuju website impian' : 'Four steps to your dream website' }}</h2>
+        <h2 class="section-title max-w-2xl">{{ $id ? 'Dari obrolan pertama sampai website tayang' : 'From the first chat to a live website' }}</h2>
 
-        <ol class="relative mt-16 grid gap-x-6 gap-y-14 md:grid-cols-2 lg:grid-cols-4">
-            <span class="absolute left-7 right-7 top-7 hidden border-t-[3px] border-dashed border-edge/50 lg:block" aria-hidden="true"></span>
-            @foreach ($steps as $i => [$icon, $title, $text])
-                <li class="relative">
-                    <span class="relative z-10 flex h-14 w-14 items-center justify-center rounded-full border-2 border-edge bg-sun-400 font-display text-2xl font-extrabold text-navy shadow-hard-sm">{{ $i + 1 }}</span>
-                    <div class="pop mt-5 rounded-lg bg-surface p-5 {{ $i % 2 ? 'lg:translate-y-6' : '' }}">
-                        <i class="fa-solid {{ $icon }} text-xl text-brand-text" aria-hidden="true"></i>
-                        <h3 class="mt-3 text-xl">{{ $title }}</h3>
-                        <p class="mt-2 text-small text-muted">{{ $text }}</p>
+        {{-- Each step sits one stair higher than the last --}}
+        <ol class="mt-12 md:mt-16">
+            @foreach ($steps as $i => [$title, $text])
+                <li class="flex items-start gap-5 border-t-2 border-edge/30 py-7 last:border-b-2 sm:gap-8 lg:[padding-left:calc(var(--i)*7rem)]" style="--i: {{ $i }}">
+                    <span class="w-14 shrink-0 font-display text-7xl font-extrabold leading-[0.8] text-sun-400 [-webkit-text-stroke:2px_rgb(var(--c-edge))] sm:w-20 sm:text-8xl" aria-hidden="true">{{ $i + 1 }}</span>
+                    <div class="min-w-0 max-w-md">
+                        <h3 class="text-2xl leading-tight">{{ $title }}</h3>
+                        <p class="mt-2 text-muted">{{ $text }}</p>
+                        @if ($i === 0 && $digits)
+                            <a href="https://wa.me/{{ $digits }}" target="_blank" rel="noopener" class="mt-4 inline-block text-small font-bold underline decoration-sun-400 decoration-[3px] underline-offset-4 hover:decoration-brand-500">{{ $id ? 'Mulai dari obrolan di WhatsApp' : 'Start with a WhatsApp chat' }}</a>
+                        @endif
                     </div>
                 </li>
             @endforeach

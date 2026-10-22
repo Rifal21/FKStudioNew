@@ -1,6 +1,6 @@
 import './bootstrap';
 
-import '@fontsource-variable/plus-jakarta-sans';
+import '@fontsource-variable/hanken-grotesk';
 import '@fontsource-variable/bricolage-grotesque/wdth.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'aos/dist/aos.css';

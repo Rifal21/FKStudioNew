@@ -13,7 +13,7 @@
         @if ($packages->isEmpty())
             <x-ui.card><x-ui.empty-state icon="fa-tags" :title="$id ? 'Belum ada paket tersedia' : 'No packages available yet'" :text="$id ? 'Silakan kembali lagi nanti.' : 'Please check back soon.'" /></x-ui.card>
         @else
-            <div class="grid items-stretch gap-6 pt-4 md:grid-cols-2 lg:grid-cols-3">
+            <div class="mx-auto max-w-6xl space-y-10 pt-4">
                 @foreach ($packages as $package)
                     <x-site.package-card :package="$package" />
                 @endforeach

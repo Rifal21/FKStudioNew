@@ -22,38 +22,22 @@
     if ($digits && str_starts_with($digits, '0')) $digits = '62' . substr($digits, 1);
 @endphp
 
-<section id="faq" class="section scroll-mt-20 border-t-2 border-edge bg-surface">
+<section id="faq" class="scroll-mt-20 py-16 md:py-24">
     <div class="container-page">
-        <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
-            <div class="lg:col-span-4">
-                <div class="lg:sticky lg:top-28">
-                    <h2 class="section-title">{{ $id ? 'Pertanyaan yang sering diajukan' : 'Frequently asked questions' }}</h2>
-                    <p class="section-lead">{{ $id ? 'Tidak menemukan jawabannya? Tanyakan langsung ke kami.' : 'Cannot find your answer? Ask us directly.' }}</p>
-                    @if ($digits)
-                        <a href="https://wa.me/{{ $digits }}" target="_blank" rel="noopener" class="btn-primary mt-8"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> {{ $id ? 'Chat WhatsApp' : 'Chat on WhatsApp' }}</a>
-                    @endif
-                </div>
-            </div>
-
-            <div class="min-w-0 lg:col-span-8" x-data="{ open: 0 }">
-                @foreach ($faqs as $i => [$q, $a])
-                    <div class="border-t-2 border-edge/25 last:border-b-2" :class="open === {{ $i }} && 'bg-sun-100/70 dark:bg-sun-400/10'">
-                        <h3>
-                            <button type="button" class="flex w-full items-center justify-between gap-5 px-2 py-5 text-left font-display text-lg font-bold md:px-4 md:text-xl"
-                                @click="open = open === {{ $i }} ? null : {{ $i }}"
-                                :aria-expanded="open === {{ $i }}" aria-controls="faq-{{ $i }}">
-                                <span>{{ $q }}</span>
-                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border-2 border-edge transition" :class="open === {{ $i }} ? 'rotate-45 bg-sun-400 text-navy' : 'bg-surface'">
-                                    <i class="fa-solid fa-plus text-caption" aria-hidden="true"></i>
-                                </span>
-                            </button>
-                        </h3>
-                        <div id="faq-{{ $i }}" x-show="open === {{ $i }}" x-transition x-cloak>
-                            <p class="max-w-2xl px-2 pb-6 text-muted md:px-4">{{ $a }}</p>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
+        <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <h2 class="section-title max-w-xl">{{ $id ? 'Pertanyaan yang sering muncul sebelum order' : 'Questions people ask before ordering' }}</h2>
+            @if ($digits)
+                <a href="https://wa.me/{{ $digits }}" target="_blank" rel="noopener" class="btn-outline shrink-0 self-start md:self-auto"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> {{ $id ? 'Tanya langsung di WhatsApp' : 'Ask us on WhatsApp' }}</a>
+            @endif
         </div>
+
+        <dl class="mt-12 grid gap-x-16 gap-y-10 md:mt-14 lg:grid-cols-2">
+            @foreach ($faqs as [$q, $a])
+                <div class="border-t-2 border-edge pt-5">
+                    <dt class="font-display text-xl font-bold leading-snug">{{ $q }}</dt>
+                    <dd class="mt-2 max-w-lg text-muted">{{ $a }}</dd>
+                </div>
+            @endforeach
+        </dl>
     </div>
 </section>

@@ -54,7 +54,7 @@
 
         {{-- Typography --}}
         <section>
-            <x-ui.section-heading align="left" eyebrow="Token" title="Tipografi" lead="Plus Jakarta Sans. Teks terkecil 12 px." />
+            <x-ui.section-heading align="left" eyebrow="Token" title="Tipografi" lead="Hanken Grotesk. Teks terkecil 12 px." />
             <div class="mt-8 space-y-4">
                 <p class="text-4xl font-extrabold md:text-6xl">Display <span class="gradient-text">Gradient</span></p>
                 <h1 class="text-3xl md:text-5xl">Heading 1 — Website profesional</h1>
