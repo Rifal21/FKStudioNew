@@ -72,11 +72,20 @@ class WhatsAppSettingsController extends Controller
         return $this->call(fn (WahaClient $client) => ['qr' => $client->qr()]);
     }
 
-    /** Creates the session on the WAHA server if needed, otherwise just starts it. */
+    /** Creates the session on the WAHA server if needed and starts it. */
     public function start(): JsonResponse
     {
         return $this->call(function (WahaClient $client) {
-            $client->sessionInfo() === null ? $client->createSession() : $client->start();
+            try {
+                $client->upsertAndStart();
+            } catch (WahaException $e) {
+                // Older WAHA builds have no /api/sessions/start: create or start the session by hand.
+                if (! in_array($e->status, [404, 405], true)) {
+                    throw $e;
+                }
+
+                $client->sessionInfo() === null ? $client->createSession() : $client->start();
+            }
 
             return ['ok' => true];
         });

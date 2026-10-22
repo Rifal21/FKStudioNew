@@ -17,6 +17,9 @@ class WahaClient
     public const DEFAULT_URL = 'https://apiwa.fkstudio.id';
     public const DEFAULT_SESSION = 'default';
 
+    /** @var array<string, string> chat ids already confirmed with WhatsApp during this request */
+    private array $resolved = [];
+
     public function __construct(
         private readonly string $baseUrl,
         private readonly ?string $apiKey,
@@ -78,6 +81,12 @@ class WahaClient
         return $response->status() === 404 ? null : $this->json($response);
     }
 
+    /** POST /api/sessions/start: creates the session if it is missing, then starts it (one call, no pre-check). */
+    public function upsertAndStart(): array
+    {
+        return $this->json($this->send(fn (PendingRequest $r) => $r->post('/api/sessions/start', ['name' => $this->session])));
+    }
+
     public function createSession(): array
     {
         return $this->json($this->send(fn (PendingRequest $r) => $r->post('/api/sessions', [
@@ -117,20 +126,54 @@ class WahaClient
 
     // ---- messages -----------------------------------------------------------
 
+    /**
+     * Asks WhatsApp whether the number is registered (GET /api/checkNumberStatus) and returns the
+     * chat id to use. Engines that do not implement the check fall back to the plain number.
+     */
+    public function resolveChatId(string $phone): string
+    {
+        $fallback = self::chatId($phone);
+
+        if (isset($this->resolved[$fallback])) {
+            return $this->resolved[$fallback];
+        }
+
+        $response = $this->send(fn (PendingRequest $r) => $r->get('/api/checkNumberStatus', [
+            'session' => $this->session,
+            'phone' => self::normalizePhone($phone),
+        ]));
+
+        if (in_array($response->status(), [404, 405, 501], true)) {
+            return $this->resolved[$fallback] = $fallback;
+        }
+
+        $data = $this->json($response);
+
+        if (($data['numberExists'] ?? true) === false) {
+            throw new WahaException('Nomor '.$phone.' tidak terdaftar di WhatsApp.');
+        }
+
+        return $this->resolved[$fallback] = $data['chatId'] ?? $fallback;
+    }
+
     public function sendText(string $phone, string $text): array
     {
+        $chatId = $this->resolveChatId($phone);
+
         return $this->json($this->send(fn (PendingRequest $r) => $r->post('/api/sendText', [
             'session' => $this->session,
-            'chatId' => self::chatId($phone),
+            'chatId' => $chatId,
             'text' => $text,
         ])));
     }
 
     public function sendFile(string $phone, string $binary, string $filename, string $mimetype, ?string $caption = null): array
     {
+        $chatId = $this->resolveChatId($phone);
+
         return $this->json($this->send(fn (PendingRequest $r) => $r->timeout(60)->post('/api/sendFile', [
             'session' => $this->session,
-            'chatId' => self::chatId($phone),
+            'chatId' => $chatId,
             'file' => [
                 'mimetype' => $mimetype,
                 'filename' => $filename,
@@ -158,19 +201,19 @@ class WahaClient
         try {
             return $call($request);
         } catch (ConnectionException $e) {
-            throw new WahaException('Tidak bisa terhubung ke server WAHA ('.$this->baseUrl.').', 0, $e);
+            throw new WahaException('Tidak bisa terhubung ke server WAHA ('.$this->baseUrl.').', null, $e);
         }
     }
 
     private function json(Response $response): array
     {
         if ($response->status() === 401 || $response->status() === 403) {
-            throw new WahaException('API key WAHA ditolak. Periksa kembali API key di pengaturan.');
+            throw new WahaException('API key WAHA ditolak. Periksa kembali API key di pengaturan.', $response->status());
         }
 
         if ($response->failed()) {
             $message = $response->json('message') ?? $response->json('error') ?? $response->reason();
-            throw new WahaException('WAHA menjawab '.$response->status().': '.(is_array($message) ? json_encode($message) : $message));
+            throw new WahaException('WAHA menjawab '.$response->status().': '.(is_array($message) ? json_encode($message) : $message), $response->status());
         }
 
         return $response->json() ?? [];

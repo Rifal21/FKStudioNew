@@ -62,10 +62,22 @@ class WhatsAppSettingsTest extends TestCase
             ->assertOk()->assertJson(['exists' => false, 'status' => 'NOT_CREATED']);
     }
 
-    public function test_start_creates_the_session_when_missing_and_restarts_it_otherwise(): void
+    public function test_start_upserts_the_session_in_one_call(): void
+    {
+        $this->settings();
+        Http::fake(['waha.test/api/sessions/start' => Http::response(['name' => 'fk', 'status' => 'STARTING'])]);
+
+        $this->actingAs($this->admin())->postJson('/dashboard/whatsapp/start')->assertOk();
+
+        Http::assertSentCount(1);
+        Http::assertSent(fn ($r) => $r->url() === 'https://waha.test/api/sessions/start' && $r['name'] === 'fk');
+    }
+
+    public function test_start_falls_back_to_create_then_start_on_servers_without_the_upsert_endpoint(): void
     {
         $this->settings();
         Http::fake([
+            'waha.test/api/sessions/start' => Http::response([], 404),
             'waha.test/api/sessions/fk/start' => Http::response(['status' => 'STARTING']),
             'waha.test/api/sessions/fk' => Http::sequence()->push([], 404)->push(['status' => 'STOPPED']),
             'waha.test/api/sessions' => Http::response(['status' => 'STARTING']),
@@ -77,6 +89,33 @@ class WhatsAppSettingsTest extends TestCase
 
         $this->actingAs($admin)->postJson('/dashboard/whatsapp/start')->assertOk();
         Http::assertSent(fn ($r) => $r->url() === 'https://waha.test/api/sessions/fk/start');
+    }
+
+    public function test_a_number_that_is_not_on_whatsapp_is_refused_before_sending(): void
+    {
+        $this->settings();
+        Http::fake([
+            'waha.test/api/checkNumberStatus*' => Http::response(['numberExists' => false, 'chatId' => null]),
+            'waha.test/api/sendText' => Http::response(['id' => 'x']),
+        ]);
+
+        $this->actingAs($this->admin())->postJson('/dashboard/whatsapp/test', ['phone' => '0812-0000-1111'])
+            ->assertStatus(422)->assertJsonPath('error', fn ($e) => str_contains($e, 'tidak terdaftar'));
+
+        Http::assertNotSent(fn ($r) => $r->url() === 'https://waha.test/api/sendText');
+    }
+
+    public function test_the_chat_id_confirmed_by_whatsapp_is_the_one_used(): void
+    {
+        $this->settings();
+        Http::fake([
+            'waha.test/api/checkNumberStatus*' => Http::response(['numberExists' => true, 'chatId' => '6281200001111@c.us']),
+            'waha.test/api/sendText' => Http::response(['id' => 'x']),
+        ]);
+
+        $this->actingAs($this->admin())->postJson('/dashboard/whatsapp/test', ['phone' => '0812-0000-1111'])->assertOk();
+
+        Http::assertSent(fn ($r) => str_contains($r->url(), 'checkNumberStatus') && $r['phone'] === '6281200001111' && $r['session'] === 'fk');
     }
 
     public function test_a_rejected_api_key_comes_back_as_a_readable_error(): void

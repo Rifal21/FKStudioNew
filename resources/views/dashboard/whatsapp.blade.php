@@ -20,7 +20,7 @@
 
                     <div class="mt-6 space-y-5">
                         <x-ui.input name="waha_url" type="url" label="Alamat server" :value="$settings->waha_url ?: $defaultUrl" required />
-                        <x-ui.input name="waha_session" label="Nama sesi" :value="$settings->waha_session ?: $defaultSession" required hint="Nama bebas, tanpa spasi. Satu sesi = satu nomor WhatsApp pengirim." />
+                        <x-ui.input name="waha_session" label="Nama sesi" :value="$settings->waha_session ?: $defaultSession" required hint="Tanpa spasi. Satu sesi = satu nomor pengirim. WAHA edisi Core hanya mengizinkan sesi bernama default." />
                         <div>
                             <label for="waha_api_key" class="label">API key</label>
                             <input id="waha_api_key" name="waha_api_key" type="password" autocomplete="off" class="input"
