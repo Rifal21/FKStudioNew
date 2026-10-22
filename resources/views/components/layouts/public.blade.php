@@ -47,6 +47,23 @@
         <link rel="icon" type="image/png" href="{{ $site->favicon_url }}">
     @endif
 
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'Organization',
+            'name' => $siteName,
+            'url' => url('/'),
+            'logo' => $site->site_logo ? $site->logo_url : null,
+            'contactPoint' => array_filter([
+                '@type' => 'ContactPoint',
+                'telephone' => $site->contact_phone,
+                'email' => $site->contact_email,
+                'contactType' => 'customer service',
+            ]),
+            'sameAs' => array_values(array_filter(is_array($site->social_links) ? $site->social_links : [])),
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+
     @include('partials.head-assets', ['landing' => $landing])
     {{ $head ?? '' }}
 </head>

@@ -271,3 +271,14 @@
 .swal2-cancel {
     border-radius: 12px !important;
 }
+
+.swiper-pagination-bullet {
+    background: rgb(var(--c-muted) / 0.4) !important;
+    opacity: 1 !important;
+    transition: all 0.25s ease;
+}
+.swiper-pagination-bullet-active {
+    width: 24px !important;
+    border-radius: 4px !important;
+    background: #7c3aed !important;
+}
