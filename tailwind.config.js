@@ -118,9 +118,9 @@ export default {
                 pop: '0 20px 48px -16px rgb(10 31 58 / 0.35)',
                 glow: '0 8px 24px -8px rgb(255 207 15 / 0.65)',
                 // Hard, offset "sticker" shadows
-                hard: '4px 4px 0 0 rgb(var(--c-edge))',
-                'hard-sm': '2px 2px 0 0 rgb(var(--c-edge))',
-                'hard-lg': '8px 8px 0 0 rgb(var(--c-edge))',
+                hard: '4px 4px 0 0 rgb(var(--c-shadow))',
+                'hard-sm': '2px 2px 0 0 rgb(var(--c-shadow))',
+                'hard-lg': '8px 8px 0 0 rgb(var(--c-shadow))',
             },
 
             backgroundImage: {

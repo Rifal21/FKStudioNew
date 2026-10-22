@@ -18,7 +18,7 @@
                 <li class="relative">
                     <span class="relative z-10 flex h-14 w-14 items-center justify-center rounded-full border-2 border-edge bg-sun-400 font-display text-2xl font-extrabold text-navy shadow-hard-sm">{{ $i + 1 }}</span>
                     <div class="pop mt-5 rounded-lg bg-surface p-5 {{ $i % 2 ? 'lg:translate-y-6' : '' }}">
-                        <i class="fa-solid {{ $icon }} text-xl text-brand-600" aria-hidden="true"></i>
+                        <i class="fa-solid {{ $icon }} text-xl text-brand-text" aria-hidden="true"></i>
                         <h3 class="mt-3 text-xl">{{ $title }}</h3>
                         <p class="mt-2 text-small text-muted">{{ $text }}</p>
                     </div>

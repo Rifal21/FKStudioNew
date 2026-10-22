@@ -15,19 +15,21 @@
     --c-brand-soft: 224 242 254;
     --c-brand-text: 7 89 150;
     --c-edge: 10 31 58;
+    --c-shadow: 10 31 58;
     color-scheme: light;
 }
 
 .dark {
-    --c-bg: 7 22 40;
-    --c-surface: 13 37 64;
-    --c-surface-2: 19 50 84;
+    --c-bg: 9 25 46;
+    --c-surface: 16 41 71;
+    --c-surface-2: 22 53 90;
     --c-ink: 238 248 255;
-    --c-muted: 150 180 207;
-    --c-line: 33 70 107;
-    --c-brand-soft: 16 52 88;
+    --c-muted: 160 190 218;
+    --c-line: 41 82 124;
+    --c-brand-soft: 24 60 100;
     --c-brand-text: 125 205 250;
-    --c-edge: 96 165 212;
+    --c-edge: 98 156 204;
+    --c-shadow: 30 82 134;
     color-scheme: dark;
 }
 
@@ -388,4 +390,9 @@
     0%, 20%   { transform: translate(0, 0); }
     55%       { transform: translate(-64px, -46px); }
     75%, 100% { transform: translate(-64px, -46px); }
+}
+
+/* Dark mode: the pale image placeholder gradient turns olive over navy, so use a plain blue wash. */
+.dark .bg-brand-gradient-soft {
+    background-image: linear-gradient(135deg, rgb(127 203 248 / 0.16) 0%, rgb(127 203 248 / 0.05) 100%);
 }
