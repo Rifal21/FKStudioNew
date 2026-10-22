@@ -12,6 +12,8 @@ class SubscriptionItem extends Model
     protected $guarded = [];
 
     protected $casts = [
+        'quantity' => 'integer',
+        'position' => 'integer',
         'unit_price' => 'float',
     ];
 

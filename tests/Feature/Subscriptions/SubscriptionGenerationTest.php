@@ -178,4 +178,16 @@ class SubscriptionGenerationTest extends TestCase
         $this->assertStringContainsString('Nomor WhatsApp', $invoice->fresh()->wa_error);
         Http::assertNothingSent();
     }
+
+    public function test_numbers_that_arrive_as_strings_do_not_break_the_schedule(): void
+    {
+        // MySQL returns integer columns as strings; Carbon's day()/addDays() reject those.
+        $subscription = $this->subscription(['billing_day' => '31', 'due_days' => '14', 'next_run_date' => '2027-01-31']);
+        $subscription->setRawAttributes(array_merge($subscription->getAttributes(), ['billing_day' => '31', 'due_days' => '14']), true);
+
+        $invoice = app(SubscriptionInvoiceGenerator::class)->generate($subscription, Carbon::parse('2027-01-31'));
+
+        $this->assertSame('2027-02-14', $invoice->due_date->toDateString());
+        $this->assertSame('2027-02-28', $subscription->fresh()->next_run_date->toDateString());
+    }
 }

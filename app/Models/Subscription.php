@@ -24,6 +24,9 @@ class Subscription extends Model
         'end_date' => 'date',
         'next_run_date' => 'date',
         'auto_send' => 'boolean',
+        // MySQL hands integers back as strings, and Carbon rejects a string day or day count.
+        'billing_day' => 'integer',
+        'due_days' => 'integer',
         'discount' => 'float',
         'tax' => 'float',
     ];
