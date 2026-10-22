@@ -117,6 +117,30 @@ class WahaClient
         return $this->json($this->send(fn (PendingRequest $r) => $r->post("/api/sessions/{$this->session}/start")));
     }
 
+    public function restart(): array
+    {
+        return $this->json($this->send(fn (PendingRequest $r) => $r->post("/api/sessions/{$this->session}/restart")));
+    }
+
+    /**
+     * Fails early, in plain language, when the sending session is not connected, instead of letting
+     * WAHA answer with a generic 422 halfway through the message.
+     */
+    public function ensureWorking(): void
+    {
+        $info = $this->sessionInfo();
+
+        if ($info === null) {
+            throw new WahaException("Sesi '{$this->session}' belum dibuat di server WAHA. Buat atau pilih sesi di Dashboard > WhatsApp.");
+        }
+
+        $status = $info['status'] ?? 'WORKING';
+
+        if ($status !== 'WORKING') {
+            throw new WahaException("Sesi '{$this->session}' belum tersambung (status {$status}). Buka Dashboard > WhatsApp, mulai ulang sesinya atau pilih sesi lain sebagai pengirim.");
+        }
+    }
+
     public function stop(): array
     {
         return $this->json($this->send(fn (PendingRequest $r) => $r->post("/api/sessions/{$this->session}/stop")));

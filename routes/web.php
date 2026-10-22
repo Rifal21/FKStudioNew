@@ -139,6 +139,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     Route::prefix('/whatsapp/sessions/{session}')->where(['session' => '[A-Za-z0-9_-]{1,60}'])->name('whatsapp.sessions.')->group(function () {
         Route::get('/qr', [WhatsAppSettingsController::class, 'qr'])->name('qr');
         Route::post('/start', [WhatsAppSettingsController::class, 'start'])->name('start');
+        Route::post('/restart', [WhatsAppSettingsController::class, 'restart'])->name('restart');
         Route::post('/stop', [WhatsAppSettingsController::class, 'stop'])->name('stop');
         Route::post('/logout', [WhatsAppSettingsController::class, 'logout'])->name('logout');
         Route::post('/activate', [WhatsAppSettingsController::class, 'activate'])->name('activate');

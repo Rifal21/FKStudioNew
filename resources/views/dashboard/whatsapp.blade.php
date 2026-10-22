@@ -73,6 +73,11 @@
 
                     <p x-show="error" x-cloak class="mt-4 rounded-lg border border-danger-500/40 bg-danger-50 p-3 text-small text-danger-700 dark:bg-danger-500/15 dark:text-red-300" role="alert" x-text="error"></p>
 
+                    <p x-show="senderProblem" x-cloak class="mt-4 rounded-lg border-2 border-navy bg-sun-100 p-3 text-small text-navy dark:bg-surface-2 dark:text-ink" role="status">
+                        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                        <span x-text="senderProblem"></span>
+                    </p>
+
                     {{-- Buat sesi --}}
                     <form class="mt-5 flex gap-2" @submit.prevent="createSession()">
                         <div class="min-w-0 flex-1">
@@ -112,10 +117,11 @@
                                     <p class="mx-auto mt-3 max-w-xs text-small text-muted">Di ponsel: WhatsApp, Perangkat tertaut, Tautkan perangkat, lalu pindai kode ini.</p>
                                 </div>
                                 <p x-show="s.status === 'STARTING'" x-cloak class="mt-3 text-small text-muted"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Sesi dimulai, kode QR muncul sebentar lagi.</p>
-                                <p x-show="s.status === 'FAILED'" x-cloak class="mt-3 text-small text-danger-700 dark:text-red-300">Sesi gagal berjalan. Hentikan lalu mulai ulang.</p>
+                                <p x-show="s.status === 'FAILED'" x-cloak class="mt-3 text-small text-danger-700 dark:text-red-300">Browser di balik sesi ini berhenti. Coba "Mulai ulang". Kalau gagal lagi, hapus sesi lalu buat ulang.</p>
 
                                 <div class="mt-4 flex flex-wrap gap-2">
-                                    <x-ui.button type="button" size="sm" icon="fa-play" x-show="['STOPPED','FAILED'].includes(s.status)" @click="act(s, 'start')" x-bind:disabled="busy">Mulai</x-ui.button>
+                                    <x-ui.button type="button" size="sm" icon="fa-play" x-show="s.status === 'STOPPED'" @click="act(s, 'start')" x-bind:disabled="busy">Mulai</x-ui.button>
+                                    <x-ui.button type="button" size="sm" icon="fa-rotate-right" x-show="s.status === 'FAILED'" @click="act(s, 'restart')" x-bind:disabled="busy">Mulai ulang</x-ui.button>
                                     <x-ui.button type="button" size="sm" variant="secondary" icon="fa-check" x-show="s.name !== active" @click="activate(s)" x-bind:disabled="busy">Jadikan pengirim</x-ui.button>
                                     <x-ui.button type="button" size="sm" variant="secondary" icon="fa-stop" x-show="['STARTING','SCAN_QR_CODE','WORKING'].includes(s.status)" @click="act(s, 'stop')" x-bind:disabled="busy">Hentikan</x-ui.button>
                                     <x-ui.button type="button" size="sm" variant="secondary" icon="fa-right-from-bracket" x-show="s.status === 'WORKING'" @click="confirmThen('Putuskan nomor?', 'Nomor keluar dari sesi ' + s.name + ' dan perlu dipindai ulang.', 'Putuskan', () => act(s, 'logout'))" x-bind:disabled="busy">Putuskan nomor</x-ui.button>
@@ -145,6 +151,13 @@
                 cfg, hasKey: cfg.hasKey, active: cfg.active,
                 sessions: [], qr: {}, loaded: false, loading: false, busy: false,
                 error: null, newName: '', testPhone: '', timer: null,
+                get senderProblem() {
+                    if (!this.loaded || !this.hasKey) return null;
+                    const s = this.sessions.find(x => x.name === this.active);
+                    if (!s) return "Sesi pengirim '" + this.active + "' belum ada di server. Buat sesinya atau pilih sesi lain lewat \"Jadikan pengirim\".";
+                    if (s.status !== 'WORKING') return "Sesi pengirim '" + this.active + "' belum tersambung, jadi invoice belum bisa terkirim. Selesaikan sesinya atau pilih sesi yang tersambung lewat \"Jadikan pengirim\".";
+                    return null;
+                },
                 get activeWorking() { return this.sessions.some(s => s.name === this.active && s.status === 'WORKING'); },
                 url(name, action = '') { return this.cfg.list + '/' + encodeURIComponent(name) + (action ? '/' + action : ''); },
                 chip(status) {

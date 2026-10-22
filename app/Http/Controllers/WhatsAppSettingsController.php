@@ -110,6 +110,32 @@ class WhatsAppSettingsController extends Controller
         });
     }
 
+    /** For a FAILED or stuck session: restart it, or stop then start on servers without /restart. */
+    public function restart(string $session): JsonResponse
+    {
+        return $this->call(function (WahaClient $client) use ($session) {
+            $client = $client->forSession($session);
+
+            try {
+                $client->restart();
+            } catch (WahaException $e) {
+                if (! in_array($e->status, [404, 405], true)) {
+                    throw $e;
+                }
+
+                try {
+                    $client->stop();
+                } catch (WahaException) {
+                    // A crashed session may refuse to stop; starting it is what matters.
+                }
+
+                $client->start();
+            }
+
+            return ['ok' => true];
+        });
+    }
+
     public function stop(string $session): JsonResponse
     {
         return $this->call(fn (WahaClient $client) => $client->forSession($session)->stop() + ['ok' => true]);

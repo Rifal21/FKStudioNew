@@ -205,4 +205,44 @@ class WhatsAppSettingsTest extends TestCase
 
         $this->actingAs($this->admin())->get('/dashboard/whatsapp')->assertOk()->assertDontSee('super-secret-key');
     }
+
+    public function test_a_failed_session_is_restarted_in_one_call(): void
+    {
+        $this->settings();
+        Http::fake(['waha.test/api/sessions/toko/restart' => Http::response(['status' => 'STARTING'])]);
+
+        $this->actingAs($this->admin())->postJson('/dashboard/whatsapp/sessions/toko/restart')->assertOk();
+        Http::assertSent(fn ($r) => $r->url() === 'https://waha.test/api/sessions/toko/restart');
+    }
+
+    public function test_restart_falls_back_to_stop_then_start_even_if_the_crashed_session_refuses_to_stop(): void
+    {
+        $this->settings();
+        Http::fake([
+            'waha.test/api/sessions/toko/restart' => Http::response([], 404),
+            'waha.test/api/sessions/toko/stop' => Http::response(['message' => 'closed'], 500),
+            'waha.test/api/sessions/toko/start' => Http::response(['status' => 'STARTING']),
+        ]);
+
+        $this->actingAs($this->admin())->postJson('/dashboard/whatsapp/sessions/toko/restart')->assertOk();
+        Http::assertSent(fn ($r) => $r->url() === 'https://waha.test/api/sessions/toko/start');
+    }
+
+    public function test_sending_through_a_session_that_is_not_working_explains_what_to_do(): void
+    {
+        $this->settings(['waha_enabled' => true, 'waha_session' => 'fkstudio']);
+        Http::fake(['waha.test/api/sessions/fkstudio' => Http::response(['name' => 'fkstudio', 'status' => 'FAILED'])]);
+        $invoice = \App\Models\Invoice::create([
+            'invoice_number' => 'INV-9', 'client_name' => 'Budi', 'client_phone' => '0811111111',
+            'issue_date' => '2026-10-22', 'total_amount' => 1000, 'status' => 'Draft',
+            'discount' => 0, 'discount_type' => 'percent', 'tax' => 0, 'tax_type' => 'percent',
+        ]);
+
+        $this->assertFalse(app(\App\Services\InvoiceWhatsApp::class)->send($invoice));
+
+        $error = $invoice->fresh()->wa_error;
+        $this->assertStringContainsString('FAILED', $error);
+        $this->assertStringContainsString('Dashboard > WhatsApp', $error);
+        Http::assertNotSent(fn ($r) => str_contains($r->url(), 'sendText'));
+    }
 }

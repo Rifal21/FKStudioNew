@@ -65,6 +65,7 @@ TXT;
             }
 
             $client = WahaClient::fromSettings($this->settings);
+            $client->ensureWorking();
 
             $client->sendText($invoice->client_phone, $this->message($invoice));
             $client->sendFile(
