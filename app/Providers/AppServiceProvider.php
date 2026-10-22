@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\PackageOrder;
 use App\Models\SiteSetting;
+use App\Models\Ticket;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -34,6 +35,14 @@ class AppServiceProvider extends ServiceProvider
             $site ??= SiteSetting::first() ?: new SiteSetting();
 
             $view->with('site', $site);
+        });
+
+        // Admin shell: counters shown as badges in the sidebar / bottom nav.
+        View::composer(['layouts.navigation', 'layouts.app'], function ($view) {
+            $view->with('navCounts', [
+                'orders' => PackageOrder::where('status', 'pending')->count(),
+                'tickets' => Ticket::whereIn('status', ['open', 'in_progress'])->count(),
+            ]);
         });
 
         // Navbar: show "Website Saya" only for customers with a finished website.

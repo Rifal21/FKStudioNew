@@ -1,165 +1,70 @@
 <aside
-    class="fixed inset-y-0 left-0 z-50 w-72 bg-slate-900 text-slate-300 transition-transform duration-300 transform lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen shadow-2xl shrink-0"
-    :class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }">
-    <div class="h-full flex flex-col">
-        <!-- Logo Area -->
-        <div class="p-6 flex items-center justify-between border-b border-slate-800/50">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-                    <i class="fa-solid fa-rocket text-xl"></i>
-                </div>
-                <div class="flex flex-col leading-tight">
-                    <span class="text-white font-black tracking-tighter text-lg">FKSTUDIO</span>
-                    <span class="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-500">Dashboard v2.0</span>
-                </div>
-            </div>
-            <button @click="sidebarOpen = false" class="lg:hidden text-slate-500 hover:text-white transition-colors">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
+    id="admin-sidebar"
+    class="fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full flex-col border-r border-line bg-surface shadow-pop transition-transform duration-300 lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:translate-x-0 lg:shadow-none"
+    :class="{ 'translate-x-0': sidebarOpen }"
+    aria-label="Menu admin">
+
+    <div class="flex h-16 shrink-0 items-center justify-between border-b border-line px-5">
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
+            <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-gradient text-small font-extrabold text-white shadow-glow">FK</span>
+            <span class="leading-tight">
+                <span class="block text-base font-extrabold">FKStudio</span>
+                <span class="block text-caption text-muted">Panel admin</span>
+            </span>
+        </a>
+        <button type="button" class="btn-icon lg:hidden" @click="sidebarOpen = false" aria-label="Tutup menu"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    </div>
+
+    <nav class="custom-scrollbar flex-1 space-y-6 overflow-y-auto px-3 py-5">
+        <div class="space-y-1">
+            <x-admin.nav-link route="dashboard" icon="fa-gauge-high" label="Dashboard" />
         </div>
 
-        <!-- Navigation Links -->
-        <div class="flex-1 overflow-y-auto py-8 px-4 space-y-1 custom-scrollbar">
-            <p class="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 mb-4">Main Menu</p>
-            
-            <a href="{{ route('dashboard') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-chart-line w-5 group-hover:scale-110 transition-transform"></i>
-                <span>Statistics</span>
-            </a>
-
-            @if(Auth::user()->isSuperAdmin())
-            <a href="{{ route('dashboard.settings.edit') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.settings.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-gears w-5 group-hover:scale-110 transition-transform"></i>
-                <span>General Settings</span>
-            </a>
-
-            <a href="{{ route('dashboard.payment_methods.edit') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.payment_methods.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-credit-card w-5 group-hover:scale-110 transition-transform"></i>
-                <span>Payment Methods</span>
-            </a>
-
-            <p class="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 mt-8 mb-4">Transaction</p>
-
-            <a href="{{ route('dashboard.orders.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.orders.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-cart-shopping w-5 group-hover:scale-110 transition-transform"></i>
-                <span>Package Orders</span>
-            </a>
-
-            <a href="{{ route('dashboard.vouchers.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.vouchers.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-ticket w-5 group-hover:scale-110 transition-transform"></i>
-                <span>Discount Vouchers</span>
-            </a>
-
-            <a href="{{ route('dashboard.tickets.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.tickets.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-headset w-5 group-hover:scale-110 transition-transform"></i>
-                <span>Tickets</span>
-            </a>
-
-            <a href="{{ route('dashboard.invoices.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.invoices.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-file-invoice-dollar w-5 group-hover:scale-110 transition-transform"></i>
-                <span>Invoices</span>
-            </a>
-
-            <p class="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 mt-8 mb-4">Landing Content</p>
-
-            <a href="{{ route('dashboard.hero.edit') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.hero.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-wand-magic-sparkles w-5 group-hover:scale-110 transition-transform"></i>
-                <span>Hero Section</span>
-            </a>
-
-            <a href="{{ route('dashboard.about.edit') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.about.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-address-card w-5 group-hover:scale-110 transition-transform"></i>
-                <span>About Section</span>
-            </a>
-
-            <a href="{{ route('dashboard.services.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.services.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-briefcase w-5 group-hover:scale-110 transition-transform"></i>
-                <span>Our Services</span>
-            </a>
-
-            <a href="{{ route('dashboard.projects.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.projects.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-layer-group w-5 group-hover:scale-110 transition-transform"></i>
-                <span>Portfolio</span>
-            </a>
-
-            <a href="{{ route('dashboard.blogs.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.blogs.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-newspaper w-5 group-hover:scale-110 transition-transform"></i>
-                <span>Manage Blog</span>
-            </a>
-
-            <a href="{{ route('dashboard.packages.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.packages.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-tags w-5 group-hover:scale-110 transition-transform"></i>
-                <span>Service Packages</span>
-            </a>
-
-            <a href="{{ route('dashboard.testimonials.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.testimonials.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-comment-dots w-5 group-hover:scale-110 transition-transform"></i>
-                <span>Testimonials</span>
-            </a>
-
-            <a href="{{ route('dashboard.clients.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.clients.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-handshake w-5 group-hover:scale-110 transition-transform"></i>
-                <span>Clients</span>
-            </a>
-            @endif
-
-            @if(Auth::user()->isSuperAdmin())
-            <p class="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 mt-8 mb-4">System</p>
-
-            <a href="{{ route('dashboard.users.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard.users.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold' : 'hover:bg-slate-800 hover:text-white' }}">
-                <i class="fa-solid fa-users-gear w-5 group-hover:scale-110 transition-transform"></i>
-                <span>User Management</span>
-            </a>
-            @endif
-        </div>
-
-        <!-- User Footer -->
-        <div class="p-4 bg-slate-950/50 border-t border-slate-800/50 mt-auto">
-            <div class="flex items-center space-x-3 p-2 bg-slate-800/30 rounded-2xl border border-white/5">
-                <div class="w-10 h-10 bg-slate-700 rounded-xl flex items-center justify-center font-bold text-blue-400">
-                    {{ substr(Auth::user()->name, 0, 1) }}
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-xs font-bold text-white truncate">{{ Auth::user()->name }}</p>
-                    <p class="text-[10px] text-slate-500 truncate">{{ Auth::user()->email }}</p>
-                </div>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="p-2 text-slate-500 hover:text-red-400 transition-colors">
-                        <i class="fa-solid fa-power-off"></i>
-                    </button>
-                </form>
+        @if (Auth::user()->isSuperAdmin())
+            <div class="space-y-1">
+                <p class="px-3 pb-1 text-caption font-bold uppercase tracking-wider text-muted">Transaksi</p>
+                <x-admin.nav-link route="dashboard.orders.index" match="dashboard.orders.*" icon="fa-cart-shopping" label="Pesanan" :badge="$navCounts['orders'] ?: null" />
+                <x-admin.nav-link route="dashboard.invoices.index" match="dashboard.invoices.*" icon="fa-file-invoice-dollar" label="Invoice" />
+                <x-admin.nav-link route="dashboard.vouchers.index" match="dashboard.vouchers.*" icon="fa-ticket" label="Voucher" />
+                <x-admin.nav-link route="dashboard.tickets.index" match="dashboard.tickets.*" icon="fa-headset" label="Tiket bantuan" :badge="$navCounts['tickets'] ?: null" />
             </div>
+
+            <div class="space-y-1">
+                <p class="px-3 pb-1 text-caption font-bold uppercase tracking-wider text-muted">Konten landing</p>
+                <x-admin.nav-link route="dashboard.hero.edit" match="dashboard.hero.*" icon="fa-wand-magic-sparkles" label="Hero" />
+                <x-admin.nav-link route="dashboard.about.edit" match="dashboard.about.*" icon="fa-address-card" label="Tentang" />
+                <x-admin.nav-link route="dashboard.services.index" match="dashboard.services.*" icon="fa-briefcase" label="Layanan" />
+                <x-admin.nav-link route="dashboard.projects.index" match="dashboard.projects.*" icon="fa-layer-group" label="Portofolio" />
+                <x-admin.nav-link route="dashboard.packages.index" match="dashboard.packages.*" icon="fa-tags" label="Paket" />
+                <x-admin.nav-link route="dashboard.blogs.index" match="dashboard.blogs.*" icon="fa-newspaper" label="Blog" />
+                <x-admin.nav-link route="dashboard.testimonials.index" match="dashboard.testimonials.*" icon="fa-comment-dots" label="Testimoni" />
+                <x-admin.nav-link route="dashboard.clients.index" match="dashboard.clients.*" icon="fa-handshake" label="Klien" />
+                <x-admin.nav-link route="dashboard.owners.index" match="dashboard.owners.*" icon="fa-user-tie" label="Tim" />
+            </div>
+
+            <div class="space-y-1">
+                <p class="px-3 pb-1 text-caption font-bold uppercase tracking-wider text-muted">Sistem</p>
+                <x-admin.nav-link route="dashboard.settings.edit" match="dashboard.settings.*" icon="fa-gears" label="Pengaturan umum" />
+                <x-admin.nav-link route="dashboard.payment_methods.edit" match="dashboard.payment_methods.*" icon="fa-credit-card" label="Metode pembayaran" />
+                <x-admin.nav-link route="dashboard.users.index" match="dashboard.users.*" icon="fa-users-gear" label="Pengguna" />
+            </div>
+        @endif
+    </nav>
+
+    <div class="shrink-0 border-t border-line p-3">
+        <div class="flex items-center gap-3 rounded-lg bg-surface-2 p-2.5">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-gradient font-bold uppercase text-white">{{ mb_substr(Auth::user()->name, 0, 1) }}</span>
+            <div class="min-w-0 flex-1">
+                <p class="truncate text-small font-bold">{{ Auth::user()->name }}</p>
+                <p class="truncate text-caption text-muted">{{ Auth::user()->email }}</p>
+            </div>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="btn-icon text-danger-700 hover:bg-danger-50 hover:text-danger-700 dark:text-red-300 dark:hover:bg-danger-500/15" aria-label="Keluar" title="Keluar"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i></button>
+            </form>
         </div>
     </div>
 </aside>
 
-<!-- Overlay for mobile -->
-<div 
-    x-show="sidebarOpen" 
-    x-transition:enter="transition ease-out duration-300"
-    x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100"
-    x-transition:leave="transition ease-in duration-300"
-    x-transition:leave-start="opacity-100"
-    x-transition:leave-end="opacity-0"
-    @click="sidebarOpen = false" 
-    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden"
-    style="display: none;">
-</div>
+{{-- Mobile overlay --}}
+<div x-show="sidebarOpen" x-cloak x-transition.opacity @click="sidebarOpen = false" class="fixed inset-0 z-40 bg-ink/50 backdrop-blur-sm lg:hidden" aria-hidden="true"></div>

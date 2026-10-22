@@ -23,7 +23,7 @@
         <i class="fa-solid {{ $icon }}" aria-hidden="true"></i>
     </span>
     <div class="min-w-0">
-        <p class="truncate text-small text-muted">{{ $label }}</p>
+        <p class="text-small leading-snug text-muted">{{ $label }}</p>
         <p class="truncate text-2xl font-extrabold leading-tight">{{ $value }}</p>
         @if ($trend)
             <p class="mt-0.5 text-caption font-semibold {{ $trendUp ? 'text-mint-800 dark:text-mint-300' : 'text-danger-700 dark:text-red-300' }}">
