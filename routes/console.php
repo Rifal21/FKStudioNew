@@ -12,5 +12,5 @@ Artisan::command('inspire', function () {
 // The server needs one cron entry: * * * * * php artisan schedule:run
 Schedule::command('subscriptions:generate')
     ->everyMinute()
-    ->withoutOverlapping()
+    ->withoutOverlapping(10) // a crashed run frees its lock after 10 minutes instead of the 24h default
     ->onOneServer();

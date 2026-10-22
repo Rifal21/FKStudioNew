@@ -89,6 +89,7 @@
                                                 <a href="{{ route('dashboard.invoices.download', $invoice->id) }}" class="btn-icon" title="Unduh PDF" aria-label="Unduh PDF invoice {{ $invoice->invoice_number }}"><i class="fa-solid fa-download" aria-hidden="true"></i></a>
                                                 <button type="button" class="btn-icon" title="Salin tautan" aria-label="Salin tautan publik invoice {{ $invoice->invoice_number }}"
                                                     @click="navigator.clipboard.writeText(@js(route('invoices.public.show', $invoice->id))).then(() => window.toast('success', 'Tautan invoice disalin'), () => window.toast('error', 'Gagal menyalin tautan'))"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i></button>
+                                                @include('dashboard.invoices._whatsapp-button', ['invoice' => $invoice])
                                                 @if ($type === 'manual')
                                                     <a href="{{ route('dashboard.invoices.edit', $invoice->id) }}" class="btn-icon" title="Ubah" aria-label="Ubah invoice {{ $invoice->invoice_number }}"><i class="fa-solid fa-pencil" aria-hidden="true"></i></a>
                                                 @endif
@@ -134,6 +135,7 @@
                                     <a href="{{ route('dashboard.invoices.download', $invoice->id) }}" class="btn-icon" aria-label="Unduh PDF invoice {{ $invoice->invoice_number }}"><i class="fa-solid fa-download" aria-hidden="true"></i></a>
                                     <button type="button" class="btn-icon" aria-label="Salin tautan publik invoice {{ $invoice->invoice_number }}"
                                         @click="navigator.clipboard.writeText(@js(route('invoices.public.show', $invoice->id))).then(() => window.toast('success', 'Tautan invoice disalin'), () => window.toast('error', 'Gagal menyalin tautan'))"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i></button>
+                                    @include('dashboard.invoices._whatsapp-button', ['invoice' => $invoice])
                                     @if ($type === 'manual')
                                         <a href="{{ route('dashboard.invoices.edit', $invoice->id) }}" class="btn-icon" aria-label="Ubah invoice {{ $invoice->invoice_number }}"><i class="fa-solid fa-pencil" aria-hidden="true"></i></a>
                                     @endif
