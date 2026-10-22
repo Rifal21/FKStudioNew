@@ -1,4 +1,4 @@
-@props(['project'])
+@props(['project', 'ratio' => 'aspect-[16/10]'])
 
 @php
     $id = app()->getLocale() === 'id';
@@ -8,7 +8,7 @@
 
 <article {{ $attributes->class(['group flex flex-col']) }}>
     <x-site.browser-frame :url="$host" class="pop-lift flex flex-1 flex-col">
-        <div class="relative aspect-[16/10] overflow-hidden bg-brand-gradient-soft">
+        <div class="relative {{ $ratio }} overflow-hidden bg-brand-gradient-soft">
             @if ($project->image)
                 <img src="{{ $project->media_url }}" alt="{{ $title }}" loading="lazy" class="absolute inset-0 h-full w-full object-cover object-top transition duration-700 group-hover:scale-105">
             @else
