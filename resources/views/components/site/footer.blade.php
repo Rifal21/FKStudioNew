@@ -18,7 +18,7 @@
                     @else
                         <span class="flex h-11 w-11 items-center justify-center rounded-full border-2 border-white bg-sun-400 font-extrabold text-navy">FK</span>
                     @endif
-                    <span class="font-display text-xl font-extrabold text-white">{{ $site->site_name ?: 'FKStudio' }}</span>
+                    <span class="font-display text-xl font-extrabold text-white">{{ $site->site_name ?: \App\Support\Seo::BRAND }}</span>
                 </a>
                 @if ($site->site_description)
                     <p class="mt-4 max-w-md text-small leading-relaxed text-white/75">{{ $site->site_description }}</p>
@@ -63,9 +63,9 @@
         </div>
 
         <div class="mt-12 flex flex-col items-center justify-between gap-2 border-t-2 border-white/15 pt-6 text-caption text-white/60 sm:flex-row">
-            <p>&copy; {{ date('Y') }} {{ $site->site_name ?: 'FKStudio' }}. {{ $id ? 'Hak cipta dilindungi.' : 'All rights reserved.' }}</p>
+            <p>&copy; {{ date('Y') }} {{ $site->site_name ?: \App\Support\Seo::BRAND }}. {{ $id ? 'Hak cipta dilindungi.' : 'All rights reserved.' }}</p>
             <p>{{ $id ? 'Dibuat dengan' : 'Made with' }} <i class="fa-solid fa-heart text-sun-400" aria-hidden="true"></i> Indonesia</p>
         </div>
     </div>
-    <p class="pointer-events-none select-none whitespace-nowrap text-center font-display text-[24vw] font-extrabold leading-[0.8] tracking-tighter text-white/[0.05] md:text-[17rem]" aria-hidden="true">{{ $site->site_name ?: 'FKStudio' }}</p>
+    <p class="pointer-events-none select-none whitespace-nowrap text-center font-display text-[24vw] font-extrabold leading-[0.8] tracking-tighter text-white/[0.05] md:text-[17rem]" aria-hidden="true">{{ \App\Support\Seo::BRAND_SHORT }}</p>
 </footer>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BlogPostResource;
 use App\Models\BlogPost;
+use App\Support\BlogViewTracker;
 use App\Traits\NextcloudStorage;
 use App\Traits\HasMediaUrl;
 use Illuminate\Http\Request;
@@ -70,8 +71,7 @@ class BlogApiController extends Controller
             ->with('author')
             ->firstOrFail();
 
-        // Increment view counter
-        $blog->increment('views');
+        BlogViewTracker::record($blog, request());
 
         return new BlogPostResource($blog);
     }

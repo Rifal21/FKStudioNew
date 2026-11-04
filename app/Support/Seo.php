@@ -9,8 +9,16 @@ use Illuminate\Support\Str;
 
 class Seo
 {
+    /** Full trading name. The short "FKStudio" stays as alternateName so both spellings resolve to one entity. */
+    public const BRAND = 'FKStudio IT Solution';
+
+    public const BRAND_SHORT = 'FKStudio';
+
+    /** Home page title when the admin has not written an SEO title yet. Keywords sit next to the brand, under ~60 characters. */
+    public const FALLBACK_TITLE = 'FKStudio IT Solution - Jasa Pembuatan Website & Aplikasi UMKM';
+
     /** Used when the admin has not written an SEO description yet. */
-    public const FALLBACK_DESCRIPTION = 'FKStudio membuat website dan aplikasi untuk UMKM dan bisnis di Indonesia. Harga paket transparan, bayar DP atau lunas, progres bisa dipantau online.';
+    public const FALLBACK_DESCRIPTION = 'FKStudio IT Solution: jasa pembuatan website, toko online, dan aplikasi untuk UMKM di Indonesia. Harga paket transparan, bayar DP atau lunas.';
 
     public static function orgId(): string
     {
@@ -39,11 +47,46 @@ class Seo
         return $digits === '' ? null : (int) $digits;
     }
 
+    /** Plain-text summary that ends on a sentence or a word, never mid-word. */
     public static function excerpt(?string $html, int $limit = 160): string
     {
         $text = strip_tags(preg_replace('#</(p|div|li|h[1-6])>|<br\s*/?>#i', ' ', (string) $html));
+        $text = trim(preg_replace('/\s+/', ' ', $text));
 
-        return Str::limit(trim(preg_replace('/\s+/', ' ', $text)), $limit, '');
+        if (mb_strlen($text) <= $limit) {
+            return $text;
+        }
+
+        $cut = mb_substr($text, 0, $limit);
+
+        // A whole sentence reads best, as long as it keeps most of the room.
+        if (preg_match('/^(.{'.(int) ($limit * 0.5).',}[.!?])(\s|$)/us', $cut, $m)) {
+            return $m[1];
+        }
+
+        return rtrim(preg_replace('/\s+\S*$/u', '', $cut), " ,;:-–—").'…';
+    }
+
+    /** File-sharing hosts are downloads, not pages: they do not belong in what crawlers read about us. */
+    private const DOWNLOAD_HOSTS = ['mediafire.com', 'drive.google.com', 'docs.google.com', 'dropbox.com', 'mega.nz', 'wetransfer.com', 'we.tl', 'sendspace.com', 'anonfiles.com'];
+
+    /** The project's link when it is a real page, null for APK/file downloads. */
+    public static function publicUrl(?string $url): ?string
+    {
+        if (! filled($url)) {
+            return null;
+        }
+
+        $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+        $path = strtolower((string) parse_url($url, PHP_URL_PATH));
+
+        foreach (self::DOWNLOAD_HOSTS as $blocked) {
+            if ($host === $blocked || str_ends_with($host, ".{$blocked}")) {
+                return null;
+            }
+        }
+
+        return preg_match('/\.(apk|aab|zip|rar|exe|dmg)$/', $path) ? null : $url;
     }
 
     public static function organization(SiteSetting $site): array
@@ -54,10 +97,13 @@ class Seo
         // Without it we stay a plain Organization and publish no invented location.
         $local = filled($site->biz_street) && filled($site->biz_city);
 
+        $name = $site->site_name ?: self::BRAND;
+
         return array_filter([
             '@type' => $local ? ['Organization', 'ProfessionalService'] : 'Organization',
             '@id' => self::orgId(),
-            'name' => $site->site_name ?: 'FKStudio',
+            'name' => $name,
+            'alternateName' => $name !== self::BRAND_SHORT ? self::BRAND_SHORT : null,
             'url' => url('/'),
             'logo' => $site->site_logo ? $site->logo_url : null,
             'description' => $site->seo_description ?: self::FALLBACK_DESCRIPTION,
@@ -104,19 +150,22 @@ class Seo
             ];
         }
 
-        return ['@type' => 'ItemList', 'name' => 'Layanan FKStudio', 'itemListElement' => $items];
+        return ['@type' => 'ItemList', 'name' => 'Layanan '.self::BRAND_SHORT, 'itemListElement' => $items];
     }
 
     public static function website(SiteSetting $site): array
     {
-        return [
+        $name = $site->site_name ?: self::BRAND;
+
+        return array_filter([
             '@type' => 'WebSite',
             '@id' => self::siteId(),
             'url' => url('/'),
-            'name' => $site->site_name ?: 'FKStudio',
+            'name' => $name,
+            'alternateName' => $name !== self::BRAND_SHORT ? self::BRAND_SHORT : null,
             'inLanguage' => 'id-ID',
             'publisher' => ['@id' => self::orgId()],
-        ];
+        ]);
     }
 
     public static function product(Package $package): array
@@ -130,7 +179,7 @@ class Seo
             'name' => $package->getTranslation('name'),
             'description' => self::excerpt($package->getTranslation('description'), 300) ?: null,
             'url' => route('package.show', $package->slug),
-            'brand' => ['@type' => 'Brand', 'name' => 'FKStudio'],
+            'brand' => ['@type' => 'Brand', 'name' => self::BRAND],
             'category' => 'Website & digital services',
             'additionalProperty' => $features ? array_map(fn ($f) => ['@type' => 'PropertyValue', 'name' => 'Fitur', 'value' => (string) (is_array($f) ? ($f['name'] ?? json_encode($f)) : $f)], array_slice($features, 0, 12)) : null,
             'offers' => $price === null ? null : [
@@ -155,7 +204,7 @@ class Seo
             'dateModified' => optional($blog->updated_at)->toAtomString(),
             'inLanguage' => 'id-ID',
             'mainEntityOfPage' => route('blog.show', $blog->slug),
-            'author' => ['@type' => 'Person', 'name' => $blog->author_name ?: $blog->author?->name ?: ($site->site_name ?: 'FKStudio')],
+            'author' => ['@type' => 'Person', 'name' => $blog->author_name ?: $blog->author?->name ?: ($site->site_name ?: self::BRAND)],
             'publisher' => ['@id' => self::orgId()],
         ]);
     }

@@ -43,6 +43,13 @@
         overflow-x: clip;
     }
 
+    /* Browsers without `clip` (iOS Safari before 16, old Android WebView) would ignore the rule above and let the page widen. */
+    @supports not (overflow-x: clip) {
+        html {
+            overflow-x: hidden;
+        }
+    }
+
     html {
         scroll-behavior: smooth;
         -webkit-text-size-adjust: 100%;

@@ -41,7 +41,7 @@
                 this.newPreview = URL.createObjectURL(file);
             }
         }
-    }" @keydown.escape.window="if (!document.querySelector('.note-editor.fullscreen') && !document.querySelector('.note-modal.open')) cancelEdit()">
+    }" @blog-edit.window="initEdit($event.detail)" @keydown.escape.window="if (!document.querySelector('.note-editor.fullscreen') && !document.querySelector('.note-modal.open')) cancelEdit()">
         <x-ui.page-header title="Blog" description="Tulis dan kelola artikel yang tampil di halaman blog.">
             <x-slot:actions>
                 <x-ui.button icon="fa-plus" @click="openCreate()">Tulis artikel</x-ui.button>
@@ -77,10 +77,13 @@
                         <div class="flex flex-1 flex-col p-5">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
-                                    <h3 class="line-clamp-2 text-lg font-bold leading-tight">{{ $blog->title_id }}</h3>
+                                    <h3 class="line-clamp-2 text-lg font-bold leading-tight"><a href="{{ route('dashboard.blogs.show', $blog->id) }}" class="hover:text-brand-text">{{ $blog->title_id }}</a></h3>
                                     <p class="mt-0.5 line-clamp-1 text-small text-muted">{{ $blog->title_en }}</p>
                                 </div>
                                 <div class="-mr-2 -mt-1 flex shrink-0 items-center">
+                                    <a href="{{ route('dashboard.blogs.show', $blog->id) }}" class="btn-icon" aria-label="Lihat detail artikel {{ $blog->title_id }}">
+                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                                    </a>
                                     <button type="button" @click="initEdit({{ $blog->toJson() }})" class="btn-icon" aria-label="Ubah artikel {{ $blog->title_id }}">
                                         <i class="fa-solid fa-pen" aria-hidden="true"></i>
                                     </button>
@@ -105,6 +108,8 @@
                                     <x-ui.badge variant="warning" dot>Draf</x-ui.badge>
                                 @endif
                                 <span class="text-caption text-muted">
+                                    <i class="fa-regular fa-eye mr-1" aria-hidden="true"></i>{{ number_format($blog->views, 0, ',', '.') }}
+                                    <span aria-hidden="true">·</span>
                                     {{ $blog->published_at ? $blog->published_at->format('d M Y') : 'Belum terbit' }}
                                 </span>
                             </div>
@@ -224,6 +229,11 @@
 
     @push('scripts')
         <script>
+            @if ($editBlog)
+                // Dibuka dari halaman detail: tunggu Alpine dan editor siap, lalu isi formulir ubah.
+                window.addEventListener('load', () => window.dispatchEvent(new CustomEvent('blog-edit', { detail: @js($editBlog) })));
+            @endif
+
             $(document).ready(function () {
                 $('#editor-textarea').summernote({
                     placeholder: 'Tulis isi artikel lengkap di sini...',

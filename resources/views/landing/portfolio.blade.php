@@ -4,13 +4,13 @@
         ->filter(fn ($c) => $c['raw'])->unique('raw')->values();
 @endphp
 <x-layouts.public
-    :title="$id ? 'Portofolio Proyek' : 'Project Portfolio'"
+    :title="$id ? 'Portofolio Website & Aplikasi' : 'Website & App Portfolio'"
     :description="$id ? 'Lihat hasil kerja dan proyek website yang telah diselesaikan FKStudio bersama klien.' : 'Browse the websites and projects FKStudio has delivered together with clients.'">
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
     <x-seo.schema :data="['@graph' => [
         \App\Support\Seo::breadcrumbs([[$id ? 'Beranda' : 'Home', route('home')], [$id ? 'Portofolio' : 'Portfolio', route('portfolio.index')]]),
-        ['@type' => 'ItemList', 'name' => $id ? 'Portofolio proyek FKStudio' : 'FKStudio project portfolio', 'itemListElement' => $projects->values()->map(fn ($p, $i) => ['@type' => 'ListItem', 'position' => $i + 1, 'item' => array_filter(['@type' => 'CreativeWork', 'name' => $p->getTranslation('title'), 'description' => \App\Support\Seo::excerpt($p->getTranslation('description'), 200) ?: null, 'url' => $p->url ?: null, 'image' => $p->image ? $p->media_url : null])])->all()],
+        ['@type' => 'ItemList', 'name' => $id ? 'Portofolio proyek FKStudio' : 'FKStudio project portfolio', 'itemListElement' => $projects->values()->map(fn ($p, $i) => ['@type' => 'ListItem', 'position' => $i + 1, 'item' => array_filter(['@type' => 'CreativeWork', 'name' => $p->getTranslation('title'), 'description' => \App\Support\Seo::excerpt($p->getTranslation('description'), 200) ?: null, 'url' => \App\Support\Seo::publicUrl($p->url), 'image' => $p->image ? $p->media_url : null])])->all()],
     ]]" />
 
     <div x-data="{ category: 'all' }">

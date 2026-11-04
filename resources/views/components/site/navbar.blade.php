@@ -39,12 +39,12 @@
             : 'mt-0 max-w-page px-1 py-4 sm:px-3'"
     >
         {{-- Logo --}}
-        <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-2.5" aria-label="{{ $site->site_name ?: 'FKStudio' }}">
+        <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-2.5" aria-label="{{ $site->site_name ?: \App\Support\Seo::BRAND }}">
             @if ($site->site_logo)
                 <img src="{{ $site->logo_url }}" alt="{{ $site->site_name }}" class="h-9 w-auto sm:h-10" width="120" height="40">
             @else
                 <span class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-edge bg-sun-400 text-small font-extrabold text-navy shadow-hard-sm">FK</span>
-                <span class="hidden text-lg font-extrabold sm:inline">{{ $site->site_name ?: 'FKStudio' }}</span>
+                <span class="hidden whitespace-nowrap text-base font-extrabold sm:inline">{{ $site->site_name ?: \App\Support\Seo::BRAND }}</span>
             @endif
         </a>
 

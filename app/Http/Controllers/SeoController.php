@@ -86,7 +86,7 @@ class SeoController extends Controller
         App::setLocale('id');
 
         $site = SiteSetting::first() ?? new SiteSetting();
-        $name = $site->site_name ?: 'FKStudio';
+        $name = $site->site_name ?: Seo::BRAND;
         $packages = Package::where('is_active', true)->orderBy('order')->get();
         $services = Service::where('is_active', true)->orderBy('order')->get();
         $blogs = BlogPost::where('is_published', true)->orderByDesc('published_at')->limit(30)->get();
@@ -94,7 +94,7 @@ class SeoController extends Controller
 
         $out = "# {$name}\n\n";
         $out .= '> '.($site->seo_description ?: Seo::FALLBACK_DESCRIPTION)."\n\n";
-        $out .= "{$name} adalah studio pembuatan website dan aplikasi untuk UMKM dan bisnis di Indonesia. ";
+        $out .= "{$name} adalah penyedia jasa pembuatan website, toko online, dan aplikasi untuk UMKM dan bisnis di Indonesia. ";
         $out .= "Pelanggan memilih paket di situs, membayar DP 50% atau langsung lunas lewat checkout, lalu memantau progres pengerjaan dan invoice dari akun mereka. ";
         $out .= "Situs ini berbahasa Indonesia.\n\n";
 
@@ -120,7 +120,9 @@ class SeoController extends Controller
             $out .= "## Portofolio\n\n";
             foreach ($projects->take(15) as $pr) {
                 $desc = Seo::excerpt($pr->getTranslation('description'), 140);
-                $out .= '- '.$pr->getTranslation('title').($pr->url ? " ({$pr->url})" : '').($desc ? " — {$desc}" : '')."\n";
+                $link = Seo::publicUrl($pr->url);
+                $title = $pr->getTranslation('title');
+                $out .= '- '.($link ? "[{$title}]({$link})" : $title).($desc ? ": {$desc}" : '')."\n";
             }
             $out .= '- [Lihat portofolio]('.route('portfolio.index').")\n\n";
         }
@@ -135,6 +137,13 @@ class SeoController extends Controller
 
         $out .= "## Kontak\n\n";
         $out .= '- Situs: '.url('/')."\n";
+        $place = collect([$site->biz_street, $site->biz_city, $site->biz_region])->filter()->implode(', ');
+        if ($place) {
+            $out .= "- Lokasi: {$place}".($site->biz_postal_code ? " {$site->biz_postal_code}" : '')."\n";
+        }
+        if ($site->biz_opening_hours) {
+            $out .= "- Jam buka: {$site->biz_opening_hours}\n";
+        }
         if ($site->contact_email) {
             $out .= "- Email: {$site->contact_email}\n";
         }

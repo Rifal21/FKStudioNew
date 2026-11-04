@@ -1,7 +1,7 @@
 @props(['title' => null, 'heading' => null, 'subheading' => null])
 
 @php
-    $siteName = $site->site_name ?: 'FKStudio';
+    $siteName = $site->site_name ?: \App\Support\Seo::BRAND;
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">

@@ -13,6 +13,7 @@ use App\Models\Client;
 use App\Models\Owner;
 use App\Models\Package;
 use App\Models\BlogPost;
+use App\Support\BlogViewTracker;
 use Illuminate\Http\Request;
 
 class LandingController extends Controller
@@ -84,12 +85,8 @@ class LandingController extends Controller
         $about = AboutSection::first();
         $blog = BlogPost::with('author')->where('slug', $slug)->where('is_published', true)->firstOrFail();
 
-        // Count the view without touching updated_at: it feeds the sitemap lastmod and the
-        // article's dateModified, which must only change when the article itself does.
-        $blog->timestamps = false;
-        $blog->increment('views');
-        $blog->timestamps = true;
-        
+        BlogViewTracker::record($blog, request());
+
         // Fetch up to 3 other related posts
         $relatedBlogs = BlogPost::where('id', '!=', $blog->id)
             ->where('is_published', true)

@@ -11,8 +11,8 @@
 ])
 
 @php
-    $siteName = $site->site_name ?: 'FKStudio';
-    $pageTitle = $title ? "{$title} | {$siteName}" : ($site->seo_title ?: $siteName);
+    $siteName = $site->site_name ?: \App\Support\Seo::BRAND;
+    $pageTitle = $title ? "{$title} | {$siteName}" : ($site->seo_title ?: \App\Support\Seo::FALLBACK_TITLE);
     $pageDescription = $description ?: ($site->seo_description ?: \App\Support\Seo::FALLBACK_DESCRIPTION);
     $pageImage = $image ?? ($site->og_image ? $site->og_image_url : ($site->site_logo ? $site->logo_url : null));
 @endphp

@@ -93,7 +93,7 @@
                         @else
                             <p class="font-display text-3xl font-extrabold tracking-tight [font-stretch:80%]">FK<span class="text-brand-700">Studio</span></p>
                         @endif
-                        <p class="mt-4 text-small font-bold">{{ $settings->invoice_company_name ?: 'FKStudio Agency' }}</p>
+                        <p class="mt-4 text-small font-bold">{{ $settings->invoice_company_name ?: 'FKStudio IT Solution' }}</p>
                         <p class="mt-1 max-w-xs text-caption leading-relaxed text-navy/75">{{ $settings->invoice_company_address ?: 'Jl. Raya Digital No. 21, Jakarta' }}</p>
                     </div>
 

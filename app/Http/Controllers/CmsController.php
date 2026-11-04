@@ -693,10 +693,44 @@ class CmsController extends Controller
     }
 
     // Blogs CRUD
-    public function blogsIndex()
+    public function blogsIndex(Request $request)
     {
         $blogs = BlogPost::with('author')->orderBy('created_at', 'desc')->get();
-        return view('dashboard.blogs.index', compact('blogs'));
+        // The detail page links here with ?edit=<id> to open the editor straight away.
+        $editBlog = $request->filled('edit') ? $blogs->firstWhere('id', $request->query('edit')) : null;
+
+        return view('dashboard.blogs.index', compact('blogs', 'editBlog'));
+    }
+
+    public function showBlog(BlogPost $blog)
+    {
+        $blog->load('author');
+
+        $days = 30;
+        $since = now()->subDays($days - 1)->startOfDay();
+        $perDay = $blog->viewLogs()
+            ->where('viewed_on', '>=', $since->toDateString())
+            ->selectRaw('viewed_on, count(*) as total')
+            ->groupBy('viewed_on')
+            ->pluck('total', 'viewed_on')
+            ->mapWithKeys(fn ($total, $day) => [\Illuminate\Support\Carbon::parse($day)->toDateString() => (int) $total]);
+
+        // Every day of the window is listed, including the empty ones, so the bars line up with the calendar.
+        $series = collect(range(0, $days - 1))->map(function ($i) use ($since, $perDay) {
+            $date = $since->copy()->addDays($i);
+
+            return ['date' => $date, 'total' => $perDay[$date->toDateString()] ?? 0];
+        });
+
+        $stats = [
+            'total' => (int) $blog->views,
+            'today' => $series->last()['total'],
+            'week' => $series->slice(-7)->sum('total'),
+            'month' => $series->sum('total'),
+            'trackedSince' => $blog->viewLogs()->min('viewed_on'),
+        ];
+
+        return view('dashboard.blogs.show', compact('blog', 'series', 'stats'));
     }
 
     public function storeBlog(Request $request)

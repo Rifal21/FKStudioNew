@@ -30,7 +30,7 @@
             <div class="text-center">
                 <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-mint-400 text-2xl text-navy shadow-glow"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
                 <h1 class="mt-5 text-3xl font-extrabold md:text-5xl">Pesanan <span class="gradient-text">diterima!</span></h1>
-                <p class="mx-auto mt-3 max-w-xl text-muted">Terima kasih telah mempercayai {{ $settings->site_name ?: 'FKStudio' }}. Pesanan Anda tercatat dengan ID <span class="font-mono font-semibold text-ink">{{ substr($order->id, 0, 8) }}</span>.</p>
+                <p class="mx-auto mt-3 max-w-xl text-muted">Terima kasih telah mempercayai {{ $settings->site_name ?: \App\Support\Seo::BRAND }}. Pesanan Anda tercatat dengan ID <span class="font-mono font-semibold text-ink">{{ substr($order->id, 0, 8) }}</span>.</p>
             </div>
 
             <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2">

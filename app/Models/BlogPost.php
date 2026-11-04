@@ -22,6 +22,11 @@ class BlogPost extends Model
         'views'        => 'integer',
     ];
 
+    public function viewLogs()
+    {
+        return $this->hasMany(BlogPostView::class);
+    }
+
     /**
      * Relationship with the author (User)
      */

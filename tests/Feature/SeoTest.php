@@ -191,4 +191,54 @@ class SeoTest extends TestCase
         $this->assertSame('Service', $list['itemListElement'][0]['item']['@type']);
         $this->assertSame(Seo::orgId(), $list['itemListElement'][0]['item']['provider']['@id']);
     }
+
+    public function test_excerpt_ends_on_a_sentence_or_a_word_never_mid_word(): void
+    {
+        $text = '<p>Kalimat pertama ini cukup panjang untuk dipakai. Kalimat kedua memperlihatkan bahwa potongan tidak boleh berhenti di tengah kata.</p>';
+
+        $this->assertSame('Kalimat pertama ini cukup panjang untuk dipakai.', Seo::excerpt($text, 70));
+        $this->assertSame('Kalimat pertama ini cukup…', Seo::excerpt($text, 30));
+        $this->assertSame('Pendek.', Seo::excerpt('<p>Pendek.</p>', 70));
+    }
+
+    public function test_download_links_are_not_published_as_project_urls(): void
+    {
+        $this->assertNull(Seo::publicUrl('https://www.mediafire.com/file/abc/mora.apk/file'));
+        $this->assertNull(Seo::publicUrl('https://example.com/app.apk'));
+        $this->assertNull(Seo::publicUrl(null));
+        $this->assertSame('https://klien.test/', Seo::publicUrl('https://klien.test/'));
+    }
+
+    public function test_llms_txt_links_projects_in_markdown_and_lists_the_location(): void
+    {
+        \App\Models\Project::create(['title_id' => 'Toko Maju', 'title_en' => 'Toko Maju', 'url' => 'https://tokomaju.test', 'order' => 1]);
+        \App\Models\Project::create(['title_id' => 'Mora Mobile', 'title_en' => 'Mora Mobile', 'url' => 'https://www.mediafire.com/file/x/mora.apk', 'order' => 2]);
+        SiteSetting::first()->update(['biz_city' => 'Ciawi', 'biz_region' => 'Jawa Barat']);
+
+        $txt = $this->get('/llms.txt')->assertOk()->getContent();
+
+        $this->assertStringContainsString('[Toko Maju](https://tokomaju.test)', $txt);
+        $this->assertStringContainsString('Mora Mobile', $txt);
+        $this->assertStringNotContainsString('mediafire', $txt);
+        $this->assertStringContainsString('- Lokasi: Ciawi, Jawa Barat', $txt);
+    }
+
+    public function test_brand_is_the_full_name_with_the_short_name_as_alternate(): void
+    {
+        SiteSetting::first()->update(['site_name' => 'FKStudio IT Solution']);
+
+        $html = $this->get(route('package.index'))->assertOk()->getContent();
+
+        $this->assertStringContainsString('<meta property="og:site_name" content="FKStudio IT Solution">', $html);
+        $this->assertStringContainsString('"name":"FKStudio IT Solution","alternateName":"FKStudio"', $html);
+    }
+
+    public function test_page_titles_carry_the_full_brand_and_the_home_fallback_stays_short_enough(): void
+    {
+        SiteSetting::first()->update(['site_name' => 'FKStudio IT Solution']);
+
+        $this->assertStringStartsWith(Seo::BRAND, Seo::FALLBACK_TITLE);
+        $this->assertLessThanOrEqual(65, mb_strlen(Seo::FALLBACK_TITLE));
+        $this->get(route('package.index'))->assertOk()->assertSee('<title>Paket Jasa Pembuatan Website | FKStudio IT Solution</title>', false);
+    }
 }

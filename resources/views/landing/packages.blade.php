@@ -7,12 +7,12 @@
         : ['Pick the package that fits your needs.', 'Enter your website name and business type at checkout.', 'Pay a 50% deposit first, or pay in full.', 'Follow progress and invoices from your account.'];
 @endphp
 <x-layouts.public
-    :title="$id ? 'Paket Layanan' : 'Service Packages'"
+    :title="$id ? 'Paket Jasa Pembuatan Website' : 'Website Development Packages'"
     :description="$id ? 'Pilih paket pembuatan website dan layanan digital FKStudio dengan harga transparan dan pembayaran fleksibel.' : 'Choose a FKStudio website and digital service package with transparent pricing and flexible payment.'">
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
     <x-seo.schema :data="['@graph' => [
-        \App\Support\Seo::breadcrumbs([[$id ? 'Beranda' : 'Home', route('home')], [$id ? 'Paket Layanan' : 'Service Packages', route('package.index')]]),
+        \App\Support\Seo::breadcrumbs([[$id ? 'Beranda' : 'Home', route('home')], [$id ? 'Paket Jasa Pembuatan Website' : 'Website Development Packages', route('package.index')]]),
         ['@type' => 'ItemList', 'name' => $id ? 'Paket layanan FKStudio' : 'FKStudio service packages', 'itemListElement' => $packages->values()->map(fn ($p, $i) => ['@type' => 'ListItem', 'position' => $i + 1, 'item' => \App\Support\Seo::product($p)])->all()],
     ]]" />
 

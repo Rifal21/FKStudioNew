@@ -51,7 +51,7 @@
         </div>
 
         @if ($rest->isNotEmpty())
-            <div x-ref="rail" x-init="rail = $refs.rail" class="custom-scrollbar mt-8 flex snap-x snap-mandatory gap-8 overflow-x-auto px-4 pb-8 pt-1 sm:px-6 lg:px-[max(2rem,calc((100vw-80rem)/2+2rem))]" tabindex="0" role="region" aria-label="{{ $id ? 'Proyek lainnya' : 'More projects' }}">
+            <div x-ref="rail" x-init="rail = $refs.rail" class="custom-scrollbar relative mt-8 flex snap-x snap-mandatory gap-8 overflow-x-auto px-4 pb-8 pt-1 sm:px-6 lg:px-[max(2rem,calc((100vw-80rem)/2+2rem))]" tabindex="0" role="region" aria-label="{{ $id ? 'Proyek lainnya' : 'More projects' }}">
                 @foreach ($rest as $project)
                     <div class="w-[82%] shrink-0 snap-start sm:w-[24rem]">
                         <x-site.project-card :project="$project" class="h-full" />

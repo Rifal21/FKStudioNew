@@ -85,6 +85,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
 
     // Blogs
     Route::get('/blogs', [CmsController::class, 'blogsIndex'])->name('blogs.index');
+    Route::get('/blogs/{blog}', [CmsController::class, 'showBlog'])->name('blogs.show');
     Route::post('/blogs', [CmsController::class, 'storeBlog'])->name('blogs.store');
     Route::patch('/blogs/{blog}', [CmsController::class, 'updateBlog'])->name('blogs.update');
     Route::delete('/blogs/{blog}', [CmsController::class, 'deleteBlog'])->name('blogs.destroy');

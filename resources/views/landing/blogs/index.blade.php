@@ -11,7 +11,7 @@
     $dateOf = fn ($b) => $b->published_at ?? $b->created_at;
 @endphp
 <x-layouts.public
-    :title="$id ? 'Blog & Artikel' : 'Blog & Insights'"
+    :title="$id ? 'Blog Tips Website & Bisnis Digital' : 'Website & Digital Business Tips Blog'"
     :description="$id ? 'Artikel, tips, dan wawasan seputar website, teknologi, dan pertumbuhan bisnis digital dari FKStudio.' : 'Articles, tips, and insights on websites, technology and digital business growth from FKStudio.'">
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
 
