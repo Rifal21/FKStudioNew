@@ -9,6 +9,8 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DuitkuController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\WhatsAppSettingsController;
+use App\Http\Controllers\Shop;
+use App\Http\Controllers\Dashboard\Shop as AdminShop;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index'])->name('home');
@@ -28,6 +30,47 @@ Route::get('/robots.txt', [App\Http\Controllers\SeoController::class, 'robots'])
 Route::get('/llms.txt', [App\Http\Controllers\SeoController::class, 'llms'])->name('llms');
 Route::post('/chat', [ChatController::class, 'sendMessage'])->name('chat.send');
 Route::get('/invoice/v/{invoice}', [InvoiceController::class, 'publicShow'])->name('invoices.public.show');
+
+// Shop: catalog is public, cart and checkout need an account.
+Route::middleware('shop')->group(function () {
+    Route::get('/shop', [Shop\ShopController::class, 'index'])->name('shop.index');
+    // Guests are sent to log in here and the item is added once they are back.
+    Route::post('/cart/items', [Shop\CartController::class, 'store'])->middleware('throttle:60,1')->name('cart.store');
+
+    Route::middleware(['auth', 'verified'])->group(function () {
+        Route::get('/cart', [Shop\CartController::class, 'index'])->name('cart.index');
+        Route::patch('/cart/items/{cartItem}', [Shop\CartController::class, 'update'])->name('cart.update');
+        Route::delete('/cart/items/{cartItem}', [Shop\CartController::class, 'destroy'])->name('cart.destroy');
+
+        Route::get('/shop/checkout', [Shop\CheckoutController::class, 'show'])->name('shop.checkout');
+        Route::post('/shop/checkout', [Shop\CheckoutController::class, 'process'])->middleware('throttle:10,1')->name('shop.checkout.process');
+        Route::post('/shop/checkout/voucher', [Shop\CheckoutController::class, 'voucher'])->middleware('throttle:20,1')->name('shop.checkout.voucher');
+        Route::post('/shop/checkout/shipping-rates', [Shop\CheckoutController::class, 'rates'])->middleware('throttle:30,1')->name('shop.checkout.rates');
+    });
+
+    // Defined after the static /shop/* routes so the slug does not swallow them.
+    Route::get('/shop/{slug}', [Shop\ShopController::class, 'show'])->name('shop.show');
+});
+
+// Orders and downloads stay reachable even if the shop is switched off later.
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/shop/orders/{shopOrder}', [Shop\OrderController::class, 'show'])->name('shop.orders.show');
+    Route::get('/shop/orders/{shopOrder}/status', [Shop\OrderController::class, 'status'])->middleware('throttle:60,1')->name('shop.orders.status');
+    Route::post('/shop/orders/{shopOrder}/pay', [Shop\OrderController::class, 'pay'])->middleware('throttle:10,1')->name('shop.orders.pay');
+    Route::post('/shop/orders/{shopOrder}/payment-proof', [Shop\OrderController::class, 'proof'])->middleware('throttle:10,1')->name('shop.orders.proof');
+    Route::post('/shop/orders/{shopOrder}/cancel', [Shop\OrderController::class, 'cancel'])->name('shop.orders.cancel');
+    Route::get('/shop/orders/{shopOrder}/invoice', [Shop\OrderController::class, 'invoice'])->name('shop.orders.invoice');
+
+    Route::get('/my-purchases', [Shop\OrderController::class, 'index'])->name('user.purchases');
+    Route::get('/my-downloads', [Shop\DownloadController::class, 'index'])->name('user.downloads');
+    Route::get('/my-downloads/{entitlement}/files/{file}', [Shop\DownloadController::class, 'download'])->middleware('throttle:30,1')->name('user.downloads.get');
+    Route::get('/my-downloads/{entitlement}/files/{file}/file', [Shop\DownloadController::class, 'file'])->middleware(['signed', 'throttle:30,1'])->name('user.downloads.file');
+
+    Route::get('/my-addresses', [Shop\AddressController::class, 'index'])->name('user.addresses.index');
+    Route::post('/my-addresses', [Shop\AddressController::class, 'store'])->name('user.addresses.store');
+    Route::patch('/my-addresses/{address}', [Shop\AddressController::class, 'update'])->name('user.addresses.update');
+    Route::delete('/my-addresses/{address}', [Shop\AddressController::class, 'destroy'])->name('user.addresses.destroy');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // API & Static Routes (defined first to prevent wildcard conflicts)
@@ -169,6 +212,47 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
     // Tickets
     Route::get('/tickets', [CmsController::class, 'ticketsIndex'])->name('tickets.index');
     Route::patch('/tickets/{ticket}', [CmsController::class, 'updateTicketStatus'])->name('tickets.update');
+
+    // Shop
+    Route::prefix('shop')->name('shop.')->group(function () {
+        Route::get('/products', [AdminShop\ProductController::class, 'index'])->name('products.index');
+        Route::get('/products/create', [AdminShop\ProductController::class, 'create'])->name('products.create');
+        Route::post('/products', [AdminShop\ProductController::class, 'store'])->name('products.store');
+        Route::get('/products/{product}/edit', [AdminShop\ProductController::class, 'edit'])->name('products.edit');
+        Route::patch('/products/{product}', [AdminShop\ProductController::class, 'update'])->name('products.update');
+        Route::delete('/products/{product}', [AdminShop\ProductController::class, 'destroy'])->name('products.destroy');
+        Route::post('/products/{product}/duplicate', [AdminShop\ProductController::class, 'duplicate'])->name('products.duplicate');
+        Route::post('/products/{product}/files', [AdminShop\ProductController::class, 'storeFile'])->name('products.files.store');
+        Route::delete('/products/{product}/files/{file}', [AdminShop\ProductController::class, 'destroyFile'])->name('products.files.destroy');
+        Route::post('/products/{product}/keys', [AdminShop\ProductController::class, 'storeKeys'])->name('products.keys.store');
+        Route::delete('/products/{product}/keys/{key}', [AdminShop\ProductController::class, 'destroyKey'])->name('products.keys.destroy');
+
+        Route::get('/categories', [AdminShop\CategoryController::class, 'index'])->name('categories.index');
+        Route::post('/categories', [AdminShop\CategoryController::class, 'store'])->name('categories.store');
+        Route::patch('/categories/{category}', [AdminShop\CategoryController::class, 'update'])->name('categories.update');
+        Route::delete('/categories/{category}', [AdminShop\CategoryController::class, 'destroy'])->name('categories.destroy');
+
+        Route::get('/orders', [AdminShop\OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [AdminShop\OrderController::class, 'show'])->name('orders.show');
+        Route::get('/orders/{order}/payments/{payment}/proof', [AdminShop\OrderController::class, 'proof'])->name('orders.proof');
+        Route::post('/orders/{order}/payments/{payment}/approve', [AdminShop\OrderController::class, 'approve'])->name('orders.approve');
+        Route::post('/orders/{order}/payments/{payment}/reject', [AdminShop\OrderController::class, 'reject'])->name('orders.reject');
+        Route::post('/orders/{order}/cancel', [AdminShop\OrderController::class, 'cancel'])->name('orders.cancel');
+        Route::post('/orders/{order}/refund', [AdminShop\OrderController::class, 'refund'])->name('orders.refund');
+        Route::post('/orders/{order}/ship', [AdminShop\OrderController::class, 'ship'])->name('orders.ship');
+        Route::post('/orders/{order}/deliver', [AdminShop\OrderController::class, 'deliver'])->name('orders.deliver');
+        Route::post('/orders/{order}/resend-access', [AdminShop\OrderController::class, 'resendAccess'])->name('orders.resend');
+        Route::post('/orders/{order}/resolve', [AdminShop\OrderController::class, 'resolve'])->name('orders.resolve');
+        Route::patch('/orders/{order}/notes', [AdminShop\OrderController::class, 'notes'])->name('orders.notes');
+        Route::post('/orders/{order}/entitlements/{entitlement}/reset', [AdminShop\OrderController::class, 'resetDownloads'])->name('orders.entitlements.reset');
+        Route::post('/orders/{order}/entitlements/{entitlement}/toggle', [AdminShop\OrderController::class, 'toggleAccess'])->name('orders.entitlements.toggle');
+
+        Route::get('/reports', [AdminShop\ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/tax.csv', [AdminShop\ReportController::class, 'taxCsv'])->name('reports.tax');
+
+        Route::get('/settings', [AdminShop\SettingsController::class, 'edit'])->name('settings.edit');
+        Route::post('/settings', [AdminShop\SettingsController::class, 'update'])->name('settings.update');
+    });
 
     // Users
     Route::get('/users', [CmsController::class, 'usersIndex'])->name('users.index');

@@ -49,6 +49,12 @@ return [
         ],
     ],
 
+    'duitku' => [
+        'merchant_code' => env('DUITKU_MERCHANT_CODE'),
+        'api_key' => env('DUITKU_API_KEY'),
+        'sandbox' => (bool) env('DUITKU_IS_SANDBOX', true),
+    ],
+
     'idcloudhost' => [
         'api_url' => env('IDCLOUDHOST_API_URL', 'https://my.idcloudhost.com/api.php'),
         'api_username' => env('IDCLOUDHOST_API_USERNAME'),

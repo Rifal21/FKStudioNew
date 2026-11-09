@@ -12,7 +12,7 @@ class Seo
     /** Full trading name. The short "FKStudio" stays as alternateName so both spellings resolve to one entity. */
     public const BRAND = 'FKStudio IT Solution';
 
-    public const BRAND_SHORT = 'FKStudio';
+    public const BRAND_SHORT = 'FKStudio.id';
 
     /** Home page title when the admin has not written an SEO title yet. Keywords sit next to the brand, under ~60 characters. */
     public const FALLBACK_TITLE = 'FKStudio IT Solution - Jasa Pembuatan Website & Aplikasi UMKM';
@@ -190,6 +190,27 @@ class Seo
                 'url' => route('package.show', $package->slug),
                 'seller' => ['@id' => self::orgId()],
             ],
+        ]);
+    }
+
+    /** Shop product: a single Offer, or an AggregateOffer when variants have different prices. */
+    public static function shopProduct(\App\Models\Product $product): array
+    {
+        $url = route('shop.show', $product->slug);
+        $availability = $product->inStock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
+
+        return array_filter([
+            '@type' => 'Product',
+            'name' => $product->getTranslation('name'),
+            'description' => self::excerpt($product->getTranslation('short_description') ?: $product->getTranslation('description'), 300) ?: null,
+            'image' => $product->images->map(fn ($image) => self::publicUrl($image->media_url))->filter()->values()->all() ?: null,
+            'url' => $url,
+            'sku' => $product->has_variants ? null : $product->defaultVariant()?->sku,
+            'brand' => ['@type' => 'Brand', 'name' => self::BRAND],
+            'category' => $product->category?->getTranslation('name'),
+            'offers' => $product->hasPriceRange()
+                ? ['@type' => 'AggregateOffer', 'lowPrice' => $product->min_price, 'highPrice' => $product->max_price, 'offerCount' => $product->variants->where('is_active', true)->count(), 'priceCurrency' => 'IDR', 'availability' => $availability, 'url' => $url]
+                : ['@type' => 'Offer', 'price' => $product->min_price, 'priceCurrency' => 'IDR', 'availability' => $availability, 'url' => $url, 'seller' => ['@id' => self::orgId()]],
         ]);
     }
 

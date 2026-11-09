@@ -6,8 +6,17 @@
         ['label' => $id ? 'Tentang' : 'About', 'href' => route('home') . '#about', 'section' => 'about', 'active' => false],
         ['label' => $id ? 'Layanan' : 'Services', 'href' => route('home') . '#services', 'section' => 'services', 'active' => false],
         ['label' => $id ? 'Proyek' : 'Projects', 'href' => route('portfolio.index'), 'section' => 'portfolio', 'active' => request()->routeIs('portfolio.*')],
-        ['label' => $id ? 'Produk' : 'Products', 'href' => route('package.index'), 'section' => 'packages', 'active' => request()->routeIs('package.*')],
-        ['label' => 'Blog', 'href' => route('blog.index'), 'section' => 'blog', 'active' => request()->routeIs('blog.*')],
+        ['label' => $id ? 'Paket' : 'Packages', 'href' => route('package.index'), 'section' => 'packages', 'active' => request()->routeIs('package.*')],
+    ];
+    $showShop = $site->shop_enabled || auth()->user()?->isSuperAdmin();
+    if ($showShop) {
+        $links[] = ['label' => $id ? 'Toko' : 'Shop', 'href' => route('shop.index'), 'section' => 'shop', 'active' => request()->routeIs('shop.*', 'cart.*')];
+    }
+    $links[] = ['label' => 'Blog', 'href' => route('blog.index'), 'section' => 'blog', 'active' => request()->routeIs('blog.*')];
+    $accountLinks = [
+        ['route' => 'user.orders', 'icon' => 'fa-box', 'label' => $id ? 'Pesanan Saya' : 'My Orders'],
+        ['route' => 'user.purchases', 'icon' => 'fa-bag-shopping', 'label' => $id ? 'Pembelian Toko' : 'Shop Purchases'],
+        ['route' => 'user.downloads', 'icon' => 'fa-download', 'label' => $id ? 'Produk Digital Saya' : 'My Digital Products'],
     ];
 @endphp
 
@@ -73,6 +82,10 @@
 
             <x-ui.theme-toggle class="rounded-full" />
 
+            @if ($showShop && auth()->check())
+                <x-shop.cart-button :count="$cartCount" />
+            @endif
+
             @auth
                 <div class="relative" x-data="{ open: false }" @click.outside="open = false" @keydown.escape="open = false">
                     <button type="button" @click="open = !open" class="flex items-center gap-2 rounded-full p-1 pr-2.5 transition hover:bg-surface-2" aria-haspopup="menu" :aria-expanded="open">
@@ -89,7 +102,9 @@
                             @if (auth()->user()->isSuperAdmin())
                                 <a href="{{ route('dashboard') }}" role="menuitem" class="flex items-center gap-3 rounded-md px-3 py-2.5 hover:bg-surface-2"><i class="fa-solid fa-gauge-high w-4 text-brand-500" aria-hidden="true"></i>Dashboard Admin</a>
                             @endif
-                            <a href="{{ route('user.orders') }}" role="menuitem" class="flex items-center gap-3 rounded-md px-3 py-2.5 hover:bg-surface-2"><i class="fa-solid fa-box w-4 text-brand-500" aria-hidden="true"></i>{{ $id ? 'Pesanan Saya' : 'My Orders' }}</a>
+                            @foreach ($accountLinks as $account)
+                                <a href="{{ route($account['route']) }}" role="menuitem" class="flex items-center gap-3 rounded-md px-3 py-2.5 hover:bg-surface-2"><i class="fa-solid {{ $account['icon'] }} w-4 text-brand-500" aria-hidden="true"></i>{{ $account['label'] }}</a>
+                            @endforeach
                             @if ($hasWebsite)
                                 <a href="{{ route('user.websites') }}" role="menuitem" class="flex items-center gap-3 rounded-md px-3 py-2.5 hover:bg-surface-2"><i class="fa-solid fa-globe w-4 text-mint-500" aria-hidden="true"></i>{{ $id ? 'Website Saya' : 'My Website' }}</a>
                             @endif
@@ -111,6 +126,9 @@
 
         {{-- Mobile controls --}}
         <div class="flex items-center gap-2 lg:hidden">
+            @if ($showShop && auth()->check())
+                <x-shop.cart-button :count="$cartCount" />
+            @endif
             <x-ui.theme-toggle class="h-10 w-10 rounded-full" />
             <button type="button" @click="mobileMenu = !mobileMenu"
                 class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-edge bg-surface text-ink"
@@ -161,7 +179,9 @@
                 @if (auth()->user()->isSuperAdmin())
                     <a href="{{ route('dashboard') }}" class="flex min-h-[44px] items-center gap-3 rounded-md px-3 text-small font-semibold hover:bg-surface-2"><i class="fa-solid fa-gauge-high w-4 text-brand-500" aria-hidden="true"></i>Dashboard Admin</a>
                 @endif
-                <a href="{{ route('user.orders') }}" class="flex min-h-[44px] items-center gap-3 rounded-md px-3 text-small font-semibold hover:bg-surface-2"><i class="fa-solid fa-box w-4 text-brand-500" aria-hidden="true"></i>{{ $id ? 'Pesanan Saya' : 'My Orders' }}</a>
+                @foreach ($accountLinks as $account)
+                    <a href="{{ route($account['route']) }}" class="flex min-h-[44px] items-center gap-3 rounded-md px-3 text-small font-semibold hover:bg-surface-2"><i class="fa-solid {{ $account['icon'] }} w-4 text-brand-500" aria-hidden="true"></i>{{ $account['label'] }}</a>
+                @endforeach
                 @if ($hasWebsite)
                     <a href="{{ route('user.websites') }}" class="flex min-h-[44px] items-center gap-3 rounded-md px-3 text-small font-semibold hover:bg-surface-2"><i class="fa-solid fa-globe w-4 text-mint-500" aria-hidden="true"></i>{{ $id ? 'Website Saya' : 'My Website' }}</a>
                 @endif

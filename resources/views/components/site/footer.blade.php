@@ -41,7 +41,10 @@
                     <li><a class="transition hover:text-sun-300" href="{{ route('home') }}#about">{{ $id ? 'Tentang Kami' : 'About Us' }}</a></li>
                     <li><a class="transition hover:text-sun-300" href="{{ route('home') }}#services">{{ $id ? 'Layanan' : 'Services' }}</a></li>
                     <li><a class="transition hover:text-sun-300" href="{{ route('portfolio.index') }}">{{ $id ? 'Portofolio' : 'Portfolio' }}</a></li>
-                    <li><a class="transition hover:text-sun-300" href="{{ route('package.index') }}">{{ $id ? 'Produk & Paket' : 'Products & Packages' }}</a></li>
+                    <li><a class="transition hover:text-sun-300" href="{{ route('package.index') }}">{{ $id ? 'Paket' : 'Packages' }}</a></li>
+                    @if ($site->shop_enabled)
+                        <li><a class="transition hover:text-sun-300" href="{{ route('shop.index') }}">{{ $id ? 'Toko' : 'Shop' }}</a></li>
+                    @endif
                     <li><a class="transition hover:text-sun-300" href="{{ route('blog.index') }}">Blog</a></li>
                 </ul>
             </div>
@@ -64,7 +67,7 @@
 
         <div class="mt-12 flex flex-col items-center justify-between gap-2 border-t-2 border-white/15 pt-6 text-caption text-white/60 sm:flex-row">
             <p>&copy; {{ date('Y') }} {{ $site->site_name ?: \App\Support\Seo::BRAND }}. {{ $id ? 'Hak cipta dilindungi.' : 'All rights reserved.' }}</p>
-            <p>{{ $id ? 'Dibuat dengan' : 'Made with' }} <i class="fa-solid fa-heart text-sun-400" aria-hidden="true"></i> Indonesia</p>
+            {{-- <p>{{ $id ? 'Dipersembahkan oleh' : 'Presented by' }} <i class="fa-solid fa-heart text-sun-400" aria-hidden="true"></i> Rifal Kurniawan</p> --}}
         </div>
     </div>
     <p class="pointer-events-none select-none whitespace-nowrap text-center font-display text-[24vw] font-extrabold leading-[0.8] tracking-tighter text-white/[0.05] md:text-[17rem]" aria-hidden="true">{{ \App\Support\Seo::BRAND_SHORT }}</p>

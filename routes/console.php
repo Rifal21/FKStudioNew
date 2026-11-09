@@ -14,3 +14,9 @@ Schedule::command('subscriptions:generate')
     ->everyMinute()
     ->withoutOverlapping(10) // a crashed run frees its lock after 10 minutes instead of the 24h default
     ->onOneServer();
+
+// Unpaid shop orders past their deadline give their reserved stock back.
+Schedule::command('shop:expire-orders')
+    ->everyFiveMinutes()
+    ->withoutOverlapping(10)
+    ->onOneServer();

@@ -64,13 +64,23 @@ class CmsController extends Controller
         $openTickets = \App\Models\Ticket::whereIn('status', ['open', 'in_progress'])->count();
         $unpaidInvoices = Invoice::whereIn('status', ['Sent', 'Overdue'])->count();
 
+        $shopStats = [
+            'revenue' => (int) \App\Models\ShopOrder::where('payment_status', \App\Models\ShopOrder::PAID)->where('paid_at', '>=', now()->startOfMonth())->sum('total_amount'),
+            'verify' => \App\Models\ShopOrder::where('payment_status', \App\Models\ShopOrder::AWAITING_VERIFICATION)->count(),
+            'ship' => \App\Models\ShopOrder::where('payment_status', \App\Models\ShopOrder::PAID)->where('fulfillment_status', \App\Models\ShopOrder::PROCESSING)->count(),
+            'attention' => \App\Models\ShopOrder::where('needs_attention', true)->count(),
+            'low_stock' => \App\Models\ProductVariant::where('is_active', true)->whereNotNull('stock')->where('stock', '<=', 5)->whereHas('product', fn ($q) => $q->where('is_active', true))->count(),
+            'low_keys' => \App\Models\Product::where('is_active', true)->where('digital_delivery', \App\Models\Product::DELIVERY_LICENSE)
+                ->withCount(['licenseKeys as free_keys' => fn ($q) => $q->whereNull('assigned_at')])->get()->where('free_keys', '<', 5)->count(),
+        ];
+
         $recentOrders = \App\Models\PackageOrder::with('user')->latest()->limit(6)->get();
         $recentTickets = \App\Models\Ticket::with('user')->latest()->limit(5)->get();
 
         return view('dashboard', compact(
             'servicesCount', 'projectsCount', 'testimonialsCount', 'ownersCount', 'packagesCount', 'invoicesCount', 'blogsCount',
             'monthlyRevenue', 'revenueThisMonth', 'revenueTrend', 'orderCounts', 'inProgressCount', 'openTickets', 'unpaidInvoices',
-            'recentOrders', 'recentTickets'
+            'recentOrders', 'recentTickets', 'shopStats'
         ));
     }
 

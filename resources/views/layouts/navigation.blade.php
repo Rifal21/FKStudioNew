@@ -23,11 +23,20 @@
         @if (Auth::user()->isSuperAdmin())
             <div class="space-y-1">
                 <p class="px-3 pb-1 text-caption font-bold uppercase tracking-wider text-muted">Transaksi</p>
-                <x-admin.nav-link route="dashboard.orders.index" match="dashboard.orders.*" icon="fa-cart-shopping" label="Pesanan" :badge="$navCounts['orders'] ?: null" />
+                <x-admin.nav-link route="dashboard.orders.index" match="dashboard.orders.*" icon="fa-cart-shopping" label="Pesanan paket" :badge="$navCounts['orders'] ?: null" />
                 <x-admin.nav-link route="dashboard.invoices.index" match="dashboard.invoices.*" icon="fa-file-invoice-dollar" label="Invoice" />
                 <x-admin.nav-link route="dashboard.subscriptions.index" match="dashboard.subscriptions.*" icon="fa-rotate" label="Langganan" />
                 <x-admin.nav-link route="dashboard.vouchers.index" match="dashboard.vouchers.*" icon="fa-ticket" label="Voucher" />
                 <x-admin.nav-link route="dashboard.tickets.index" match="dashboard.tickets.*" icon="fa-headset" label="Tiket bantuan" :badge="$navCounts['tickets'] ?: null" />
+            </div>
+
+            <div class="space-y-1">
+                <p class="px-3 pb-1 text-caption font-bold uppercase tracking-wider text-muted">Toko</p>
+                <x-admin.nav-link route="dashboard.shop.orders.index" match="dashboard.shop.orders.*" icon="fa-bag-shopping" label="Pesanan toko" :badge="($navCounts['shop'] ?? 0) ?: null" />
+                <x-admin.nav-link route="dashboard.shop.products.index" match="dashboard.shop.products.*" icon="fa-boxes-stacked" label="Produk" />
+                <x-admin.nav-link route="dashboard.shop.categories.index" match="dashboard.shop.categories.*" icon="fa-folder-tree" label="Kategori" />
+                <x-admin.nav-link route="dashboard.shop.reports.index" match="dashboard.shop.reports.*" icon="fa-chart-column" label="Laporan & PPN" />
+                <x-admin.nav-link route="dashboard.shop.settings.edit" match="dashboard.shop.settings.*" icon="fa-store" label="Pengaturan toko" />
             </div>
 
             <div class="space-y-1">
