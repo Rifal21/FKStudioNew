@@ -50,6 +50,7 @@ class RegisteredUserController extends Controller
             return redirect(route('dashboard', absolute: false));
         }
 
-        return redirect(route('user.orders', absolute: false));
+        // e.g. back to the product page when a guest signed up to add something to the cart.
+        return redirect()->intended(route('user.orders', absolute: false));
     }
 }

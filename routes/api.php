@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\BlogApiController;
+use App\Http\Controllers\Api\ShopProductApiController;
 use App\Http\Controllers\DuitkuController;
 use Illuminate\Support\Facades\Route;
 
@@ -12,7 +13,7 @@ Route::post('/payment/duitku/callback', [DuitkuController::class, 'callback'])
 
 // Auth: Login & Logout
 Route::prefix('auth')->group(function () {
-    Route::post('/login',  [BlogApiController::class, 'login'])->name('api.auth.login');
+    Route::post('/login',  [BlogApiController::class, 'login'])->middleware('throttle:10,1')->name('api.auth.login');
     Route::post('/logout', [BlogApiController::class, 'logout'])
         ->middleware('auth:sanctum')
         ->name('api.auth.logout');
@@ -33,3 +34,20 @@ Route::middleware(['auth:sanctum', 'ability:blog:manage'])->prefix('admin/blogs'
     Route::delete('/{blog}',             [BlogApiController::class, 'destroy'])->name('api.admin.blogs.destroy');
 });
 
+// ─── Shop API (super_admin token with the "shop:manage" ability) ─────────────
+Route::middleware(['auth:sanctum', 'ability:shop:manage', 'role:super_admin'])->prefix('admin/shop')->name('api.admin.shop.')->group(function () {
+    Route::get('/categories',                          [ShopProductApiController::class, 'categories'])->name('categories.index');
+    Route::post('/categories',                         [ShopProductApiController::class, 'storeCategory'])->name('categories.store');
+
+    Route::get('/products',                            [ShopProductApiController::class, 'index'])->name('products.index');
+    Route::post('/products',                           [ShopProductApiController::class, 'store'])->name('products.store');
+    Route::get('/products/{product}',                  [ShopProductApiController::class, 'show'])->name('products.show');
+    // With files, send multipart POST + "_method=PATCH" (PHP only parses multipart bodies on POST).
+    Route::patch('/products/{product}',                [ShopProductApiController::class, 'update'])->name('products.update');
+    Route::delete('/products/{product}',               [ShopProductApiController::class, 'destroy'])->name('products.destroy');
+
+    Route::post('/products/{product}/files',           [ShopProductApiController::class, 'storeFile'])->name('products.files.store');
+    Route::delete('/products/{product}/files/{file}',  [ShopProductApiController::class, 'destroyFile'])->name('products.files.destroy');
+    Route::post('/products/{product}/keys',            [ShopProductApiController::class, 'storeKeys'])->name('products.keys.store');
+    Route::delete('/products/{product}/keys/{key}',    [ShopProductApiController::class, 'destroyKey'])->name('products.keys.destroy');
+});

@@ -108,7 +108,7 @@ class BlogApiController extends Controller
 
         // Revoke all old tokens and issue a fresh one
         $user->tokens()->delete();
-        $token = $user->createToken('blog-api-token', ['blog:manage'])->plainTextToken;
+        $token = $user->createToken('admin-api-token', ['blog:manage', 'shop:manage'])->plainTextToken;
 
         return response()->json([
             'message' => 'Login berhasil.',

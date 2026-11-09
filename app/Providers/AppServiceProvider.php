@@ -3,8 +3,12 @@
 namespace App\Providers;
 
 use App\Models\PackageOrder;
+use App\Models\ShopOrder;
 use App\Models\SiteSetting;
 use App\Models\Ticket;
+use App\Services\Shop\CartService;
+use App\Services\Shop\Shipping\FlatRateProvider;
+use App\Services\Shop\Shipping\ShippingRateProvider;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -16,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(ShippingRateProvider::class, FlatRateProvider::class);
     }
 
     /**
@@ -42,6 +46,8 @@ class AppServiceProvider extends ServiceProvider
             $view->with('navCounts', [
                 'orders' => PackageOrder::where('status', 'pending')->count(),
                 'tickets' => Ticket::whereIn('status', ['open', 'in_progress'])->count(),
+                'shop' => ShopOrder::where('payment_status', ShopOrder::AWAITING_VERIFICATION)->count()
+                    + ShopOrder::where('needs_attention', true)->count(),
             ]);
         });
 
@@ -53,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
                 ->exists();
 
             $view->with('hasWebsite', $hasWebsite);
+            $view->with('cartCount', auth()->check() ? app(CartService::class)->count(auth()->user()) : 0);
         });
     }
 }

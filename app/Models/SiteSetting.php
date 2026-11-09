@@ -31,6 +31,28 @@ class SiteSetting extends Model
         'payment_methods' => 'array',
         'waha_enabled' => 'boolean',
         'waha_api_key' => 'encrypted',
+        'shop_enabled' => 'boolean',
+        'shop_physical_enabled' => 'boolean',
+        'shop_manual_payment_enabled' => 'boolean',
+        'shop_manual_unique_code' => 'boolean',
+        'shop_tax_rate' => 'decimal:2',
+        'shop_order_expiry_minutes' => 'integer',
+        'shop_manual_expiry_minutes' => 'integer',
+        'shop_flat_shipping_cost' => 'integer',
     ];
+
+    /** The single settings row, or an unsaved instance with column defaults when none exists yet. */
+    public static function current(): self
+    {
+        return static::first() ?? new static([
+            'shop_enabled' => false,
+            'shop_physical_enabled' => false,
+            'shop_tax_rate' => 11,
+            'shop_order_expiry_minutes' => 1440,
+            'shop_manual_expiry_minutes' => 1440,
+            'shop_manual_payment_enabled' => true,
+            'shop_manual_unique_code' => false,
+        ]);
+    }
 
 }

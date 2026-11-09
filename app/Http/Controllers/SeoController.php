@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BlogPost;
 use App\Models\Package;
+use App\Models\Product;
 use App\Models\Project;
 use App\Models\Service;
 use App\Models\SiteSetting;
@@ -17,7 +18,8 @@ class SeoController extends Controller
     private const DISALLOW = [
         '/dashboard/', '/login', '/register', '/forgot-password', '/reset-password/', '/verify-email',
         '/confirm-password', '/checkout/', '/my-orders', '/my-websites', '/profile', '/invoice/',
-        '/styleguide', '/switch-language/',
+        '/styleguide', '/switch-language/', '/cart', '/shop/checkout', '/shop/orders/', '/my-purchases',
+        '/my-downloads', '/my-addresses',
     ];
 
     /**
@@ -53,6 +55,17 @@ class SeoController extends Controller
 
         foreach ($blogs as $blog) {
             $urls[] = ['loc' => route('blog.show', $blog->slug), 'lastmod' => $blog->updated_at ?? $blog->published_at];
+        }
+
+        $settings = SiteSetting::current();
+
+        if ($settings->shop_enabled) {
+            $products = Product::visibleInShop($settings)->orderByDesc('updated_at')->get(['slug', 'updated_at']);
+            $urls[] = ['loc' => route('shop.index'), 'lastmod' => $latest($products)];
+
+            foreach ($products as $product) {
+                $urls[] = ['loc' => route('shop.show', $product->slug), 'lastmod' => $product->updated_at];
+            }
         }
 
         $urls = array_map(fn ($u) => ['loc' => $u['loc'], 'lastmod' => $u['lastmod'] ? \Illuminate\Support\Carbon::parse($u['lastmod'])->toAtomString() : null], $urls);
@@ -105,6 +118,20 @@ class SeoController extends Controller
                 $out .= '- ['.$p->getTranslation('name').']('.route('package.show', $p->slug).'): '.($p->price ?: 'harga sesuai kebutuhan').($desc ? " — {$desc}" : '')."\n";
             }
             $out .= '- [Semua paket]('.route('package.index').")\n\n";
+        }
+
+        if ($site->shop_enabled) {
+            $products = Product::visibleInShop($site)->orderByDesc('is_featured')->orderBy('sort_order')->limit(30)->get();
+
+            if ($products->isNotEmpty()) {
+                $out .= "## Toko (produk digital)\n\n";
+                foreach ($products as $product) {
+                    $desc = Seo::excerpt($product->getTranslation('short_description') ?: $product->getTranslation('description'), 160);
+                    $price = 'Rp '.number_format($product->min_price, 0, ',', '.').($product->hasPriceRange() ? ' – Rp '.number_format($product->max_price, 0, ',', '.') : '');
+                    $out .= '- ['.$product->getTranslation('name').']('.route('shop.show', $product->slug).'): '.$price.($desc ? " — {$desc}" : '')."\n";
+                }
+                $out .= '- [Semua produk]('.route('shop.index').")\n\n";
+            }
         }
 
         if ($services->isNotEmpty()) {

@@ -54,6 +54,29 @@
             </a>
         </div>
 
+        {{-- Shop --}}
+        <section class="rounded-lg border border-line bg-surface p-5" aria-labelledby="shop-kpi-title">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <h2 id="shop-kpi-title" class="text-lg font-bold">Toko</h2>
+                <a href="{{ route('dashboard.shop.orders.index') }}" class="text-small font-semibold text-brand-text hover:underline">Pesanan toko</a>
+            </div>
+            <dl class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+                @foreach ([
+                    ['Omzet bulan ini', $rp($shopStats['revenue']), route('dashboard.shop.reports.index'), false],
+                    ['Menunggu verifikasi', $shopStats['verify'], route('dashboard.shop.orders.index', ['tab' => 'verify']), $shopStats['verify'] > 0],
+                    ['Perlu dikirim', $shopStats['ship'], route('dashboard.shop.orders.index', ['tab' => 'ship']), $shopStats['ship'] > 0],
+                    ['Perlu tindakan', $shopStats['attention'], route('dashboard.shop.orders.index', ['tab' => 'attention']), $shopStats['attention'] > 0],
+                    ['Varian stok menipis', $shopStats['low_stock'], route('dashboard.shop.products.index'), $shopStats['low_stock'] > 0],
+                    ['Kunci lisensi < 5', $shopStats['low_keys'], route('dashboard.shop.products.index'), $shopStats['low_keys'] > 0],
+                ] as [$label, $value, $href, $alert])
+                    <a href="{{ $href }}" class="rounded-md p-2 transition hover:bg-surface-2">
+                        <dt class="text-caption text-muted">{{ $label }}</dt>
+                        <dd @class(['mt-1 text-xl font-extrabold', 'text-danger-700 dark:text-red-300' => $alert])>{{ $value }}</dd>
+                    </a>
+                @endforeach
+            </dl>
+        </section>
+
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {{-- Revenue chart --}}
             <x-ui.card class="lg:col-span-2" x-data="{ tip: null }">

@@ -44,7 +44,7 @@ class CheckoutController extends Controller
 
         $voucher = \App\Models\Voucher::where('code', strtoupper(trim($request->voucher_code)))->first();
 
-        if (!$voucher || !$voucher->isValid()) {
+        if (!$voucher || !$voucher->isValid() || !$voucher->appliesTo(\App\Models\Voucher::SCOPE_PACKAGE)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Kode voucher tidak valid atau sudah kadaluwarsa.'
@@ -136,7 +136,7 @@ class CheckoutController extends Controller
             $discountAmount = 0.0;
             if ($request->voucher_code) {
                 $voucher = \App\Models\Voucher::where('code', strtoupper(trim($request->voucher_code)))->first();
-                if ($voucher && $voucher->isValid()) {
+                if ($voucher && $voucher->isValid() && $voucher->appliesTo(\App\Models\Voucher::SCOPE_PACKAGE)) {
                     $voucherCode = $voucher->code;
                     $discountAmount = (float) $voucher->calculateDiscount($subtotal);
                     $voucher->increment('used_count');
@@ -403,6 +403,7 @@ class CheckoutController extends Controller
                 'email'           => Auth::user()->email,
                 'customerName'    => Auth::user()->name,
                 'paymentMethod'   => $duitkuMethod,
+                'returnUrl'       => route('checkout.success', $order->id),
             ]);
 
             if ($duitkuResponse['success']) {
