@@ -67,6 +67,31 @@ class ProductController extends Controller
             ->with('success', 'Produk dibuat.'.$this->assetSummary($product, $attached));
     }
 
+    /** Storefront page as buyers see it, available for inactive products too. */
+    public function show(Product $product)
+    {
+        $product->load(['images', 'category', 'options.values']);
+
+        $variants = fn () => $product->variants()->with('optionValues', 'image');
+        $product->setRelation('variants', ($variants()->where('is_active', true)->get()->whenEmpty(fn () => $variants()->get())));
+
+        $related = Product::visibleInShop(SiteSetting::current())
+            ->whereKeyNot($product->id)
+            ->when($product->product_category_id, fn ($q) => $q->where('product_category_id', $product->product_category_id))
+            ->with(['images', 'variants' => fn ($q) => $q->where('is_active', true)])
+            ->orderByDesc('is_featured')->latest()
+            ->limit(4)
+            ->get();
+
+        return view('landing.shop.show', [
+            'settings' => SiteSetting::current(),
+            'product' => $product,
+            'related' => $related,
+            'variantData' => $product->storefrontData(),
+            'preview' => true,
+        ]);
+    }
+
     public function edit(Product $product)
     {
         return $this->form($product);
@@ -74,7 +99,15 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product, ProductSaver $saver, ProductAssets $assets)
     {
-        $data = $request->validate(ProductInput::rules($request, $product), ProductInput::messages());
+        // TEMP-DEBUG (hapus setelah masalah "simpan tidak terjadi apa-apa" selesai)
+        \Log::info('[product-update-debug] request diterima', ['product' => $product->id, 'fields' => count($request->all()), 'has_variants' => $request->boolean('has_variants')]);
+
+        try {
+            $data = $request->validate(ProductInput::rules($request, $product), ProductInput::messages());
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::info('[product-update-debug] validasi gagal', $e->errors());
+            throw $e;
+        }
 
         $assets->updateImages(
             $product,

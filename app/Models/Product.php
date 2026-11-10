@@ -118,6 +118,27 @@ class Product extends Model
         return $this->is_active && ! $this->trashed() && ($this->isDigital() || (bool) $settings?->shop_physical_enabled);
     }
 
+    /** Options and variants as the storefront's product page script expects them (needs options.values and variants.optionValues/image loaded). */
+    public function storefrontData(): array
+    {
+        return [
+            'options' => $this->has_variants ? $this->options->map(fn ($o) => [
+                'id' => $o->id,
+                'name' => $o->getTranslation('name'),
+                'values' => $o->values->map(fn ($v) => ['id' => $v->id, 'label' => $v->getTranslation('value')])->values(),
+            ])->values() : [],
+            'variants' => $this->variants->map(fn (ProductVariant $v) => [
+                'id' => $v->id,
+                'values' => $v->optionValues->pluck('id')->values(),
+                'title' => $v->label(),
+                'price' => $v->price,
+                'compare' => $v->compare_at_price && $v->compare_at_price > $v->price ? $v->compare_at_price : null,
+                'stock' => $v->stock,
+                'image' => $v->image?->media_url,
+            ])->values(),
+        ];
+    }
+
     public function defaultVariant(): ?ProductVariant
     {
         return $this->variants->firstWhere('is_default', true) ?? $this->variants->first();

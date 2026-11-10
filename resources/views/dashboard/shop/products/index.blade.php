@@ -89,6 +89,7 @@
                                 </td>
                                 <td>
                                     <div class="flex items-center justify-end gap-1">
+                                        <a href="{{ route('dashboard.shop.products.show', $product) }}" target="_blank" rel="noopener" class="btn-icon" title="Pratinjau" aria-label="Pratinjau {{ $product->name_id }}"><i class="fa-solid fa-eye" aria-hidden="true"></i></a>
                                         @if ($product->is_active)
                                             <a href="{{ route('shop.show', $product->slug) }}" target="_blank" rel="noopener" class="btn-icon" title="Lihat di toko" aria-label="Lihat {{ $product->name_id }} di toko"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
                                         @endif

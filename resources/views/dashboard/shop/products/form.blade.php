@@ -52,6 +52,9 @@
         <x-ui.page-header :title="$editing ? $product->name_id : 'Produk baru'" :description="$editing ? 'Harga sudah termasuk PPN. Perubahan langsung berlaku di toko.' : 'Isi info produk, harga, dan file produk digital, lalu simpan.'">
             <x-slot:actions>
                 <x-ui.button :href="route('dashboard.shop.products.index')" variant="secondary" icon="fa-arrow-left">Kembali</x-ui.button>
+                @if ($editing)
+                    <x-ui.button :href="route('dashboard.shop.products.show', $product)" variant="secondary" icon="fa-eye" target="_blank">Pratinjau</x-ui.button>
+                @endif
                 @if ($editing && $product->is_active)
                     <x-ui.button :href="route('shop.show', $product->slug)" variant="secondary" icon="fa-arrow-up-right-from-square" target="_blank">Lihat di toko</x-ui.button>
                 @endif
@@ -67,14 +70,14 @@
 
         <form method="POST" enctype="multipart/form-data" id="product-form"
             action="{{ $editing ? route('dashboard.shop.products.update', $product) : route('dashboard.shop.products.store') }}"
-            x-data="productForm(@js($state))" @submit="beforeSubmit()">
+            x-data="productForm(@js($state))" @submit="beforeSubmit($event)" @invalid.capture="reportInvalid($event)">
             @csrf
             @if ($editing) @method('PATCH') @endif
 
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
                 <div class="min-w-0 space-y-6 lg:col-span-2">
                     {{-- Basic info --}}
-                    <x-ui.card x-data="{ lang: 'id' }">
+                    <x-ui.card x-data="{ lang: 'id' }" @show-lang.window="lang = $event.detail">
                         <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
                             <h2 class="text-lg font-bold">Info produk</h2>
                             <div class="flex rounded-full border border-line bg-surface-2 p-0.5" role="group" aria-label="Bahasa">{!! $tab('Indonesia', 'id') !!}{!! $tab('English', 'en') !!}</div>
@@ -271,7 +274,7 @@
                             <label class="flex items-center gap-2 text-small font-semibold"><input type="checkbox" name="is_featured" value="1" class="h-5 w-5 rounded border-line text-brand-600" @checked(old('is_featured', $product->is_featured))> Produk unggulan</label>
                             <x-ui.input name="sort_order" type="number" min="0" label="Urutan" :value="$product->sort_order ?? 0" />
                         </div>
-                        <button type="submit" class="btn-primary mt-5 w-full" :disabled="saving">
+                        <button type="submit" class="btn-primary mt-5 w-full" @click.prevent="send()" :aria-busy="saving" :class="saving && 'pointer-events-none opacity-70'">
                             <span x-show="!saving"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> {{ $editing ? 'Simpan perubahan' : 'Simpan produk' }}</span>
                             <span x-show="saving" x-cloak><i class="fa-solid fa-spinner animate-spin" aria-hidden="true"></i> Menyimpan & mengunggah…</span>
                         </button>
@@ -348,6 +351,27 @@
 
     @push('scripts')
         <script>
+            /* TEMP-DEBUG: hapus setelah masalah "simpan tidak terjadi apa-apa" selesai */
+            (function () {
+                const name = (x) => x ? x.tagName + (x.id ? '#' + x.id : '') + '.' + String(x.className).slice(0, 50) : String(x);
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('#product-form button[type=submit]')) return;
+                    console.log('[dbg] klik tombol simpan. target =', name(e.target), '| form =', e.target.closest('button').form ? e.target.closest('button').form.id : 'TIDAK ADA FORM');
+                    console.log('[dbg] elemen di titik klik =', document.elementsFromPoint(e.clientX, e.clientY).slice(0, 6).map(name));
+                }, true);
+                const isSaveClick = (ev) => ev.type === 'click' && ev.target && ev.target.closest && ev.target.closest('#product-form button[type=submit]');
+                const nativePrevent = Event.prototype.preventDefault;
+                Event.prototype.preventDefault = function () {
+                    if (isSaveClick(this)) console.log('[dbg] PENYEBAB: preventDefault() dipanggil pada klik tombol simpan oleh:\n' + new Error().stack);
+                    return nativePrevent.apply(this, arguments);
+                };
+                window.addEventListener('click', (e) => { if (isSaveClick(e)) { const f = document.getElementById('product-form'); console.log('[dbg] setelah klik: dibatalkan =', e.defaultPrevented, '| checkValidity =', f.checkValidity(), '| noValidate =', f.noValidate, '| tombol disabled =', e.target.closest('button').disabled, '| jumlah #product-form =', document.querySelectorAll('#product-form').length); } });
+                document.addEventListener('submit', (e) => console.log('[dbg] submit event, dibatalkan =', e.defaultPrevented, 'form =', e.target.id), true);
+                document.addEventListener('invalid', (e) => console.log('[dbg] kolom tidak valid:', e.target.name, '-', e.target.validationMessage, '| terlihat =', e.target.offsetParent !== null), true);
+                window.addEventListener('error', (e) => console.log('[dbg] JS error:', e.message));
+                console.log('[dbg] pencatat aktif, halaman edit produk dimuat');
+            })();
+
             document.addEventListener('alpine:init', () => {
                 Alpine.data('productForm', (state) => ({
                     ...state,
@@ -355,6 +379,7 @@
                     pickedFiles: [],
                     saving: false,
                     init() {
+                        window.addEventListener('pageshow', () => { this.saving = false; });
                         for (const key in this.rows) { this.rows[key].is_active = !!this.rows[key].is_active; }
                     },
                     get combos() {
@@ -407,9 +432,41 @@
                         this.deleted.push(id);
                         if (this.thumbnail === id) this.thumbnail = this.images[0]?.id ?? (this.newImages.length ? 'new:0' : null);
                     },
-                    beforeSubmit() {
+                    // Copies the editors' content into their textareas and locks the button; false = already saving.
+                    prepare() {
+                        if (this.saving) return false;
+                        // A failing editor must never block saving.
+                        try {
+                            if (window.jQuery && jQuery.fn.summernote) {
+                                jQuery('.summernote').each(function () { jQuery(this).val(jQuery(this).summernote('code')); });
+                            }
+                        } catch (e) { console.error('Summernote sync failed', e); }
                         this.saving = true;
-                        if (window.jQuery) { jQuery('.summernote').each(function () { jQuery(this).val(jQuery(this).summernote('code')); }); }
+                        window.toast?.('info', 'Menyimpan perubahan…', 6000);
+                        // If the browser never navigates (blocked or aborted), unlock the button again.
+                        setTimeout(() => { this.saving = false; }, 20000);
+                        return true;
+                    },
+                    // Enter key inside a field: the browser's own submit.
+                    beforeSubmit(event) {
+                        if (!this.prepare()) event.preventDefault();
+                    },
+                    // Save button. Submits via form.submit() so the save does not depend on the browser dispatching a
+                    // submit event, which some browser extensions and privacy features swallow.
+                    send() {
+                        const form = this.$root;
+                        if (this.saving || !form.reportValidity()) return;
+                        this.prepare();
+                        console.log('[dbg] form.submit() dipanggil');
+                        HTMLFormElement.prototype.submit.call(form);
+                    },
+                    // The browser silently refuses to submit when an invalid field is hidden (other tab, other section); say which one.
+                    reportInvalid(event) {
+                        const field = event.target;
+                        if (field.offsetParent !== null) return;
+                        const label = field.name || field.id || 'tidak diketahui';
+                        window.toast?.('error', 'Ada isian yang belum valid dan sedang tersembunyi: ' + label + '. Periksa tab bahasa atau bagian varian.', 8000);
+                        if (field.name && /_en$/.test(field.name)) this.$dispatch('show-lang', 'en');
                     },
                 }));
             });
