@@ -218,6 +218,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
         Route::get('/products', [AdminShop\ProductController::class, 'index'])->name('products.index');
         Route::get('/products/create', [AdminShop\ProductController::class, 'create'])->name('products.create');
         Route::post('/products', [AdminShop\ProductController::class, 'store'])->name('products.store');
+        Route::get('/products/{product}', [AdminShop\ProductController::class, 'show'])->name('products.show');
         Route::get('/products/{product}/edit', [AdminShop\ProductController::class, 'edit'])->name('products.edit');
         Route::patch('/products/{product}', [AdminShop\ProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [AdminShop\ProductController::class, 'destroy'])->name('products.destroy');

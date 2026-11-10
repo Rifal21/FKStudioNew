@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductCategory;
-use App\Models\ProductVariant;
 use App\Models\SiteSetting;
 use App\Services\Shop\CartService;
 use App\Services\Shop\ShopException;
@@ -72,7 +71,7 @@ class ShopController extends Controller
             'settings' => $settings,
             'product' => $product,
             'related' => $related,
-            'variantData' => $this->variantData($product),
+            'variantData' => $product->storefrontData(),
         ]);
     }
 
@@ -99,25 +98,5 @@ class ShopController extends Controller
         } catch (ShopException $e) {
             session()->flash('error', $e->getMessage());
         }
-    }
-
-    private function variantData(Product $product): array
-    {
-        return [
-            'options' => $product->has_variants ? $product->options->map(fn ($o) => [
-                'id' => $o->id,
-                'name' => $o->getTranslation('name'),
-                'values' => $o->values->map(fn ($v) => ['id' => $v->id, 'label' => $v->getTranslation('value')])->values(),
-            ])->values() : [],
-            'variants' => $product->variants->map(fn (ProductVariant $v) => [
-                'id' => $v->id,
-                'values' => $v->optionValues->pluck('id')->values(),
-                'title' => $v->label(),
-                'price' => $v->price,
-                'compare' => $v->compare_at_price && $v->compare_at_price > $v->price ? $v->compare_at_price : null,
-                'stock' => $v->stock,
-                'image' => $v->image?->media_url,
-            ])->values(),
-        ];
     }
 }

@@ -26,6 +26,13 @@
         \App\Support\Seo::breadcrumbs([[$id ? 'Beranda' : 'Home', route('home')], [$id ? 'Toko' : 'Shop', route('shop.index')], [$name, route('shop.show', $product->slug)]]),
     ]]" />
 
+    @if ($preview ?? false)
+        <div class="fixed inset-x-0 bottom-0 z-[60] flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-t-2 border-edge bg-sun-400 px-4 py-2 text-center text-small font-bold text-navy">
+            <span><i class="fa-solid fa-eye" aria-hidden="true"></i> Mode pratinjau admin · {{ $product->is_active ? 'Produk aktif di toko' : 'Produk NONAKTIF, belum tampil di toko' }}</span>
+            <a href="{{ route('dashboard.shop.products.edit', $product) }}" class="underline">Ubah produk</a>
+        </div>
+    @endif
+
     <div class="pb-16 pt-28 md:pb-24 md:pt-36" x-data="productPage(@js($cfg))">
         <div class="container-page">
             <nav class="flex flex-wrap items-center gap-2 text-small text-muted" aria-label="Breadcrumb">
@@ -90,7 +97,7 @@
                             <span class="pb-1 text-lg text-muted line-through" x-show="variant && variant.compare" x-cloak x-text="variant ? money(variant.compare) : ''"></span>
                         </div>
 
-                        <form method="POST" action="{{ route('cart.store') }}" class="mt-6 space-y-5">
+                        <form method="POST" action="{{ route('cart.store') }}" class="mt-6 space-y-5" @if ($preview ?? false) @submit.prevent @endif>
                             @csrf
                             <input type="hidden" name="variant_id" :value="variant ? variant.id : ''">
 
