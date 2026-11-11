@@ -116,7 +116,9 @@ class CmsController extends Controller
         }
         if ($request->hasFile('og_image')) {
             if ($settings->og_image) $this->deleteFromNextcloud($settings->og_image);
-            $data['og_image'] = $this->uploadToNextcloud($request->file('og_image'), 'site');
+            $og = \App\Support\OgImage::prepare($request->file('og_image'));
+            $data['og_image'] = $this->uploadToNextcloud($og, 'site');
+            if ($og->getRealPath() !== $request->file('og_image')->getRealPath()) @unlink($og->getRealPath());
         }
         if ($request->hasFile('invoice_logo')) {
             if ($settings->invoice_logo) $this->deleteFromNextcloud($settings->invoice_logo);

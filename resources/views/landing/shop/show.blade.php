@@ -18,8 +18,16 @@
 @endphp
 <x-layouts.public :title="$product->meta_title ?: $name"
     :description="$product->meta_description ?: \Illuminate\Support\Str::limit(strip_tags($product->getTranslation('short_description') ?: $description), 160)"
-    :image="$images->first()['url'] ?? null">
+    :image="$images->first()['url'] ?? null"
+    :image-alt="$images->first()['alt'] ?? $name"
+    type="product">
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>
+
+    <x-slot:head>
+        <meta property="product:price:amount" content="{{ $product->min_price }}">
+        <meta property="product:price:currency" content="IDR">
+        <meta property="product:availability" content="{{ $product->inStock() ? 'in stock' : 'out of stock' }}">
+    </x-slot:head>
 
     <x-seo.schema :data="['@graph' => [
         \App\Support\Seo::shopProduct($product),

@@ -7,8 +7,9 @@
 @endphp
 <x-layouts.public
     :title="$title"
-    :description="Str::limit(strip_tags($blog->getTranslation('content')), 155, '')"
+    :description="\App\Support\Seo::excerpt($blog->getTranslation('content'), 155)"
     :image="$blog->image ? $blog->media_url : null"
+    :image-alt="$title"
     type="article"
     :published-at="$date?->toAtomString()"
     :modified-at="$blog->updated_at?->toAtomString()">

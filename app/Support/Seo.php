@@ -5,6 +5,9 @@ namespace App\Support;
 use App\Models\BlogPost;
 use App\Models\Package;
 use App\Models\SiteSetting;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Seo
@@ -65,6 +68,60 @@ class Seo
         }
 
         return rtrim(preg_replace('/\s+\S*$/u', '', $cut), " ,;:-–—").'…';
+    }
+
+    private const IMAGE_TYPES = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp', 'gif' => 'image/gif'];
+
+    /**
+     * MIME type and pixel size of a share-card image, so crawlers can lay the card out without
+     * downloading the file first. Remote files are probed once (first 128 KB) and cached.
+     *
+     * @return array{type?: string, width?: int, height?: int}
+     */
+    public static function imageMeta(?string $url): array
+    {
+        if (! filled($url)) {
+            return [];
+        }
+
+        $ext = strtolower(pathinfo((string) parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION));
+        $meta = isset(self::IMAGE_TYPES[$ext]) ? ['type' => self::IMAGE_TYPES[$ext]] : [];
+
+        $size = Cache::remember('og-image-size:'.md5($url), now()->addDays(30), fn () => self::probeImageSize($url) ?? false);
+
+        // A failed probe is retried on the next request instead of being remembered for a month.
+        if ($size === false) {
+            Cache::forget('og-image-size:'.md5($url));
+
+            return $meta;
+        }
+
+        return $meta + $size;
+    }
+
+    /** @return array{width: int, height: int, type?: string}|null */
+    private static function probeImageSize(string $url): ?array
+    {
+        try {
+            $local = rtrim(Storage::disk('public')->url(''), '/').'/';
+
+            if (str_starts_with($url, $local) && Storage::disk('public')->exists($path = urldecode(substr($url, strlen($local))))) {
+                $info = @getimagesizefromstring((string) Storage::disk('public')->get($path));
+            } elseif (preg_match('#^https?://#i', $url)) {
+                $response = Http::timeout(3)->withHeaders(['Range' => 'bytes=0-131071'])->get($url);
+                $info = $response->successful() ? @getimagesizefromstring($response->body()) : false;
+            } else {
+                return null;
+            }
+        } catch (\Throwable) {
+            return null;
+        }
+
+        if (! $info || ! $info[0] || ! $info[1]) {
+            return null;
+        }
+
+        return ['width' => (int) $info[0], 'height' => (int) $info[1]] + (isset($info['mime']) ? ['type' => $info['mime']] : []);
     }
 
     /** File-sharing hosts are downloads, not pages: they do not belong in what crawlers read about us. */
@@ -209,8 +266,8 @@ class Seo
             'brand' => ['@type' => 'Brand', 'name' => self::BRAND],
             'category' => $product->category?->getTranslation('name'),
             'offers' => $product->hasPriceRange()
-                ? ['@type' => 'AggregateOffer', 'lowPrice' => $product->min_price, 'highPrice' => $product->max_price, 'offerCount' => $product->variants->where('is_active', true)->count(), 'priceCurrency' => 'IDR', 'availability' => $availability, 'url' => $url]
-                : ['@type' => 'Offer', 'price' => $product->min_price, 'priceCurrency' => 'IDR', 'availability' => $availability, 'url' => $url, 'seller' => ['@id' => self::orgId()]],
+                ? ['@type' => 'AggregateOffer', 'lowPrice' => $product->min_price, 'highPrice' => $product->max_price, 'offerCount' => $product->variants->where('is_active', true)->count(), 'priceCurrency' => 'IDR', 'availability' => $availability, 'itemCondition' => 'https://schema.org/NewCondition', 'url' => $url]
+                : ['@type' => 'Offer', 'price' => $product->min_price, 'priceCurrency' => 'IDR', 'availability' => $availability, 'itemCondition' => 'https://schema.org/NewCondition', 'url' => $url, 'seller' => ['@id' => self::orgId()]],
         ]);
     }
 
@@ -220,7 +277,8 @@ class Seo
             '@type' => 'BlogPosting',
             'headline' => $title,
             'description' => self::excerpt($blog->getTranslation('content'), 200),
-            'image' => $image,
+            // Google wants an image for Article results: fall back to the site card rather than omit it.
+            'image' => $image ?? ($site->og_image ? $site->og_image_url : null),
             'datePublished' => optional($blog->published_at ?? $blog->created_at)->toAtomString(),
             'dateModified' => optional($blog->updated_at)->toAtomString(),
             'inLanguage' => 'id-ID',
