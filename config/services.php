@@ -49,6 +49,13 @@ return [
         ],
     ],
 
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY'),
+        'promo_model' => env('ANTHROPIC_PROMO_MODEL', 'claude-sonnet-5-5'),
+        // Generations one admin may start per day: a guard against a stuck button or a leaked session.
+        'promo_daily_limit' => (int) env('ANTHROPIC_PROMO_DAILY_LIMIT', 30),
+    ],
+
     'duitku' => [
         'merchant_code' => env('DUITKU_MERCHANT_CODE'),
         'api_key' => env('DUITKU_API_KEY'),

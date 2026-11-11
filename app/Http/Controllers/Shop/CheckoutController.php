@@ -42,7 +42,8 @@ class CheckoutController extends Controller
             'settings' => $settings,
             'summary' => $summary,
             'addresses' => $addresses,
-            'duitkuMethods' => $duitku->getPaymentMethods(max(1, $summary['subtotal'])),
+            // Nothing to pay for a free cart, so there is no payment method to look up.
+            'duitkuMethods' => $summary['subtotal'] > 0 ? $duitku->getPaymentMethods($summary['subtotal']) : [],
         ]);
     }
 
@@ -83,7 +84,8 @@ class CheckoutController extends Controller
         $id = app()->getLocale() === 'id';
 
         $data = $request->validate([
-            'payment' => ['required', 'string', 'regex:/^(manual|duitku(:[A-Za-z0-9]{1,10})?)$/'],
+            // Not required: an order that comes to Rp 0 has nothing to pay. CheckoutService asks for it otherwise.
+            'payment' => ['nullable', 'string', 'regex:/^(manual|duitku(:[A-Za-z0-9]{1,10})?)$/'],
             'voucher_code' => 'nullable|string|max:100',
             'customer_phone' => 'nullable|string|max:30',
             'notes' => 'nullable|string|max:1000',
@@ -91,15 +93,18 @@ class CheckoutController extends Controller
             'shipping_option' => 'nullable|string|max:100',
             'agree' => 'accepted',
         ], [
-            'payment.required' => $id ? 'Pilih metode pembayaran.' : 'Choose a payment method.',
             'agree.accepted' => $id ? 'Setujui syarat & ketentuan untuk melanjutkan.' : 'Accept the terms to continue.',
         ]);
 
-        [$channel, $method] = array_pad(explode(':', $data['payment'], 2), 2, null);
+        [$channel, $method] = array_pad(explode(':', $data['payment'] ?? '', 2), 2, null);
 
         try {
             $order = $this->checkout->place($request->user(), [
-                'channel' => $channel === 'manual' ? ShopOrder::CHANNEL_MANUAL : ShopOrder::CHANNEL_DUITKU,
+                'channel' => match ($channel) {
+                    'manual' => ShopOrder::CHANNEL_MANUAL,
+                    'duitku' => ShopOrder::CHANNEL_DUITKU,
+                    default => null,
+                },
                 'voucher_code' => $data['voucher_code'] ?? null,
                 'phone' => $data['customer_phone'] ?? null,
                 'notes' => $data['notes'] ?? null,
@@ -108,6 +113,12 @@ class CheckoutController extends Controller
             ]);
         } catch (ShopException $e) {
             return back()->withInput()->with('error', $e->getMessage());
+        }
+
+        // Already paid: the customer gets the "payment received" message instead of "please pay".
+        if ($order->payment_channel === ShopOrder::CHANNEL_FREE) {
+            return redirect()->route('shop.orders.show', $order)
+                ->with('success', $id ? 'Pesanan berhasil. Tidak ada yang perlu dibayar, produk Anda langsung tersedia.' : 'Order complete. Nothing to pay: your products are available right away.');
         }
 
         $notifier->orderPlaced($order);

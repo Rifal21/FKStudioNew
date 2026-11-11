@@ -219,11 +219,13 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
         Route::get('/products/create', [AdminShop\ProductController::class, 'create'])->name('products.create');
         Route::post('/products', [AdminShop\ProductController::class, 'store'])->name('products.store');
         Route::get('/products/{product}', [AdminShop\ProductController::class, 'show'])->name('products.show');
+        Route::get('/products/{product}/preview', [AdminShop\ProductController::class, 'preview'])->name('products.preview');
         Route::get('/products/{product}/edit', [AdminShop\ProductController::class, 'edit'])->name('products.edit');
         Route::patch('/products/{product}', [AdminShop\ProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [AdminShop\ProductController::class, 'destroy'])->name('products.destroy');
         Route::post('/products/{product}/duplicate', [AdminShop\ProductController::class, 'duplicate'])->name('products.duplicate');
         Route::post('/products/{product}/files', [AdminShop\ProductController::class, 'storeFile'])->name('products.files.store');
+        Route::get('/products/{product}/files/{file}', [AdminShop\ProductController::class, 'showFile'])->name('products.files.show');
         Route::delete('/products/{product}/files/{file}', [AdminShop\ProductController::class, 'destroyFile'])->name('products.files.destroy');
         Route::post('/products/{product}/keys', [AdminShop\ProductController::class, 'storeKeys'])->name('products.keys.store');
         Route::delete('/products/{product}/keys/{key}', [AdminShop\ProductController::class, 'destroyKey'])->name('products.keys.destroy');
@@ -232,6 +234,14 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function () 
         Route::post('/categories', [AdminShop\CategoryController::class, 'store'])->name('categories.store');
         Route::patch('/categories/{category}', [AdminShop\CategoryController::class, 'update'])->name('categories.update');
         Route::delete('/categories/{category}', [AdminShop\CategoryController::class, 'destroy'])->name('categories.destroy');
+
+        Route::get('/promos', [AdminShop\PromoController::class, 'index'])->name('promos.index');
+        Route::get('/promos/create', [AdminShop\PromoController::class, 'create'])->name('promos.create');
+        Route::post('/promos', [AdminShop\PromoController::class, 'store'])->middleware('throttle:20,1')->name('promos.store');
+        Route::get('/promos/{promo}', [AdminShop\PromoController::class, 'show'])->name('promos.show');
+        Route::patch('/promos/{promo}', [AdminShop\PromoController::class, 'update'])->name('promos.update');
+        Route::post('/promos/{promo}/regenerate', [AdminShop\PromoController::class, 'regenerate'])->middleware('throttle:20,1')->name('promos.regenerate');
+        Route::delete('/promos/{promo}', [AdminShop\PromoController::class, 'destroy'])->name('promos.destroy');
 
         Route::get('/orders', [AdminShop\OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [AdminShop\OrderController::class, 'show'])->name('orders.show');

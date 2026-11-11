@@ -46,7 +46,7 @@
                                     @if ($order->needs_attention)<p class="text-caption font-semibold text-danger-700 dark:text-red-300"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Perlu tindakan</p>@endif
                                 </td>
                                 <td><span class="font-semibold">{{ $order->customer_name }}</span><p class="text-caption text-muted">{{ $order->customer_email }}</p></td>
-                                <td class="whitespace-nowrap font-semibold">{{ $money($order->total_amount) }}<p class="text-caption font-normal text-muted">{{ $order->payment_channel === 'manual' ? 'Transfer manual' : 'Duitku' }}</p></td>
+                                <td class="whitespace-nowrap font-semibold">{{ $money($order->total_amount) }}<p class="text-caption font-normal text-muted">{{ match ($order->payment_channel) { 'manual' => 'Transfer manual', 'free' => 'Gratis (Rp 0)', default => 'Duitku' } }}</p></td>
                                 <td class="whitespace-nowrap text-small">{{ $money($order->tax_amount) }}</td>
                                 <td>
                                     <x-ui.badge :variant="$order->paymentStatusVariant()" dot>{{ $order->paymentStatusLabel('id') }}</x-ui.badge>

@@ -53,6 +53,7 @@
             <x-slot:actions>
                 <x-ui.button :href="route('dashboard.shop.products.index')" variant="secondary" icon="fa-arrow-left">Kembali</x-ui.button>
                 @if ($editing)
+                    <x-ui.button :href="route('dashboard.shop.promos.create', ['product' => $product->id])" variant="secondary" icon="fa-wand-magic-sparkles">Buat konten promosi</x-ui.button>
                     <x-ui.button :href="route('dashboard.shop.products.show', $product)" variant="secondary" icon="fa-eye" target="_blank">Pratinjau</x-ui.button>
                 @endif
                 @if ($editing && $product->is_active)

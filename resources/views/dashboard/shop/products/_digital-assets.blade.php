@@ -12,7 +12,7 @@
                 @foreach ($product->files as $file)
                     <li class="flex flex-wrap items-center justify-between gap-3 p-3">
                         <div class="min-w-0 text-small">
-                            <p class="truncate font-semibold">{{ $file->original_name }}</p>
+                            <a href="{{ route('dashboard.shop.products.files.show', [$product, $file]) }}" target="_blank" rel="noopener" class="block truncate font-semibold hover:underline" title="{{ $file->looksViewable() ? 'Buka file di tab baru' : 'Unduh file' }}">{{ $file->original_name }}</a>
                             <p class="text-muted">{{ $file->humanSize() }} · {{ $file->variant ? 'Varian '.$file->variant->title_id : 'Semua varian' }}{{ $file->version_label ? ' · '.$file->version_label : '' }} · {{ $file->created_at->format('d/m/Y') }}</p>
                         </div>
                         <form method="POST" action="{{ route('dashboard.shop.products.files.destroy', [$product, $file]) }}" x-data @submit="if (!confirm('Hapus file ini? Pembeli tidak bisa mengunduhnya lagi.')) $event.preventDefault()">
