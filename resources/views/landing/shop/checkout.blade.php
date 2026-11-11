@@ -13,6 +13,7 @@
         'voucher' => old('voucher_code', ''),
         'payment' => old('payment', count($duitkuMethods) ? 'duitku:'.$duitkuMethods[0]['paymentMethod'] : ($manualAvailable ? 'manual' : 'duitku')),
         'locale' => app()->getLocale(),
+        'freeLabel' => $id ? 'Gratis' : 'Free',
     ];
     $radio = 'flex h-full items-center gap-3 rounded-lg border-2 border-line bg-surface p-3.5 transition hover:border-edge peer-checked:border-edge peer-checked:bg-sun-100 peer-checked:shadow-hard-sm peer-focus-visible:ring-2 peer-focus-visible:ring-brand-500 dark:peer-checked:bg-surface-2';
 @endphp
@@ -96,8 +97,14 @@
                         </x-ui.card>
                     @endif
 
+                    {{-- Nothing to pay: a 100% voucher or a price of 0 --}}
+                    <x-ui.card x-show="isFree" x-cloak>
+                        <h2 class="flex items-center gap-3 text-xl"><span class="flex h-9 w-9 items-center justify-center rounded-full border-2 border-edge bg-mint-400 text-small font-extrabold text-navy"><i class="fa-solid fa-gift" aria-hidden="true"></i></span>{{ $id ? 'Tidak perlu membayar' : 'Nothing to pay' }}</h2>
+                        <p class="mt-4 text-small text-muted">{{ $id ? 'Total pesanan Anda Rp 0. Setelah menekan tombol di bawah, produk langsung tersedia di akun Anda tanpa pembayaran.' : 'Your order total is Rp 0. Once you place it, your products are available in your account right away, with no payment.' }}</p>
+                    </x-ui.card>
+
                     {{-- Payment --}}
-                    <x-ui.card>
+                    <x-ui.card x-show="!isFree">
                         <h2 class="flex items-center gap-3 text-xl"><span class="flex h-9 w-9 items-center justify-center rounded-full border-2 border-edge bg-sun-400 text-small font-extrabold text-navy">{{ $summary['has_physical'] ? 3 : 2 }}</span>{{ $id ? 'Metode pembayaran' : 'Payment method' }}</h2>
 
                         <h3 class="mt-6 text-small font-bold">{{ $id ? 'Otomatis (langsung terverifikasi)' : 'Automatic (verified instantly)' }}</h3>
@@ -169,12 +176,12 @@
                                 <div class="flex justify-between gap-4"><dt class="text-muted">{{ $id ? 'Ongkir' : 'Shipping' }}</dt><dd class="font-semibold" x-text="shippingCost === null ? '-' : money(shippingCost)"></dd></div>
                             @endif
                             @if ($settings->shop_manual_unique_code)
-                                <div class="flex justify-between gap-4" x-show="payment === 'manual'" x-cloak><dt class="text-muted">{{ $id ? 'Kode unik' : 'Unique code' }}</dt><dd class="text-muted">{{ $id ? '+ Rp1–999, tampil setelah pesan' : '+ Rp1–999, shown after ordering' }}</dd></div>
+                                <div class="flex justify-between gap-4" x-show="payment === 'manual' && !isFree" x-cloak><dt class="text-muted">{{ $id ? 'Kode unik' : 'Unique code' }}</dt><dd class="text-muted">{{ $id ? '+ Rp1–999, tampil setelah pesan' : '+ Rp1–999, shown after ordering' }}</dd></div>
                             @endif
                         </dl>
                         <div class="mt-4 rounded-lg border-2 border-edge bg-sun-100 p-4 dark:bg-surface-2">
                             <p class="text-caption font-bold">{{ $id ? 'Total bayar' : 'Total' }}</p>
-                            <p class="text-3xl font-extrabold" x-text="money(total)">{{ $money($summary['subtotal']) }}</p>
+                            <p class="text-3xl font-extrabold" x-text="isFree ? cfg.freeLabel : money(total)">{{ $money($summary['subtotal']) }}</p>
                         </div>
 
                         <label class="mt-5 flex cursor-pointer items-start gap-3 text-small">
@@ -182,7 +189,7 @@
                             <span class="text-muted">{{ $id ? 'Saya setuju dengan syarat & ketentuan serta ketentuan lisensi produk.' : 'I agree to the terms and the product license terms.' }}</span>
                         </label>
                         <button type="submit" class="btn-primary btn-lg mt-5 hidden w-full lg:inline-flex" :disabled="!canSubmit">
-                            <span x-show="!submitting">{{ $id ? 'Buat pesanan & bayar' : 'Place order & pay' }}</span>
+                            <span x-show="!submitting" x-text="isFree ? '{{ $id ? 'Dapatkan sekarang' : 'Get it now' }}' : '{{ $id ? 'Buat pesanan & bayar' : 'Place order & pay' }}'">{{ $id ? 'Buat pesanan & bayar' : 'Place order & pay' }}</span>
                             <span x-show="submitting" x-cloak><i class="fa-solid fa-spinner animate-spin" aria-hidden="true"></i> {{ $id ? 'Memproses…' : 'Processing…' }}</span>
                         </button>
                     </div>
@@ -192,8 +199,8 @@
 
         <div class="fixed inset-x-0 bottom-0 z-40 border-t-2 border-edge bg-surface/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
             <div class="mx-auto flex max-w-lg items-center justify-between gap-3">
-                <div class="min-w-0"><p class="text-caption text-muted">Total</p><p class="truncate text-lg font-extrabold" x-text="money(total)"></p></div>
-                <button type="submit" form="checkout-form" class="btn-primary shrink-0" :disabled="!canSubmit">{{ $id ? 'Bayar' : 'Pay' }}</button>
+                <div class="min-w-0"><p class="text-caption text-muted">Total</p><p class="truncate text-lg font-extrabold" x-text="isFree ? cfg.freeLabel : money(total)"></p></div>
+                <button type="submit" form="checkout-form" class="btn-primary shrink-0" :disabled="!canSubmit" x-text="isFree ? '{{ $id ? 'Dapatkan' : 'Get it' }}' : '{{ $id ? 'Bayar' : 'Pay' }}'">{{ $id ? 'Bayar' : 'Pay' }}</button>
             </div>
         </div>
     </div>
@@ -216,6 +223,7 @@
                     rates: [],
                     shippingOption: null,
                     loadingRates: false,
+                    cfg: cfg,
                     init() {
                         if (cfg.voucher) this.applyVoucher();
                         if (cfg.hasPhysical && this.addressId) this.loadRates();
@@ -226,7 +234,9 @@
                         return rate ? rate.cost : null;
                     },
                     get total() { return Math.max(0, this.subtotal - this.discount) + (this.shippingCost || 0); },
-                    get canSubmit() { return this.agree && !this.submitting && !!this.payment && (!cfg.hasPhysical || this.shippingCost !== null); },
+                    // Nothing to pay: no payment method is needed. A physical cart only counts once its shipping fee is known.
+                    get isFree() { return this.total === 0 && (!cfg.hasPhysical || this.shippingCost !== null); },
+                    get canSubmit() { return this.agree && !this.submitting && (this.isFree || !!this.payment) && (!cfg.hasPhysical || this.shippingCost !== null); },
                     money(v) { return 'Rp ' + new Intl.NumberFormat('id-ID').format(v || 0); },
                     async post(url, body) {
                         const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': cfg.csrf }, body: JSON.stringify(body) });

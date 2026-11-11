@@ -2,7 +2,24 @@
 <x-app-layout>
     <x-slot name="header">Produk Toko</x-slot>
 
-    <div class="mx-auto max-w-7xl space-y-6">
+    <div class="mx-auto max-w-7xl space-y-6"
+        x-data="{
+            open: false, loading: false, failed: false, html: '', url: null,
+            async show(url) {
+                this.open = true; this.url = url; this.loading = true; this.failed = false; this.html = '';
+                this.$nextTick(() => this.$refs.close.focus());
+                try {
+                    const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' } });
+                    if (this.url !== url) return;
+                    if (!res.ok) throw new Error(res.status);
+                    this.html = await res.text();
+                } catch (e) { if (this.url === url) this.failed = true; }
+                if (this.url === url) this.loading = false;
+            },
+            close() { this.open = false; this.url = null; },
+        }"
+        x-effect="document.body.classList.toggle('overflow-hidden', open)"
+        @keydown.escape.window="if (open) close()">
         <x-ui.page-header title="Produk" description="Produk digital dan fisik yang dijual di toko. Harga sudah termasuk PPN.">
             <x-slot:actions>
                 @if (! $settings->shop_enabled)
@@ -89,7 +106,7 @@
                                 </td>
                                 <td>
                                     <div class="flex items-center justify-end gap-1">
-                                        <a href="{{ route('dashboard.shop.products.show', $product) }}" target="_blank" rel="noopener" class="btn-icon" title="Pratinjau" aria-label="Pratinjau {{ $product->name_id }}"><i class="fa-solid fa-eye" aria-hidden="true"></i></a>
+                                        <a href="{{ route('dashboard.shop.products.show', $product) }}" target="_blank" rel="noopener" class="btn-icon" title="Pratinjau isi produk" aria-label="Pratinjau isi {{ $product->name_id }}" @click.prevent="show('{{ route('dashboard.shop.products.preview', $product) }}')"><i class="fa-solid fa-eye" aria-hidden="true"></i></a>
                                         @if ($product->is_active)
                                             <a href="{{ route('shop.show', $product->slug) }}" target="_blank" rel="noopener" class="btn-icon" title="Lihat di toko" aria-label="Lihat {{ $product->name_id }} di toko"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
                                         @endif
@@ -108,5 +125,24 @@
             </div>
             {{ $products->links() }}
         @endif
+        {{-- Product preview: a slide-over, so the list stays where it is --}}
+        <div x-show="open" x-cloak class="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-labelledby="preview-title">
+            <div class="absolute inset-0 bg-navy/50" @click="close()" x-show="open" x-transition.opacity></div>
+            <aside class="absolute inset-y-0 right-0 flex w-full max-w-2xl flex-col border-l-2 border-edge bg-surface shadow-hard"
+                x-show="open" x-transition:enter="transition duration-200" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition duration-150" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full">
+                <div class="flex items-center justify-between gap-3 border-b border-line px-5 py-3">
+                    <h2 id="preview-title" class="text-lg font-bold">Pratinjau produk</h2>
+                    <button type="button" x-ref="close" class="btn-icon" @click="close()" aria-label="Tutup pratinjau"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                </div>
+                <div class="min-h-0 flex-1 overflow-y-auto p-5" aria-live="polite" :aria-busy="loading">
+                    <p x-show="loading" class="text-small text-muted"><i class="fa-solid fa-spinner animate-spin" aria-hidden="true"></i> Memuat isi produk…</p>
+                    <div x-show="failed" x-cloak class="rounded-lg border border-danger-500/40 bg-danger-50 p-4 text-small text-danger-700 dark:bg-danger-500/15 dark:text-red-300" role="alert">
+                        <p class="font-semibold"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> Pratinjau gagal dimuat.</p>
+                        <button type="button" class="mt-2 underline" @click="show(url)">Coba lagi</button>
+                    </div>
+                    <div x-html="html"></div>
+                </div>
+            </aside>
+        </div>
     </div>
 </x-app-layout>

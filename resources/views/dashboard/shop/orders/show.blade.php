@@ -46,7 +46,7 @@
                         @php [$plabel, $pvariant] = $paymentLabels[$payment->status] ?? [$payment->status, 'neutral']; @endphp
                         <div @class(['mt-4 rounded-lg border-2 p-4', 'border-brand-600 bg-brand-soft' => $payment->status === ShopPayment::SUBMITTED, 'border-line' => $payment->status !== ShopPayment::SUBMITTED])>
                             <div class="flex flex-wrap items-center justify-between gap-2">
-                                <p class="font-semibold">{{ $payment->channel === 'manual' ? 'Transfer manual' : 'Duitku' }}{{ $payment->method_name ? ' · '.$payment->method_name : ($payment->method_code ? ' · '.$payment->method_code : '') }}</p>
+                                <p class="font-semibold">{{ match ($payment->channel) { 'manual' => 'Transfer manual', 'free' => 'Gratis (Rp 0)', default => 'Duitku' } }}{{ $payment->method_name ? ' · '.$payment->method_name : ($payment->method_code ? ' · '.$payment->method_code : '') }}</p>
                                 <x-ui.badge :variant="$pvariant">{{ $plabel }}</x-ui.badge>
                             </div>
                             <dl class="mt-2 grid gap-x-6 gap-y-1 text-small sm:grid-cols-2">

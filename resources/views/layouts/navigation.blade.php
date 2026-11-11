@@ -35,6 +35,7 @@
                 <x-admin.nav-link route="dashboard.shop.orders.index" match="dashboard.shop.orders.*" icon="fa-bag-shopping" label="Pesanan toko" :badge="($navCounts['shop'] ?? 0) ?: null" />
                 <x-admin.nav-link route="dashboard.shop.products.index" match="dashboard.shop.products.*" icon="fa-boxes-stacked" label="Produk" />
                 <x-admin.nav-link route="dashboard.shop.categories.index" match="dashboard.shop.categories.*" icon="fa-folder-tree" label="Kategori" />
+                <x-admin.nav-link route="dashboard.shop.promos.index" match="dashboard.shop.promos.*" icon="fa-wand-magic-sparkles" label="Promosi" />
                 <x-admin.nav-link route="dashboard.shop.reports.index" match="dashboard.shop.reports.*" icon="fa-chart-column" label="Laporan & PPN" />
                 <x-admin.nav-link route="dashboard.shop.settings.edit" match="dashboard.shop.settings.*" icon="fa-store" label="Pengaturan toko" />
             </div>

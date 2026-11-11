@@ -25,6 +25,8 @@ class ShopOrder extends Model
 
     public const CHANNEL_DUITKU = 'duitku';
     public const CHANNEL_MANUAL = 'manual';
+    /** Nothing to pay (a 100% voucher or a price of 0): the order is settled the moment it is placed. */
+    public const CHANNEL_FREE = 'free';
 
     protected $guarded = [];
 
@@ -120,6 +122,11 @@ class ShopOrder extends Model
     public function isOpen(): bool
     {
         return in_array($this->payment_status, [self::PENDING, self::AWAITING_VERIFICATION], true);
+    }
+
+    public function isFree(): bool
+    {
+        return $this->total_amount === 0;
     }
 
     public function canPay(): bool

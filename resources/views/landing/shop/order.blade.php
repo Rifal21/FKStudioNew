@@ -43,7 +43,7 @@
                     {{-- Status / next step --}}
                     @if ($order->isPaid())
                         <section class="rounded-xl border-2 border-edge bg-mint-50 p-6 shadow-hard-sm dark:bg-mint-400/10">
-                            <h2 class="flex items-center gap-2 text-xl font-extrabold"><i class="fa-solid fa-circle-check text-mint-600" aria-hidden="true"></i> {{ $id ? 'Pembayaran diterima' : 'Payment received' }}</h2>
+                            <h2 class="flex items-center gap-2 text-xl font-extrabold"><i class="fa-solid fa-circle-check text-mint-600" aria-hidden="true"></i> {{ $order->isFree() ? ($id ? 'Pesanan berhasil' : 'Order complete') : ($id ? 'Pembayaran diterima' : 'Payment received') }}</h2>
                             @if ($order->hasDigitalItems())
                                 <p class="mt-2 text-small">{{ $id ? 'Produk digital Anda sudah siap diunduh atau diakses.' : 'Your digital products are ready to download or open.' }}</p>
                                 <a href="{{ route('user.downloads') }}" class="btn-primary mt-4"><i class="fa-solid fa-download" aria-hidden="true"></i> {{ $id ? 'Buka Produk Digital Saya' : 'Open My Digital Products' }}</a>

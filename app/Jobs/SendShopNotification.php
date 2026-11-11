@@ -68,6 +68,7 @@ class SendShopNotification implements ShouldQueue
     {
         $no = $order->order_number;
         $total = Money::format($order->total_amount);
+        $free = $order->isFree();
         $orderUrl = route('shop.orders.show', $order);
         $deadline = $order->expires_at?->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d F Y H:i').' WIB';
 
@@ -92,16 +93,18 @@ class SendShopNotification implements ShouldQueue
                 'action' => ['label' => 'Unggah ulang bukti', 'url' => $orderUrl],
             ], null],
             ShopNotifier::PAID, ShopNotifier::ACCESS_RESENT => [[
-                'subject' => $this->event === ShopNotifier::PAID ? "Pembayaran pesanan {$no} diterima" : "Akses produk pesanan {$no}",
+                'subject' => $this->event === ShopNotifier::PAID ? ($free ? "Pesanan {$no} berhasil" : "Pembayaran pesanan {$no} diterima") : "Akses produk pesanan {$no}",
                 'lines' => array_values(array_filter([
-                    $this->event === ShopNotifier::PAID ? "Pembayaran {$total} untuk pesanan {$no} sudah kami terima." : "Berikut akses produk digital dari pesanan {$no}.",
+                    $this->event === ShopNotifier::PAID
+                        ? ($free ? "Pesanan {$no} sudah kami proses. Tidak ada pembayaran yang perlu dilakukan." : "Pembayaran {$total} untuk pesanan {$no} sudah kami terima.")
+                        : "Berikut akses produk digital dari pesanan {$no}.",
                     $order->hasDigitalItems() ? 'Produk digital Anda sudah bisa diunduh/diakses dari halaman Produk Digital Saya.' : null,
                     $order->hasPhysicalItems() ? 'Barang fisik sedang kami siapkan. Nomor resi akan kami kirim setelah paket dikirim.' : null,
                 ])),
                 'action' => $order->hasDigitalItems()
                     ? ['label' => 'Buka Produk Digital Saya', 'url' => route('user.downloads')]
                     : ['label' => 'Lihat pesanan', 'url' => $orderUrl],
-            ], $this->event === ShopNotifier::PAID ? "Pesanan baru lunas: {$no} ({$total}, via {$order->payment_channel})." : null],
+            ], $this->event === ShopNotifier::PAID ? ($free ? "Pesanan gratis baru: {$no} (Rp 0, voucher atau harga produk 0)." : "Pesanan baru lunas: {$no} ({$total}, via {$order->payment_channel}).") : null],
             ShopNotifier::SHIPPED => [[
                 'subject' => "Pesanan {$no} sudah dikirim",
                 'lines' => [

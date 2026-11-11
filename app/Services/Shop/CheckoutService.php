@@ -18,6 +18,7 @@ class CheckoutService
     public function __construct(
         private readonly CartService $cart,
         private readonly ShippingRateProvider $shipping,
+        private readonly OrderLifecycle $lifecycle,
     ) {
     }
 
@@ -59,19 +60,19 @@ class CheckoutService
      * Turns the user's cart into an order: reserves stock, freezes prices, issues the invoice
      * and empties the cart. Everything happens in one transaction, so a failure leaves no trace.
      *
-     * @param  array{channel: string, voucher_code?: ?string, phone?: ?string, notes?: ?string, address_id?: ?string, shipping_option?: ?string}  $input
+     * An order that comes to Rp 0 (a 100% voucher, or a price of 0, with no shipping fee) needs no payment:
+     * it is marked paid inside the same transaction, so access is granted at once. The channel the customer
+     * picked is ignored in that case, and without a zero total a channel is required.
+     *
+     * @param  array{channel?: ?string, voucher_code?: ?string, phone?: ?string, notes?: ?string, address_id?: ?string, shipping_option?: ?string}  $input
      */
     public function place(User $user, array $input): ShopOrder
     {
         $settings = SiteSetting::current();
         $id = app()->getLocale() === 'id';
-        $channel = $input['channel'];
+        $requested = $input['channel'] ?? null;
 
-        if ($channel === ShopOrder::CHANNEL_MANUAL && ! $settings->shop_manual_payment_enabled) {
-            throw new ShopException($id ? 'Transfer manual sedang tidak tersedia.' : 'Manual transfer is not available right now.');
-        }
-
-        return DB::transaction(function () use ($user, $input, $settings, $channel, $id) {
+        return DB::transaction(function () use ($user, $input, $settings, $requested, $id) {
             $summary = $this->cart->summarize($this->cart->items($user), $settings);
 
             if ($summary['lines']->isEmpty()) {
@@ -98,6 +99,18 @@ class CheckoutService
 
             $subtotal = $summary['subtotal'];
             $discount = min($subtotal, $voucher['discount']);
+            $free = $subtotal - $discount + $shippingCost <= 0;
+
+            if ($free) {
+                $channel = ShopOrder::CHANNEL_FREE;
+            } elseif (! in_array($requested, [ShopOrder::CHANNEL_DUITKU, ShopOrder::CHANNEL_MANUAL], true)) {
+                throw new ShopException($id ? 'Pilih metode pembayaran.' : 'Choose a payment method.');
+            } elseif ($requested === ShopOrder::CHANNEL_MANUAL && ! $settings->shop_manual_payment_enabled) {
+                throw new ShopException($id ? 'Transfer manual sedang tidak tersedia.' : 'Manual transfer is not available right now.');
+            } else {
+                $channel = $requested;
+            }
+
             $uniqueCode = $channel === ShopOrder::CHANNEL_MANUAL && $settings->shop_manual_unique_code ? random_int(1, 999) : 0;
             $total = $subtotal - $discount + $shippingCost + $uniqueCode;
             $taxRate = (float) $settings->shop_tax_rate;
@@ -160,6 +173,19 @@ class CheckoutService
                     'amount' => $total,
                     'status' => ShopPayment::PENDING,
                 ]);
+            }
+
+            if ($free) {
+                $payment = $order->payments()->create([
+                    'channel' => ShopOrder::CHANNEL_FREE,
+                    'amount' => 0,
+                    'status' => ShopPayment::PENDING,
+                ]);
+
+                // Same path as every paid order: invoice, digital access, notifications. Stock and the
+                // voucher use were already taken above and simply stay taken.
+                $this->lifecycle->markPaid($order, $payment);
+                $order->refresh();
             }
 
             $this->cart->clear($user);

@@ -14,6 +14,7 @@ use App\Services\Shop\ProductSaver;
 use App\Services\Shop\ShopException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
@@ -89,6 +90,33 @@ class ProductController extends Controller
             'related' => $related,
             'variantData' => $product->storefrontData(),
             'preview' => true,
+        ]);
+    }
+
+    /**
+     * Everything stored for a product, as an HTML fragment for the slide-over in the product list.
+     * Unlike show(), which is the storefront page, this is an admin summary: variants with stock,
+     * digital files, key counts and SEO, and why the product might not be visible to buyers.
+     */
+    public function preview(Product $product)
+    {
+        $product->load(['images', 'category', 'options.values', 'variants.optionValues', 'files.variant']);
+
+        $settings = SiteSetting::current();
+        $hidden = array_values(array_filter([
+            ! $settings->shop_enabled ? 'Toko belum diaktifkan, jadi semua produk disembunyikan dari pengunjung.' : null,
+            ! $product->is_active ? 'Produk nonaktif.' : null,
+            $product->isPhysical() && ! $settings->shop_physical_enabled ? 'Produk fisik belum diaktifkan di pengaturan toko.' : null,
+            $product->variants->where('is_active', true)->isEmpty() ? 'Tidak ada varian aktif.' : null,
+        ]));
+
+        return view('dashboard.shop.products._preview', [
+            'product' => $product,
+            'hidden' => $hidden,
+            'keys' => [
+                'available' => $product->licenseKeys()->whereNull('assigned_at')->count(),
+                'total' => $product->licenseKeys()->count(),
+            ],
         ]);
     }
 
@@ -191,6 +219,28 @@ class ProductController extends Controller
         }
 
         return back()->with('success', 'File diunggah.');
+    }
+
+    /**
+     * Lets an admin open a product file to check what buyers get. It is not a purchase: nothing is counted
+     * and no entitlement is involved. PDFs, images, text, audio and video open in the browser; every other
+     * type (and anything whose real content type is not on the list) is sent as a download.
+     */
+    public function showFile(Request $request, Product $product, ProductFile $file)
+    {
+        abort_unless($file->product_id === $product->id, 404);
+
+        $disk = Storage::disk($file->disk);
+        abort_unless($disk->exists($file->path), 404, 'File tidak ditemukan di penyimpanan.');
+
+        $mime = $disk->mimeType($file->path) ?: null;
+        $headers = ['X-Content-Type-Options' => 'nosniff'];
+
+        if ($request->boolean('download') || ! in_array($mime, ProductFile::INLINE_MIMES, true)) {
+            return $disk->download($file->path, $file->original_name, $headers);
+        }
+
+        return $disk->response($file->path, $file->original_name, $headers + ['Content-Type' => $mime], 'inline');
     }
 
     public function destroyFile(Product $product, ProductFile $file, ProductAssets $assets)
