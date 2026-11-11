@@ -23,7 +23,7 @@
         $uploads = [
             'site_logo' => ['label' => 'Logo situs', 'hint' => 'PNG/SVG disarankan', 'icon' => 'fa-image', 'url' => $settings->site_logo ? $settings->logo_url : null, 'pad' => 'p-1'],
             'site_favicon' => ['label' => 'Favicon', 'hint' => 'ICO/PNG (32x32)', 'icon' => 'fa-icons', 'url' => $settings->site_favicon ? $settings->favicon_url : null, 'pad' => 'p-3'],
-            'og_image' => ['label' => 'Gambar OG', 'hint' => 'Media sosial (1200x630)', 'icon' => 'fa-share-nodes', 'url' => $settings->og_image ? $settings->og_image_url : null, 'pad' => 'p-1'],
+            'og_image' => ['label' => 'Gambar OG', 'hint' => 'Otomatis dipotong ke 1200x630 dan dikecilkan (di bawah 300 KB) agar tampil di WhatsApp', 'icon' => 'fa-share-nodes', 'url' => $settings->og_image ? $settings->og_image_url : null, 'pad' => 'p-1'],
             'invoice_logo' => ['label' => 'Logo invoice', 'hint' => 'Untuk kop surat', 'icon' => 'fa-file-image', 'url' => $settings->invoice_logo ? $settings->invoice_logo_url : null, 'pad' => 'p-1'],
             'invoice_signature' => ['label' => 'Tanda tangan', 'hint' => 'Gambar tanda tangan', 'icon' => 'fa-signature', 'url' => $settings->invoice_signature ? $settings->invoice_signature_url : null, 'pad' => 'p-1'],
         ];

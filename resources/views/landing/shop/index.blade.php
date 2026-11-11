@@ -8,8 +8,16 @@
     ];
     $hasFilter = $filters['q'] !== '' || $filters['category'] !== '' || $filters['type'] !== '';
     $activeCategory = $categories->firstWhere('slug', $filters['category']);
+    // A category is its own indexable page. Sorting and the type filter are the same list in another order,
+    // so they canonicalise to the category (or the shop). Free-text search results are kept out of the index.
+    $canonical = route('shop.index', array_filter([
+        'category' => $activeCategory?->slug,
+        'page' => $products->currentPage() > 1 ? $products->currentPage() : null,
+    ]));
 @endphp
 <x-layouts.public
+    :canonical="$canonical"
+    :robots="$filters['q'] !== '' ? 'noindex, follow' : null"
     :title="$activeCategory ? $activeCategory->getTranslation('name').' — '.($id ? 'Toko' : 'Shop') : ($id ? 'Toko Produk Digital' : 'Digital Product Shop')"
     :description="$id ? 'Template, source code, aset desain, dan produk digital siap pakai dari FKStudio. Bayar online, langsung unduh.' : 'Templates, source code, design assets and ready-to-use digital products from FKStudio. Pay online, download instantly.'">
     <x-slot:navbar><x-site.navbar /></x-slot:navbar>

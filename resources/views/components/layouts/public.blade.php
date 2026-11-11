@@ -2,9 +2,12 @@
     'title' => null,
     'description' => null,
     'image' => null,
+    'imageAlt' => null,
     'landing' => false,
     'bodyClass' => '',
     'noindex' => false,   // private pages: checkout, orders, styleguide
+    'robots' => null,     // explicit robots directive, e.g. "noindex, follow" for search results
+    'canonical' => null,  // when the page's canonical URL is not the bare current URL (filters, pagination)
     'type' => 'website',  // 'article' for blog posts
     'publishedAt' => null,
     'modifiedAt' => null,
@@ -15,6 +18,12 @@
     $pageTitle = $title ? "{$title} | {$siteName}" : ($site->seo_title ?: \App\Support\Seo::FALLBACK_TITLE);
     $pageDescription = $description ?: ($site->seo_description ?: \App\Support\Seo::FALLBACK_DESCRIPTION);
     $pageImage = $image ?? ($site->og_image ? $site->og_image_url : ($site->site_logo ? $site->logo_url : null));
+    $pageImageAlt = $imageAlt ?: ($title ?: $siteName);
+    $imageMeta = \App\Support\Seo::imageMeta($pageImage);
+    // Share cards already show the site name next to the title, so the "| Brand" suffix only gets truncated.
+    $shareTitle = $title ?: $pageTitle;
+    $canonicalUrl = $canonical ?: url()->current();
+    $robotsContent = $robots ?: ($noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -31,12 +40,8 @@
     @if ($site->seo_keywords)
         <meta name="keywords" content="{{ $site->seo_keywords }}">
     @endif
-    <link rel="canonical" href="{{ url()->current() }}">
-    @if ($noindex)
-        <meta name="robots" content="noindex, nofollow">
-    @else
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    @endif
+    <link rel="canonical" href="{{ $canonicalUrl }}">
+    <meta name="robots" content="{{ $robotsContent }}">
 
     @if ($site->bing_verification)
         <meta name="msvalidate.01" content="{{ $site->bing_verification }}">
@@ -52,14 +57,26 @@
         <meta property="article:published_time" content="{{ $publishedAt }}">
         @if ($modifiedAt)<meta property="article:modified_time" content="{{ $modifiedAt }}">@endif
     @endif
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:title" content="{{ $pageTitle }}">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
+    <meta property="og:title" content="{{ $shareTitle }}">
     <meta property="og:description" content="{{ $pageDescription }}">
-    <meta property="og:image" content="{{ $pageImage }}">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $pageTitle }}">
+    @if ($pageImage)
+        <meta property="og:image" content="{{ $pageImage }}">
+        <meta property="og:image:secure_url" content="{{ $pageImage }}">
+        @if ($imageMeta['type'] ?? null)<meta property="og:image:type" content="{{ $imageMeta['type'] }}">@endif
+        @if ($imageMeta['width'] ?? null)
+            <meta property="og:image:width" content="{{ $imageMeta['width'] }}">
+            <meta property="og:image:height" content="{{ $imageMeta['height'] }}">
+        @endif
+        <meta property="og:image:alt" content="{{ $pageImageAlt }}">
+    @endif
+    <meta name="twitter:card" content="{{ $pageImage ? 'summary_large_image' : 'summary' }}">
+    <meta name="twitter:title" content="{{ $shareTitle }}">
     <meta name="twitter:description" content="{{ $pageDescription }}">
-    <meta name="twitter:image" content="{{ $pageImage }}">
+    @if ($pageImage)
+        <meta name="twitter:image" content="{{ $pageImage }}">
+        <meta name="twitter:image:alt" content="{{ $pageImageAlt }}">
+    @endif
 
     @if ($site->site_favicon)
         <link rel="icon" type="image/png" href="{{ $site->favicon_url }}">

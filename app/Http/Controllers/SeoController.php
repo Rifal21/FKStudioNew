@@ -16,11 +16,15 @@ class SeoController extends Controller
 {
     /** Paths no crawler should fetch: private areas, per-person pages and dev tools. */
     private const DISALLOW = [
-        '/dashboard/', '/login', '/register', '/forgot-password', '/reset-password/', '/verify-email',
+        '/dashboard/', '/reset-password/', '/verify-email',
         '/confirm-password', '/checkout/', '/my-orders', '/my-websites', '/profile', '/invoice/',
-        '/styleguide', '/switch-language/', '/cart', '/shop/checkout', '/shop/orders/', '/my-purchases',
+        '/styleguide', '/switch-language/', '/shop/checkout', '/shop/orders/', '/my-purchases',
         '/my-downloads', '/my-addresses',
     ];
+
+    // /login, /register, /forgot-password and /cart are linked from every page and carry a "noindex" tag.
+    // They are NOT disallowed on purpose: Google can only obey "noindex" on a page it is allowed to fetch,
+    // and a blocked URL that is linked can still be indexed (Search Console: "Indexed, though blocked by robots.txt").
 
     /**
      * Search and AI crawlers that are welcome. They are listed on purpose: a crawler that has its own
@@ -49,28 +53,40 @@ class SeoController extends Controller
             ['loc' => route('blog.index'), 'lastmod' => $latest($blogs)],
         ];
 
+        // Images help the pages show up in Google Images. Google reads up to 1000 per page; a few are plenty.
+        $images = fn (iterable $urls) => collect($urls)->filter()->unique()->take(5)->values()->all();
+
         foreach ($packages as $package) {
             $urls[] = ['loc' => route('package.show', $package->slug), 'lastmod' => $package->updated_at];
         }
 
         foreach ($blogs as $blog) {
-            $urls[] = ['loc' => route('blog.show', $blog->slug), 'lastmod' => $blog->updated_at ?? $blog->published_at];
+            $urls[] = ['loc' => route('blog.show', $blog->slug), 'lastmod' => $blog->updated_at ?? $blog->published_at, 'images' => $images([$blog->image ? $blog->media_url : null])];
         }
 
         $settings = SiteSetting::current();
 
         if ($settings->shop_enabled) {
-            $products = Product::visibleInShop($settings)->orderByDesc('updated_at')->get(['slug', 'updated_at']);
+            $products = Product::visibleInShop($settings)->with(['images', 'category'])->orderByDesc('updated_at')->get();
             $urls[] = ['loc' => route('shop.index'), 'lastmod' => $latest($products)];
 
+            // Each category is its own indexable page (see the canonical in landing/shop/index).
+            foreach ($products->pluck('category')->filter(fn ($c) => $c?->is_active)->unique('id') as $category) {
+                $urls[] = ['loc' => route('shop.index', ['category' => $category->slug]), 'lastmod' => $latest($products->where('product_category_id', $category->id))];
+            }
+
             foreach ($products as $product) {
-                $urls[] = ['loc' => route('shop.show', $product->slug), 'lastmod' => $product->updated_at];
+                $urls[] = ['loc' => route('shop.show', $product->slug), 'lastmod' => $product->updated_at, 'images' => $images($product->images->map(fn ($img) => Seo::publicUrl($img->media_url)))];
             }
         }
 
-        $urls = array_map(fn ($u) => ['loc' => $u['loc'], 'lastmod' => $u['lastmod'] ? \Illuminate\Support\Carbon::parse($u['lastmod'])->toAtomString() : null], $urls);
+        $urls = array_map(fn ($u) => [
+            'loc' => $u['loc'],
+            'lastmod' => $u['lastmod'] ? \Illuminate\Support\Carbon::parse($u['lastmod'])->toAtomString() : null,
+            'images' => $u['images'] ?? [],
+        ], $urls);
 
-        return Response::make(view('seo.sitemap', compact('urls'))->render(), 200, ['Content-Type' => 'application/xml']);
+        return Response::make(view('seo.sitemap', compact('urls'))->render(), 200, ['Content-Type' => 'application/xml', 'Cache-Control' => 'public, max-age=3600']);
     }
 
     public function robots()
@@ -87,7 +103,7 @@ class SeoController extends Controller
         $content .= "User-agent: *\nAllow: /\n{$rules}\n\n";
         $content .= 'Sitemap: '.route('sitemap')."\n";
 
-        return Response::make($content, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+        return Response::make($content, 200, ['Content-Type' => 'text/plain; charset=UTF-8', 'Cache-Control' => 'public, max-age=3600']);
     }
 
     /**
